@@ -22,6 +22,7 @@ import { Notifications } from "./notifications";
 export interface Notification {
   description: string;
   id: string;
+  link?: null | string;
   read: boolean;
   timestamp: Date;
   title: string;
@@ -50,17 +51,17 @@ export function NotificationCenter({
 
   const handleMarkAsRead = useCallback(
     (id: string) => onMarkAsRead?.(id),
-    [onMarkAsRead]
+    [onMarkAsRead],
   );
 
   const handleMarkAllAsRead = useCallback(
     () => onMarkAllAsRead?.(),
-    [onMarkAllAsRead]
+    [onMarkAllAsRead],
   );
 
   const handleDismiss = useCallback(
     (id: string) => onDismiss?.(id),
-    [onDismiss]
+    [onDismiss],
   );
 
   const handleClearAll = useCallback(() => onClearAll?.(), [onClearAll]);
@@ -71,9 +72,13 @@ export function NotificationCenter({
         <DropdownMenuTrigger asChild>
           <Button
             aria-label="Notification"
-            className="relative h-9 w-9 rounded-full"
+            className={`
+              relative h-9 w-9 rounded-full border-transparent
+              text-krs-navy-foreground transition-colors
+              hover:bg-white/10 hover:text-primary
+            `}
             size="icon"
-            variant="outline"
+            variant="ghost"
           >
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (

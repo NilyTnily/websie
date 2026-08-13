@@ -2,63 +2,81 @@ import type { Metadata } from "next";
 
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { EB_Garamond, IBM_Plex_Mono, Playfair_Display } from "next/font/google";
 import { extractRouterConfig } from "uploadthing/server";
 
-import { SEO_CONFIG } from "~/app";
 import { ourFileRouter } from "~/app/api/uploadthing/core";
 import { CartProvider } from "~/lib/hooks/use-cart";
+import { SiteSettingsProvider } from "~/lib/hooks/use-site-settings";
+import { WishlistProvider } from "~/lib/hooks/use-wishlist";
+import { getSiteSettings } from "~/lib/queries/settings";
 import "~/css/globals.css";
-import { Footer } from "~/ui/components/footer";
-import { Header } from "~/ui/components/header/header";
+import { SiteChrome } from "~/ui/components/site-chrome";
 import { ThemeProvider } from "~/ui/components/theme-provider";
 import { Toaster } from "~/ui/primitives/sonner";
 
-const geistSans = Geist({
+const playfair = Playfair_Display({
+  style: ["normal", "italic"],
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  variable: "--font-playfair",
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
+const garamond = EB_Garamond({
+  style: ["normal", "italic"],
   subsets: ["latin"],
-  variable: "--font-geist-mono",
+  variable: "--font-garamond",
+  weight: ["400", "500", "600"],
 });
 
-export const metadata: Metadata = {
-  description: `${SEO_CONFIG.description}`,
-  title: `${SEO_CONFIG.fullName}`,
-};
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  variable: "--font-plex-mono",
+  weight: ["400", "500"],
+});
 
-export default function RootLayout({
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    description: settings.description,
+    icons: settings.faviconUrl ? { icon: settings.faviconUrl } : undefined,
+    title: `${settings.name} — ${settings.slogan}`,
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSiteSettings();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`
-          ${geistSans.variable}
-          ${geistMono.variable}
-          min-h-screen bg-gradient-to-br from-white to-slate-100
-          text-neutral-900 antialiased
-          selection:bg-primary/80
-          dark:from-neutral-950 dark:to-neutral-900 dark:text-neutral-100
+          ${playfair.variable}
+          ${garamond.variable}
+          ${plexMono.variable}
+          min-h-screen bg-background text-foreground antialiased
+          selection:bg-primary/20 selection:text-foreground
         `}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           disableTransitionOnChange
           enableSystem
         >
           <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-          <CartProvider>
-            <Header showAuth={true} />
-            <main className={`flex min-h-screen flex-col`}>{children}</main>
-            <Footer />
-            <Toaster />
-          </CartProvider>
+          <SiteSettingsProvider settings={settings}>
+            <CartProvider>
+              <WishlistProvider>
+                <SiteChrome>{children}</SiteChrome>
+                <Toaster />
+              </WishlistProvider>
+            </CartProvider>
+          </SiteSettingsProvider>
         </ThemeProvider>
         <SpeedInsights />
       </body>

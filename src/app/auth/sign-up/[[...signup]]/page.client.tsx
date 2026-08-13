@@ -6,14 +6,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { SEO_CONFIG } from "~/app";
-import { signIn, signUp } from "~/lib/auth-client";
-import { GitHubIcon } from "~/ui/components/icons/github";
-import { GoogleIcon } from "~/ui/components/icons/google";
+import { signUp } from "~/lib/auth-client";
 import { Button } from "~/ui/primitives/button";
 import { Card, CardContent } from "~/ui/primitives/card";
 import { Input } from "~/ui/primitives/input";
 import { Label } from "~/ui/primitives/label";
-import { Separator } from "~/ui/primitives/separator";
 
 export function SignUpPageClient() {
   const router = useRouter();
@@ -44,38 +41,25 @@ export function SignUpPageClient() {
         name: formData.name,
         password: formData.password,
       })
-      .then(() => {
+      .then(({ error: signUpError }) => {
+        if (signUpError) {
+          setError(
+            signUpError.message ||
+              `Registration failed (${signUpError.status ?? "no response"}) — check that you're on the correct host/port`,
+          );
+          return;
+        }
         router.push("/auth/sign-in?registered=true");
       })
       .catch((err: unknown) => {
-        setError("Registration failed. Please try again.");
+        setError(
+          err instanceof Error ? err.message : "Registration request failed",
+        );
         console.error(err);
       })
       .finally(() => {
         setLoading(false);
       });
-  };
-
-  const handleGitHubSignUp = () => {
-    setLoading(true);
-    try {
-      void signIn.social({ provider: "github" });
-    } catch (err) {
-      setError("Failed to sign up with GitHub");
-      console.error(err);
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignUp = () => {
-    setLoading(true);
-    try {
-      void signIn.social({ provider: "google" });
-    } catch (err) {
-      setError("Failed to sign up with Google");
-      console.error(err);
-      setLoading(false);
-    }
   };
 
   return (
@@ -180,36 +164,6 @@ export function SignUpPageClient() {
                   {loading ? "Creating account..." : "Create account"}
                 </Button>
               </form>
-              <div className="relative mt-6">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator className="w-full" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                <Button
-                  className="flex items-center gap-2"
-                  disabled={loading}
-                  onClick={handleGitHubSignUp}
-                  variant="outline"
-                >
-                  <GitHubIcon className="h-5 w-5" />
-                  GitHub
-                </Button>
-                <Button
-                  className="flex items-center gap-2"
-                  disabled={loading}
-                  onClick={handleGoogleSignUp}
-                  variant="outline"
-                >
-                  <GoogleIcon className="h-5 w-5" />
-                  Google
-                </Button>
-              </div>
               <div className="mt-6 text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
                 <Link

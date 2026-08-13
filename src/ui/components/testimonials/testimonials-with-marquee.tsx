@@ -1,7 +1,7 @@
 "use client";
 
 import { animate } from "animejs";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { cn } from "~/lib/cn";
 import {
@@ -20,74 +20,61 @@ interface TestimonialsSectionProps {
   title: string;
 }
 
+const ROTATION_INTERVAL_MS = 7000;
+const FADE_DURATION_MS = 800;
+
 export function TestimonialsSection({
   className,
   description,
   testimonials,
   title,
 }: TestimonialsSectionProps) {
-  const marqueeRef = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+  const cardRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<null | ReturnType<typeof animate>>(null);
-  const isHoveredRef = useRef(false);
+  const isAnimatingRef = useRef(false);
 
   useEffect(() => {
-    if (!marqueeRef.current) return;
+    if (testimonials.length <= 1) return;
 
-    // Calculate total width for accurate animation
-    const marqueeElement = marqueeRef.current;
-    const itemWidth = marqueeElement.scrollWidth / 4; // 4 sets of testimonials
+    const rotate = () => {
+      if (isAnimatingRef.current || !cardRef.current) return;
+      isAnimatingRef.current = true;
 
-    // Create marquee animation
-    const setupAnimation = () => {
-      if (animationRef.current) {
-        animationRef.current.pause();
-      }
+      const element = cardRef.current;
+      animationRef.current?.pause();
 
-      animationRef.current = animate(marqueeElement, {
-        duration: 40000, // 40s same as CSS
-        easing: "linear",
-        loop: true,
-        translateX: ["0px", `-${itemWidth}px`],
+      animationRef.current = animate(element, {
+        complete: () => {
+          setIndex((prev) => (prev + 1) % testimonials.length);
+
+          animationRef.current = animate(element, {
+            complete: () => {
+              isAnimatingRef.current = false;
+            },
+            duration: FADE_DURATION_MS,
+            easing: "easeOutCubic",
+            opacity: [0, 1],
+            translateY: [8, 0],
+          });
+        },
+        duration: FADE_DURATION_MS,
+        easing: "easeOutCubic",
+        opacity: [1, 0],
+        translateY: [0, 8],
       });
-
-      // Pause animation if already hovered
-      if (isHoveredRef.current) {
-        animationRef.current.pause();
-      }
     };
 
-    // Initial setup
-    setupAnimation();
-
-    // Handle resize
-    const handleResize = () => {
-      setupAnimation();
-    };
-
-    window.addEventListener("resize", handleResize);
+    const intervalId = setInterval(rotate, ROTATION_INTERVAL_MS);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
-      if (animationRef.current) {
-        animationRef.current.pause();
-      }
+      clearInterval(intervalId);
+      animationRef.current?.pause();
+      isAnimatingRef.current = false;
     };
-  }, []);
+  }, [testimonials.length]);
 
-  // Handle hover interactions
-  const handleMouseEnter = () => {
-    isHoveredRef.current = true;
-    if (animationRef.current) {
-      animationRef.current.pause();
-    }
-  };
-
-  const handleMouseLeave = () => {
-    isHoveredRef.current = false;
-    if (animationRef.current) {
-      animationRef.current.play();
-    }
-  };
+  const testimonial = testimonials[index];
 
   return (
     <section
@@ -133,54 +120,14 @@ export function TestimonialsSection({
 
         <div
           className={`
-            relative flex w-full flex-col items-center justify-center
-            overflow-hidden
-          `}
+          relative flex w-full flex-col items-center justify-center px-4 py-2
+        `}
         >
-          <div
-            className={`
-              flex flex-row overflow-hidden p-2
-              [gap:var(--gap)]
-              [--gap:1rem]
-            `}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            <div
-              className={`
-                flex shrink-0 flex-row justify-around
-                [gap:var(--gap)]
-              `}
-              ref={marqueeRef}
-              style={{ translate: "none" }}
-            >
-              {[...Array(4)].map((_, setIndex) =>
-                testimonials.map((testimonial, i) => (
-                  <TestimonialCard
-                    // Using UUID or other unique identifier would be better here,
-                    // but for static content this is acceptable
-                    key={`testimonial-${testimonial.author.name}-${setIndex}-${i}`}
-                    {...testimonial}
-                  />
-                )),
-              )}
+          {testimonial ? (
+            <div ref={cardRef}>
+              <TestimonialCard {...testimonial} />
             </div>
-          </div>
-
-          <div
-            className={`
-              pointer-events-none absolute inset-y-0 left-0 hidden w-1/3
-              bg-gradient-to-r from-background
-              sm:block
-            `}
-          />
-          <div
-            className={`
-              pointer-events-none absolute inset-y-0 right-0 hidden w-1/3
-              bg-gradient-to-l from-background
-              sm:block
-            `}
-          />
+          ) : null}
         </div>
       </div>
     </section>

@@ -1,497 +1,276 @@
-import { ArrowRight, Clock, ShoppingBag, Star, Truck } from "lucide-react";
-import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-import UkraineBanner from "~/ui/components/banners/ukraine-banner";
-import { HeroBadge } from "~/ui/components/hero-badge";
-import { ProductCard } from "~/ui/components/product-card";
+import { categoryHref } from "~/lib/catalog-links";
+import {
+  getCategoriesWithCounts,
+  getFeaturedProducts,
+} from "~/lib/queries/catalog";
+import { getTestimonials } from "~/lib/queries/testimonials";
+import { FeaturedProductsGrid } from "~/ui/components/featured-products-grid";
 import { TestimonialsSection } from "~/ui/components/testimonials/testimonials-with-marquee";
 import { Button } from "~/ui/primitives/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/ui/primitives/card";
 
-import { categories, featuredProductsHomepage, testimonials } from "./mocks";
+const HERO_VIDEO_POSTER =
+  "https://images.unsplash.com/photo-1633451238042-85d93d267866?w=1600&auto=format&fit=crop&q=80";
 
-const featuresWhyChooseUs = [
-  {
-    description:
-      "Free shipping on all orders over $50. Fast and reliable delivery to your doorstep.",
-    icon: <Truck className="h-6 w-6 text-primary" />,
-    title: "Free Shipping",
-  },
-  {
-    description:
-      "Your payment information is always safe and secure with us. We use industry-leading encryption.",
-    icon: <ShoppingBag className="h-6 w-6 text-primary" />,
-    title: "Secure Checkout",
-  },
-  {
-    description:
-      "Our customer support team is always available to help with any questions or concerns.",
-    icon: <Clock className="h-6 w-6 text-primary" />,
-    title: "24/7 Support",
-  },
-  {
-    description:
-      "We stand behind the quality of every product we sell. 30-day money-back guarantee.",
-    icon: <Star className="h-6 w-6 text-primary" />,
-    title: "Quality Guarantee",
-  },
-];
+export default async function HomePage() {
+  const [categories, featuredProducts, testimonials] = await Promise.all([
+    getCategoriesWithCounts(),
+    getFeaturedProducts(),
+    getTestimonials(),
+  ]);
 
-export default function HomePage() {
   return (
-    <>
-      <main
+    <main className="flex min-h-screen flex-col">
+      {/* ---------------------------------- Hero ---------------------------------- */}
+      <section className="krs-hero-in relative overflow-hidden">
+        <div
+          className={`
+            relative h-[calc(100svh-var(--header-height))] max-h-[880px]
+            min-h-[480px] w-full
+          `}
+        >
+          <video
+            aria-label="Close-up of a Swiss mechanical watch movement, gears and jewels turning"
+            autoPlay
+            className="absolute inset-0 h-full w-full object-cover"
+            loop
+            muted
+            playsInline
+            poster={HERO_VIDEO_POSTER}
+            preload="auto"
+            src="/luxury-watch-cgi-animation.mp4"
+          />
+        </div>
+        <div
+          className={`
+            pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70
+            via-black/10 to-transparent
+          `}
+        />
+        <div
+          className={`
+            absolute inset-x-0 bottom-0 px-6 pb-10
+            sm:px-10 sm:pb-14
+          `}
+        >
+          <div className="mx-auto max-w-7xl">
+            <h1
+              className={`
+                max-w-lg font-display text-4xl leading-[1.1] font-normal
+                text-white
+                sm:text-5xl
+              `}
+            >
+              Precision worn close.
+            </h1>
+            <p
+              className={`
+                mt-4 max-w-sm text-sm text-white/80
+                sm:text-base
+              `}
+            >
+              Automatic movements finished by hand, stones set one at a time,
+              and a small archive of vintage pieces restored ourselves.
+            </p>
+            <Link href="/products">
+              <Button
+                className={`
+                  mt-6 h-11 border-white/60 bg-transparent px-6 text-xs
+                  font-medium tracking-[0.15em] text-white uppercase
+                  hover:bg-white/10 hover:text-white
+                `}
+                variant="outline"
+              >
+                Discover
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------- Bridge band ---------------------------- */}
+      <div
+        aria-hidden="true"
         className={`
-          flex min-h-screen flex-col gap-y-16 bg-gradient-to-b from-muted/50
-          via-muted/25 to-background
+          h-4 bg-muted
+          sm:h-6
         `}
-      >
-        {/* Sample banner */}
-        <UkraineBanner />
+      />
 
-        {/* Hero Section */}
-        <section
+      {/* ------------------------------ Collections ----------------------------- */}
+      <section className="py-20">
+        <div
           className={`
-            relative overflow-hidden py-24
-            md:py-32
+            container mx-auto max-w-7xl px-4
+            sm:px-6
           `}
         >
-          <div
-            className={`
-              bg-grid-black/[0.02] absolute inset-0
-              bg-[length:20px_20px]
-            `}
-          />
-          <div
-            className={`
-              relative z-10 container mx-auto max-w-7xl px-4
-              sm:px-6
-              lg:px-8
-            `}
-          >
-            <div
+          <div className="mb-10 text-center">
+            <h2
               className={`
-                grid items-center gap-10
-                lg:grid-cols-2 lg:gap-12
+                font-display text-3xl text-foreground
+                sm:text-4xl
               `}
             >
-              <div className="flex flex-col justify-center space-y-6">
-                <div className="space-y-4">
-                  <HeroBadge />
-
-                  <h1
-                    className={`
-                      font-display text-4xl leading-tight font-bold
-                      tracking-tight text-foreground
-                      sm:text-5xl
-                      md:text-6xl
-                      lg:leading-[1.1]
-                    `}
-                  >
-                    Your One-Stop Shop for{" "}
-                    <span
-                      className={`
-                        bg-gradient-to-r from-primary to-primary/70 bg-clip-text
-                        text-transparent
-                      `}
-                    >
-                      Everything Tech
-                    </span>
-                  </h1>
-                  <p
-                    className={`
-                      max-w-[700px] text-lg text-muted-foreground
-                      md:text-xl
-                    `}
-                  >
-                    Discover premium products at competitive prices, with fast
-                    shipping and exceptional customer service.
-                  </p>
-                </div>
-                <div
-                  className={`
-                    flex flex-col gap-3
-                    sm:flex-row
-                  `}
-                >
-                  <Link href="/products">
-                    <Button
-                      className={`
-                        h-12 gap-1.5 px-8 transition-colors duration-200
-                      `}
-                      size="lg"
-                    >
-                      Shop Now <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href="/showcase">
-                    <Button
-                      className="h-12 px-8 transition-colors duration-200"
-                      size="lg"
-                      variant="outline"
-                    >
-                      View Showcase
-                    </Button>
-                  </Link>
-                </div>
-                <div
-                  className={`
-                    flex flex-wrap gap-5 text-sm text-muted-foreground
-                  `}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <Truck className="h-5 w-5 text-primary/70" />
-                    <span>Free shipping over $50</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Clock className="h-5 w-5 text-primary/70" />
-                    <span>24/7 Customer Support</span>
-                  </div>
-                </div>
-              </div>
-              <div
-                className={`
-                  relative mx-auto hidden aspect-square w-full max-w-md
-                  overflow-hidden rounded-xl border shadow-lg
-                  lg:block
-                `}
-              >
-                <div
-                  className={`
-                    absolute inset-0 z-10 bg-gradient-to-tr from-primary/20
-                    via-transparent to-transparent
-                  `}
-                />
-                <Image
-                  alt="Shopping experience"
-                  className="object-cover"
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  src="https://images.unsplash.com/photo-1624767735494-1929dc24ad43?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
-                />
-              </div>
-            </div>
+              Collections
+            </h2>
           </div>
           <div
             className={`
-              absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent
-              via-primary/20 to-transparent
-            `}
-          />
-        </section>
-
-        {/* Featured Categories */}
-        <section
-          className={`
-            py-12
-            md:py-16
-          `}
-        >
-          <div
-            className={`
-              container mx-auto max-w-7xl px-4
-              sm:px-6
-              lg:px-8
+              grid grid-cols-1 gap-10
+              sm:grid-cols-3
             `}
           >
-            <div className="mb-8 flex flex-col items-center text-center">
-              <h2
-                className={`
-                  font-display text-3xl leading-tight font-bold tracking-tight
-                  md:text-4xl
-                `}
+            {categories.map((category) => (
+              <Link
+                aria-label={`Browse ${category.name}`}
+                className="group block text-center"
+                href={categoryHref(category.slug)}
+                key={category.id}
               >
-                Shop by Category
-              </h2>
-              <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
-              <p className="mt-4 max-w-2xl text-center text-muted-foreground">
-                Find the perfect device for your needs from our curated
-                collections
-              </p>
-            </div>
-            <div
-              className={`
-                grid grid-cols-2 gap-4
-                md:grid-cols-4 md:gap-6
-              `}
-            >
-              {categories.map((category) => (
-                <Link
-                  aria-label={`Browse ${category.name} products`}
+                <div
                   className={`
-                    group relative flex flex-col space-y-4 overflow-hidden
-                    rounded-2xl border bg-card shadow transition-all
-                    duration-300
-                    hover:shadow-lg
+                    relative aspect-square overflow-hidden bg-gradient-to-b
+                    from-accent to-muted
                   `}
-                  href={`/products?category=${category.name.toLowerCase()}`}
-                  key={category.name}
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <div
-                      className={`
-                        absolute inset-0 z-10 bg-gradient-to-t
-                        from-background/80 to-transparent
-                      `}
-                    />
-                    <Image
-                      alt={category.name}
-                      className={`
-                        object-cover transition duration-300
-                        group-hover:scale-105
-                      `}
-                      fill
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
-                      src={category.image}
-                    />
-                  </div>
-                  <div className="relative z-20 -mt-6 p-4">
-                    <div className="mb-1 text-lg font-medium">
-                      {category.name}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {category.productCount} products
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Products */}
-        <section
-          className={`
-            bg-muted/50 py-12
-            md:py-16
-          `}
-        >
-          <div
-            className={`
-              container mx-auto max-w-7xl px-4
-              sm:px-6
-              lg:px-8
-            `}
-          >
-            <div className="mb-8 flex flex-col items-center text-center">
-              <h2
-                className={`
-                  font-display text-3xl leading-tight font-bold tracking-tight
-                  md:text-4xl
-                `}
-              >
-                Featured Products
-              </h2>
-              <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
-              <p className="mt-4 max-w-2xl text-center text-muted-foreground">
-                Check out our latest and most popular tech items
-              </p>
-            </div>
-            <div
-              className={`
-                grid grid-cols-1 gap-6
-                sm:grid-cols-2
-                lg:grid-cols-3
-                xl:grid-cols-4
-              `}
-            >
-              {featuredProductsHomepage.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-            <div className="mt-10 flex justify-center">
-              <Link href="/products">
-                <Button className="group h-12 px-8" size="lg" variant="outline">
-                  View All Products
-                  <ArrowRight
+                  <img
+                    alt=""
                     className={`
-                      ml-2 h-4 w-4 transition-transform duration-300
-                      group-hover:translate-x-1
+                      h-full w-full object-cover transition duration-500
+                      group-hover:scale-105
                     `}
+                    loading="lazy"
+                    src={category.image}
                   />
+                </div>
+                <h3 className="mt-5 font-display text-xl text-foreground">
+                  {category.name}
+                </h3>
+                <p
+                  className={`
+                    mx-auto mt-1 max-w-[22ch] text-sm text-muted-foreground
+                  `}
+                >
+                  {category.description}
+                </p>
+                <p
+                  className={`
+                    mt-3 text-xs font-medium tracking-[0.15em] text-primary
+                    uppercase
+                  `}
+                >
+                  Discover {category.name}{" "}
+                  <ArrowRight className={`ml-1 inline h-3 w-3`} />
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="krs-hairline container mx-auto max-w-7xl" />
+
+      {/* ------------------------------- Featured -------------------------------- */}
+      <section className="py-20">
+        <div
+          className={`
+            container mx-auto max-w-7xl px-4
+            sm:px-6
+          `}
+        >
+          <div className="mb-10 flex items-end justify-between">
+            <h2
+              className={`
+                font-display text-3xl text-foreground
+                sm:text-4xl
+              `}
+            >
+              From the Current Shelf
+            </h2>
+            <Link
+              className={`
+                hidden items-center gap-1 text-sm text-muted-foreground
+                hover:text-primary
+                sm:flex
+              `}
+              href="/products"
+            >
+              View all <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          <FeaturedProductsGrid products={featuredProducts} />
+        </div>
+      </section>
+
+      {/* ------------------------------ Testimonials ----------------------------- */}
+      {testimonials.length > 0 && (
+        <TestimonialsSection
+          description="Notes from the client book — unedited, on request."
+          testimonials={testimonials.map((testimonial) => ({
+            author: {
+              avatar: testimonial.avatarUrl ?? "",
+              handle: testimonial.customerHandle,
+              name: testimonial.customerName,
+            },
+            text: testimonial.quote,
+          }))}
+          title="From the Client Book"
+        />
+      )}
+
+      {/* ---------------------------------- CTA ----------------------------------- */}
+      <section className="py-20">
+        <div
+          className={`
+            container mx-auto max-w-7xl px-4
+            sm:px-6
+          `}
+        >
+          <div
+            className={`
+              flex flex-col items-center gap-6 bg-muted px-8 py-16 text-center
+            `}
+          >
+            <h2
+              className={`
+                max-w-xl font-display text-3xl text-foreground
+                sm:text-4xl
+              `}
+            >
+              Open a client account
+            </h2>
+            <p className="max-w-md text-muted-foreground">
+              Track orders, save pieces to a wishlist, and keep a record of
+              every service and restoration on your collection.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link href="/auth/sign-up">
+                <Button
+                  className={`
+                    h-11 px-8 text-xs font-medium tracking-[0.15em] uppercase
+                  `}
+                  variant="outline"
+                >
+                  Create Account
+                </Button>
+              </Link>
+              <Link href="/products">
+                <Button
+                  className={`
+                    h-11 px-8 text-xs font-medium tracking-[0.15em] uppercase
+                  `}
+                  variant="outline"
+                >
+                  Browse the Collection
                 </Button>
               </Link>
             </div>
           </div>
-        </section>
-
-        {/* Features Section */}
-        <section
-          className={`
-            py-12
-            md:py-16
-          `}
-          id="features"
-        >
-          <div
-            className={`
-              container mx-auto max-w-7xl px-4
-              sm:px-6
-              lg:px-8
-            `}
-          >
-            <div className="mb-8 flex flex-col items-center text-center">
-              <h2
-                className={`
-                  font-display text-3xl leading-tight font-bold tracking-tight
-                  md:text-4xl
-                `}
-              >
-                Why Choose Us
-              </h2>
-              <div className="mt-2 h-1 w-12 rounded-full bg-primary" />
-              <p
-                className={`
-                  mt-4 max-w-2xl text-center text-muted-foreground
-                  md:text-lg
-                `}
-              >
-                We offer the best shopping experience with premium features
-              </p>
-            </div>
-            <div
-              className={`
-                grid gap-8
-                md:grid-cols-2
-                lg:grid-cols-4
-              `}
-            >
-              {featuresWhyChooseUs.map((feature) => (
-                <Card
-                  className={`
-                    rounded-2xl border-none bg-background shadow transition-all
-                    duration-300
-                    hover:shadow-lg
-                  `}
-                  key={feature.title}
-                >
-                  <CardHeader className="pb-2">
-                    <div
-                      className={`
-                        mb-3 flex h-12 w-12 items-center justify-center
-                        rounded-full bg-primary/10
-                      `}
-                    >
-                      {feature.icon}
-                    </div>
-                    <CardTitle>{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-base">
-                      {feature.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials */}
-        <section
-          className={`
-            bg-muted/50 py-12
-            md:py-16
-          `}
-        >
-          <div
-            className={`
-              container mx-auto max-w-7xl px-4
-              sm:px-6
-              lg:px-8
-            `}
-          >
-            <TestimonialsSection
-              className="py-0"
-              description="Don't just take our word for it - hear from our satisfied customers"
-              testimonials={testimonials}
-              title="What Our Customers Say"
-            />
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section
-          className={`
-            py-12
-            md:py-16
-          `}
-        >
-          <div
-            className={`
-              container mx-auto max-w-7xl px-4
-              sm:px-6
-              lg:px-8
-            `}
-          >
-            <div
-              className={`
-                relative overflow-hidden rounded-xl bg-primary/10 p-8 shadow-lg
-                md:p-12
-              `}
-            >
-              <div
-                className={`
-                  bg-grid-white/[0.05] absolute inset-0
-                  bg-[length:16px_16px]
-                `}
-              />
-              <div className="relative z-10 mx-auto max-w-2xl text-center">
-                <h2
-                  className={`
-                    font-display text-3xl leading-tight font-bold tracking-tight
-                    md:text-4xl
-                  `}
-                >
-                  Ready to Upgrade Your Tech?
-                </h2>
-                <p
-                  className={`
-                    mt-4 text-lg text-muted-foreground
-                    md:text-xl
-                  `}
-                >
-                  Join thousands of satisfied customers and experience the best
-                  tech products on the market. Sign up today for exclusive deals
-                  and offers.
-                </p>
-                <div
-                  className={`
-                    mt-6 flex flex-col items-center justify-center gap-3
-                    sm:flex-row
-                  `}
-                >
-                  <Link href="/auth/sign-up">
-                    <Button
-                      className="h-12 px-8 transition-colors duration-200"
-                      size="lg"
-                    >
-                      Sign Up Now
-                    </Button>
-                  </Link>
-                  <Link href="/products">
-                    <Button
-                      className="h-12 px-8 transition-colors duration-200"
-                      size="lg"
-                      variant="outline"
-                    >
-                      Browse Products
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-    </>
+        </div>
+      </section>
+    </main>
   );
 }

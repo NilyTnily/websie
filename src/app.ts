@@ -1,21 +1,24 @@
 export const SEO_CONFIG = {
   description:
-    "Relivator is a robust ecommerce template built with next.js and other modern technologies. It's designed for developers who want a fast, modern, and scalable foundation without reinventing the backend.",
-  fullName: "Relivator Next.js Template",
-  name: "Relivator",
-  slogan: "Store which makes you happy.",
+    "KRS is a house of fine timepieces and jewelry — automatic movements, hand-set stones, and a small archive of restored vintage pieces. Every piece is catalogued, authenticated, and shipped under seal.",
+  fullName: "KRS — Fine Watches & Jewelry",
+  name: "KRS",
+  slogan: "Precision worn close.",
 };
 
 export const SYSTEM_CONFIG = {
-  redirectAfterSignIn: "/dashboard/uploads",
-  redirectAfterSignUp: "/dashboard/uploads",
-  repoName: "relivator",
-  repoOwner: "blefnk",
-  repoStars: true,
+  redirectAfterSignIn: "/",
+  redirectAfterSignUp: "/",
 };
 
 export const ADMIN_CONFIG = {
   displayEmails: false,
+};
+
+// Leave a value empty to hide that social link in the footer.
+export const SOCIAL_LINKS = {
+  facebook: "",
+  instagram: "",
 };
 
 export const DB_DEV_LOGGER = false;

@@ -9,6 +9,9 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-garamond), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
 }
 
 @layer base {
@@ -21,75 +24,88 @@
   }
 }
 
+/*
+ * KRS design tokens — Harry Winston reference direction.
+ * Light is the default: a bright, editorial white body with a deep-navy
+ * header/footer bookend, muted brass as the only accent (thin outlines,
+ * links), never a solid gold fill. Dark stays available via the toggle for
+ * users who want it, but it is no longer the default identity.
+ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.96 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.871 0.006 286.286);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.871 0.006 286.286);
+  --background: #ffffff;
+  --foreground: #14162b;
+  --card: #ffffff;
+  --card-foreground: #14162b;
+  --popover: #ffffff;
+  --popover-foreground: #14162b;
+  --primary: #9c7a3c;
+  --primary-foreground: #ffffff;
+  --secondary: #6b1e23;
+  --secondary-foreground: #ffffff;
+  --muted: #f6f4ef;
+  --muted-foreground: #5b5a6b;
+  --accent: #f2ede1;
+  --accent-foreground: #14162b;
+  --destructive: #8c2a2a;
+  --destructive-foreground: #ffffff;
+  --border: #e1dfd8;
+  --input: #e1dfd8;
+  --ring: #9c7a3c;
+  --radius: 0rem;
+  --sidebar: #f6f4ef;
+  --sidebar-foreground: #14162b;
+  --sidebar-primary: #9c7a3c;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f2ede1;
+  --sidebar-accent-foreground: #14162b;
+  --sidebar-border: #e1dfd8;
+  --sidebar-ring: #9c7a3c;
+
+  --krs-emerald: #1f4d3d;
+  --krs-loupe-ring: #9c7a3c;
+  --krs-navy: #0d0f2e;
+  --krs-navy-foreground: #f5f3ee;
+  --krs-navy-border: #2a2c4a;
+
+  /* Real value is set from JS (Header measures itself via ResizeObserver).
+     This fallback only covers the instant before that effect runs. */
+  --header-height: 105px;
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.141 0.005 285.823);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.141 0.005 285.823);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.274 0.006 286.033);
-  --input: oklch(0.274 0.006 286.033);
-  --ring: oklch(0.442 0.017 285.786);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.274 0.006 286.033);
-  --sidebar-ring: oklch(0.442 0.017 285.786);
+  --background: #0b0b0c;
+  --foreground: #ede7dc;
+  --card: #141415;
+  --card-foreground: #ede7dc;
+  --popover: #141415;
+  --popover-foreground: #ede7dc;
+  --primary: #c9a227;
+  --primary-foreground: #0b0b0c;
+  --secondary: #6b1e23;
+  --secondary-foreground: #ede7dc;
+  --muted: #1c1c1e;
+  --muted-foreground: #a39a8a;
+  --accent: #201c11;
+  --accent-foreground: #ede7dc;
+  --destructive: #8c2a2a;
+  --destructive-foreground: #ede7dc;
+  --border: #2a2a2c;
+  --input: #2a2a2c;
+  --ring: #c9a227;
+  --sidebar: #131314;
+  --sidebar-foreground: #ede7dc;
+  --sidebar-primary: #c9a227;
+  --sidebar-primary-foreground: #0b0b0c;
+  --sidebar-accent: #201c11;
+  --sidebar-accent-foreground: #ede7dc;
+  --sidebar-border: #2a2a2c;
+  --sidebar-ring: #c9a227;
+
+  --krs-emerald: #2a6650;
+  --krs-loupe-ring: #c9a227;
+  --krs-navy: #0d0f2e;
+  --krs-navy-foreground: #f5f3ee;
+  --krs-navy-border: #2a2c4a;
 }
 
 @theme inline {
@@ -112,11 +128,10 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+  --color-krs-emerald: var(--krs-emerald);
+  --color-krs-navy: var(--krs-navy);
+  --color-krs-navy-foreground: var(--krs-navy-foreground);
+  --color-krs-navy-border: var(--krs-navy-border);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -137,41 +152,44 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground antialiased;
   }
 
   button,
   [role="button"] {
     cursor: pointer;
   }
-}
 
-/* Product card hover effects */
-.product-card {
-  @apply transition-all duration-300;
-}
-
-.product-card:hover {
-  @apply shadow-lg transform -translate-y-1;
-}
-
-/* Banner animations */
-.banner-closing {
-  transition: height 500ms ease-out, opacity 500ms ease-out,
-    padding 500ms ease-out;
-  overflow: hidden;
-}
-
-@keyframes gradientMove {
-  0% {
-    background-position: 100% 50%;
+  /* Nav, buttons, and other UI chrome shouldn't show a text-selection
+     highlight on click — only actual body copy should be selectable. */
+  a,
+  button,
+  [role="button"],
+  nav,
+  header,
+  footer {
+    -webkit-user-select: none;
+    user-select: none;
   }
-  50% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 100% 50%;
-  }
+}
+
+/* Reference numbers, prices, specs — set like a caseback stamp. */
+.krs-ref {
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Hairline divider used between sections instead of heavy borders. */
+.krs-hairline {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--border) 15%,
+    var(--border) 85%,
+    transparent
+  );
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -185,4 +203,69 @@
   /* IE and Edge */
   scrollbar-width: none;
   /* Firefox */
+}
+
+/* -------------------------------------------------------------------- */
+/* Loupe — the signature interaction. A jeweler's loupe following the    */
+/* cursor over product photography, magnifying dial texture and facets. */
+/* -------------------------------------------------------------------- */
+.krs-loupe-lens {
+  border: 1px solid var(--krs-loupe-ring);
+  border-radius: 9999px;
+  box-shadow: 0 0 0 1px
+    color-mix(in oklab, var(--krs-loupe-ring) 35%, transparent), 0 12px 32px
+    -8px rgb(0 0 0 / 0.55);
+  pointer-events: none;
+  position: absolute;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .krs-loupe-lens {
+    display: none;
+  }
+}
+
+/* -------------------------------------------------------------------- */
+/* Photo grade — blends product photography of any source background    */
+/* toward the page's own background at the edges, so a piece shot on    */
+/* white and a piece shot in a dark studio still read as the same case. */
+/* -------------------------------------------------------------------- */
+.krs-photo-grade {
+  background: radial-gradient(
+    120% 120% at 50% 35%,
+    transparent 45%,
+    color-mix(in oklab, var(--background) 65%, transparent) 100%
+  );
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* -------------------------------------------------------------------- */
+/* Hero entrance — a single quiet fade + rise on load, not scattered     */
+/* motion. Respects prefers-reduced-motion.                              */
+/* -------------------------------------------------------------------- */
+@keyframes krs-hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.krs-hero-in {
+  animation: krs-hero-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.krs-hero-in-delay {
+  animation-delay: 120ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .krs-hero-in {
+    animation: none;
+  }
 }

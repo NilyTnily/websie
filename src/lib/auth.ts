@@ -4,118 +4,30 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { twoFactor } from "better-auth/plugins";
-import { polar } from "@polar-sh/better-auth";
-import { Polar } from "@polar-sh/sdk";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import type { UserDbType } from "~/lib/auth-types";
 
-import { SYSTEM_CONFIG } from "~/app";
 import { db } from "~/db";
 import {
   accountTable,
+  rateLimitTable,
   sessionTable,
   twoFactorTable,
   userTable,
   verificationTable,
 } from "~/db/schema";
-
-interface GitHubProfile {
-  [key: string]: unknown;
-  email?: string;
-  name?: string;
-}
-
-interface GoogleProfile {
-  [key: string]: unknown;
-  email?: string;
-  family_name?: string;
-  given_name?: string;
-}
-
-interface SocialProviderConfig {
-  [key: string]: unknown;
-  clientId: string;
-  clientSecret: string;
-  mapProfileToUser: (
-    profile: GitHubProfile | GoogleProfile,
-  ) => Record<string, unknown>;
-  redirectURI?: string;
-  scope: string[];
-}
-
-const hasGithubCredentials =
-  process.env.AUTH_GITHUB_ID &&
-  process.env.AUTH_GITHUB_SECRET &&
-  process.env.AUTH_GITHUB_ID.length > 0 &&
-  process.env.AUTH_GITHUB_SECRET.length > 0;
-
-const hasGoogleCredentials =
-  process.env.AUTH_GOOGLE_ID &&
-  process.env.AUTH_GOOGLE_SECRET &&
-  process.env.AUTH_GOOGLE_ID.length > 0 &&
-  process.env.AUTH_GOOGLE_SECRET.length > 0;
-
-// Build social providers configuration
-const socialProviders: Record<string, SocialProviderConfig> = {};
-
-if (hasGithubCredentials) {
-  socialProviders.github = {
-    clientId: process.env.AUTH_GITHUB_ID ?? "",
-    clientSecret: process.env.AUTH_GITHUB_SECRET ?? "",
-    mapProfileToUser: (profile: GitHubProfile) => {
-      let firstName = "";
-      let lastName = "";
-      if (profile.name) {
-        const nameParts = profile.name.split(" ");
-        firstName = nameParts[0];
-        lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
-      }
-      return {
-        age: null,
-        firstName,
-        lastName,
-      };
-    },
-    scope: ["user:email", "read:user"],
-  };
-}
-
-if (hasGoogleCredentials) {
-  socialProviders.google = {
-    clientId: process.env.AUTH_GOOGLE_ID ?? "",
-    clientSecret: process.env.AUTH_GOOGLE_SECRET ?? "",
-    mapProfileToUser: (profile: GoogleProfile) => {
-      return {
-        age: null,
-        firstName: profile.given_name ?? "",
-        lastName: profile.family_name ?? "",
-      };
-    },
-    scope: ["openid", "email", "profile"],
-  };
-}
-
-const polarClient = new Polar({
-  accessToken: process.env.POLAR_ACCESS_TOKEN,
-  server: (process.env.POLAR_ENVIRONMENT as "production" | "sandbox") || "production",
-});
+import { sendEmail } from "~/lib/email";
 
 export const auth = betterAuth({
-  account: {
-    accountLinking: {
-      allowDifferentEmails: false,
-      enabled: true,
-      trustedProviders: Object.keys(socialProviders),
-    },
-  },
   baseURL: process.env.NEXT_SERVER_APP_URL,
 
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
       account: accountTable,
+      rateLimit: rateLimitTable,
       session: sessionTable,
       twoFactor: twoFactorTable,
       user: userTable,
@@ -125,53 +37,30 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ url, user }) => {
+      await sendEmail({
+        html: `<p>Someone requested a password reset for your account.</p><p><a href="${url}">Reset your password</a></p><p>If this wasn't you, you can ignore this email.</p>`,
+        subject: "Reset your password",
+        to: user.email,
+      });
+    },
   },
 
-  // Configure OAuth behavior
-  oauth: {
-    // Default redirect URL after successful login
-    defaultCallbackUrl: SYSTEM_CONFIG.redirectAfterSignIn,
-    // URL to redirect to on error
-    errorCallbackUrl: "/auth/error",
-    // Whether to link accounts with the same email
-    linkAccountsByEmail: true,
-  },
+  plugins: [twoFactor()],
 
-  plugins: [
-    twoFactor(),
-    polar({
-      client: polarClient,
-      createCustomerOnSignUp: true,
-      enableCustomerPortal: true,
-      // Configure checkout
-      checkout: {
-        enabled: true,
-        products: [
-          {
-            productId: "pro-plan", // Replace with actual product ID from Polar Dashboard
-            slug: "pro" // Custom slug for easy reference in Checkout URL
-          },
-          {
-            productId: "premium-plan", // Replace with actual product ID from Polar Dashboard
-            slug: "premium" // Custom slug for easy reference in Checkout URL
-          }
-        ],
-        successUrl: "/dashboard/billing?checkout_success=true&checkout_id={CHECKOUT_ID}",
-      },
-      // Configure webhooks
-      webhooks: {
-        secret: process.env.POLAR_WEBHOOK_SECRET || "",
-        onPayload: async (payload) => {
-          console.log("Received webhook payload:", payload.type);
-        },
-      },
-    }),
-  ],
+  // Database-backed so limits hold under multiple server instances —
+  // in-memory storage would reset per-instance and be trivially bypassed.
+  rateLimit: {
+    customRules: {
+      "/forget-password": { max: 3, window: 60 },
+      "/sign-in/email": { max: 5, window: 60 },
+      "/sign-up/email": { max: 5, window: 60 },
+    },
+    enabled: true,
+    storage: "database",
+  },
 
   secret: process.env.AUTH_SECRET,
-
-  // Only include social providers if credentials are available
-  socialProviders,
 
   user: {
     additionalFields: {

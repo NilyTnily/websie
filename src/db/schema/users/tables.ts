@@ -8,6 +8,7 @@
  */
 
 import {
+  bigint,
   boolean,
   integer,
   pgTable,
@@ -76,4 +77,11 @@ export const twoFactorTable = pgTable("two_factor", {
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
+});
+
+export const rateLimitTable = pgTable("rate_limit", {
+  count: integer("count").notNull(),
+  id: text("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  lastRequest: bigint("last_request", { mode: "number" }).notNull(),
 });

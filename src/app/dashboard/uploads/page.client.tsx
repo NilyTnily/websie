@@ -9,6 +9,16 @@ import type { GalleryMediaItem } from "~/ui/components/blocks/bento-media-galler
 
 import { UploadButton } from "~/lib/uploadthing";
 import { BentoMediaGallery } from "~/ui/components/blocks/bento-media-gallery";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "~/ui/primitives/alert-dialog";
 import { Alert, AlertDescription, AlertTitle } from "~/ui/primitives/alert";
 import { Button } from "~/ui/primitives/button";
 import { Input } from "~/ui/primitives/input";
@@ -22,6 +32,9 @@ export default function UploadsPageClient() {
   const [error, setError] = useState<null | string>(null);
   const [mediaUrlInput, setMediaUrlInput] = useState("");
   const [isUploadingFromUrl, setIsUploadingFromUrl] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<
+    null | number | string
+  >(null);
 
   const loadMediaGallery = useCallback(async () => {
     setIsMediaLoading(true);
@@ -91,10 +104,10 @@ export default function UploadsPageClient() {
     }
   };
 
-  const deleteMediaItem = async (id: number | string) => {
-    if (!confirm("Are you sure you want to delete this media?")) {
-      return;
-    }
+  const confirmDeleteMediaItem = async () => {
+    if (pendingDeleteId === null) return;
+    const id = pendingDeleteId;
+    setPendingDeleteId(null);
 
     try {
       const response = await fetch("/api/media", {
@@ -124,8 +137,7 @@ export default function UploadsPageClient() {
         <div className="flex gap-4">
           <UploadButton
             endpoint="imageUploader"
-            onClientUploadComplete={(res) => {
-              console.log("Image(s) uploaded: ", res);
+            onClientUploadComplete={() => {
               void loadMediaGallery();
             }}
             onUploadError={(uploadError: Error) => {
@@ -134,8 +146,7 @@ export default function UploadsPageClient() {
           />
           <UploadButton
             endpoint="videoUploader"
-            onClientUploadComplete={(res) => {
-              console.log("Video(s) uploaded: ", res);
+            onClientUploadComplete={() => {
               void loadMediaGallery();
             }}
             onUploadError={(uploadError: Error) => {
@@ -195,7 +206,7 @@ export default function UploadsPageClient() {
           <BentoMediaGallery
             description="Explore your uploaded images and videos below."
             mediaItems={mediaGalleryItems}
-            onDelete={deleteMediaItem}
+            onDelete={setPendingDeleteId}
             title="Your Uploaded Media"
           />
         ) : (
@@ -204,6 +215,28 @@ export default function UploadsPageClient() {
           )
         )}
       </div>
+
+      <AlertDialog
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteId(null);
+        }}
+        open={pendingDeleteId !== null}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this media?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This can't be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => void confirmDeleteMediaItem()}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

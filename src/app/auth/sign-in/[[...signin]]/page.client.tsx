@@ -7,13 +7,10 @@ import { useState } from "react";
 
 import { SEO_CONFIG, SYSTEM_CONFIG } from "~/app";
 import { signIn } from "~/lib/auth-client";
-import { GitHubIcon } from "~/ui/components/icons/github";
-import { GoogleIcon } from "~/ui/components/icons/google";
 import { Button } from "~/ui/primitives/button";
 import { Card, CardContent } from "~/ui/primitives/card";
 import { Input } from "~/ui/primitives/input";
 import { Label } from "~/ui/primitives/label";
-import { Separator } from "~/ui/primitives/separator";
 
 export function SignInPageClient() {
   const router = useRouter();
@@ -28,37 +25,25 @@ export function SignInPageClient() {
     setLoading(true);
 
     try {
-      await signIn.email({
+      const { error: signInError } = await signIn.email({
         email,
         password,
       });
+
+      if (signInError) {
+        setError(
+          signInError.message ||
+            `Sign-in failed (${signInError.status ?? "no response"}) — check that you're on the correct host/port`,
+        );
+        return;
+      }
+
       router.push(SYSTEM_CONFIG.redirectAfterSignIn);
+      router.refresh();
     } catch (err) {
-      setError("Invalid email or password");
+      setError(err instanceof Error ? err.message : "Sign-in request failed");
       console.error(err);
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGitHubLogin = () => {
-    setLoading(true);
-    try {
-      void signIn.social({ provider: "github" });
-    } catch (err) {
-      setError("Failed to sign in with GitHub");
-      console.error(err);
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = () => {
-    setLoading(true);
-    try {
-      void signIn.social({ provider: "google" });
-    } catch (err) {
-      setError("Failed to sign in with Google");
-      console.error(err);
       setLoading(false);
     }
   };
@@ -148,7 +133,7 @@ export function SignInPageClient() {
                         text-sm text-muted-foreground
                         hover:underline
                       `}
-                      href="#"
+                      href="/auth/forgot-password"
                     >
                       Forgot password?
                     </Link>
@@ -172,36 +157,6 @@ export function SignInPageClient() {
                   {loading ? "Signing in..." : "Sign in"}
                 </Button>
               </form>
-              <div className="relative mt-6">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator className="w-full" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                <Button
-                  className="flex items-center gap-2"
-                  disabled={loading}
-                  onClick={handleGitHubLogin}
-                  variant="outline"
-                >
-                  <GitHubIcon className="h-5 w-5" />
-                  GitHub
-                </Button>
-                <Button
-                  className="flex items-center gap-2"
-                  disabled={loading}
-                  onClick={handleGoogleLogin}
-                  variant="outline"
-                >
-                  <GoogleIcon className="h-5 w-5" />
-                  Google
-                </Button>
-              </div>
               <div className="mt-6 text-center text-sm text-muted-foreground">
                 Don't have an account?{" "}
                 <Link

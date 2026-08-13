@@ -1,17 +1,30 @@
 "use client";
 
-import { Shield, User } from "lucide-react";
+import { ArrowRight, Package, Shield, User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+import type { Inquiry } from "~/db/schema";
+
 import { twoFactor, useCurrentUserOrRedirect } from "~/lib/auth-client";
+import { OrderCard } from "~/ui/components/order-card";
 import { Button } from "~/ui/primitives/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/ui/primitives/card";
 import { Input } from "~/ui/primitives/input";
 import { Label } from "~/ui/primitives/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/ui/primitives/tabs";
 
-export function ProfilePageClient() {
+const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", { dateStyle: "long" });
+
+interface ProfilePageClientProps {
+  orderCount: number;
+  recentOrders: Inquiry[];
+}
+
+export function ProfilePageClient({
+  orderCount,
+  recentOrders,
+}: ProfilePageClientProps) {
   const { isPending, user } = useCurrentUserOrRedirect();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -114,17 +127,17 @@ export function ProfilePageClient() {
       `}
     >
       <div className="space-y-0.5">
-        <h2 className="text-2xl font-bold tracking-tight">Profile</h2>
+        <h2 className="font-display text-2xl text-foreground">Profile</h2>
         <p className="text-muted-foreground">
-          Manage your profile and security settings.
+          Your account, and everything you&apos;ve requested from KRS.
         </p>
       </div>
 
-      <Tabs className="space-y-4" defaultValue="general">
+      <Tabs className="space-y-4" defaultValue="overview">
         <TabsList>
-          <TabsTrigger className="flex items-center gap-2" value="general">
+          <TabsTrigger className="flex items-center gap-2" value="overview">
             <User className="h-4 w-4" />
-            General
+            Overview
           </TabsTrigger>
           <TabsTrigger className="flex items-center gap-2" value="security">
             <Shield className="h-4 w-4" />
@@ -132,30 +145,73 @@ export function ProfilePageClient() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent className="space-y-4" value="general">
+        <TabsContent className="space-y-6" value="overview">
           <Card>
             <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
+              <CardTitle>Account</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  defaultValue={user?.name || ""}
-                  id="name"
-                  placeholder="Enter your name"
-                />
+            <CardContent className="space-y-3">
+              <div className="grid gap-1.5">
+                <Label>Name</Label>
+                <p className="text-sm text-foreground">
+                  {user?.name || "Not set"}
+                </p>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  defaultValue={user?.email || ""}
-                  id="email"
-                  placeholder="Enter your email"
-                  type="email"
-                />
+              <div className="grid gap-1.5">
+                <Label>Email</Label>
+                <p className="text-sm text-foreground">
+                  {user?.email || "Not set"}
+                </p>
               </div>
-              <Button>Save Changes</Button>
+              {user?.createdAt && (
+                <div className="grid gap-1.5">
+                  <Label>Client Since</Label>
+                  <p className="text-sm text-foreground">
+                    {DATE_FORMATTER.format(new Date(user.createdAt))}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Recent Orders</CardTitle>
+              {orderCount > 0 && (
+                <Link
+                  className={`
+                    flex items-center gap-1 text-sm text-primary
+                    hover:underline
+                  `}
+                  href="/dashboard/orders"
+                >
+                  View all <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
+            </CardHeader>
+            <CardContent>
+              {recentOrders.length > 0 ? (
+                <div className="space-y-3">
+                  {recentOrders.map((order) => (
+                    <OrderCard key={order.id} order={order} />
+                  ))}
+                </div>
+              ) : (
+                <div className="py-6 text-center">
+                  <Package
+                    className={`mx-auto h-8 w-8 text-muted-foreground`}
+                  />
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    No orders yet — nothing requested from the collection so
+                    far.
+                  </p>
+                  <Link href="/products">
+                    <Button className="mt-4" variant="outline">
+                      Browse the Collection
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

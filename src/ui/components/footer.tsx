@@ -1,13 +1,17 @@
-import { Facebook, Github, Instagram, Linkedin, Twitter } from "lucide-react";
+"use client";
+
+import { Facebook, Instagram } from "lucide-react";
 import Link from "next/link";
 
-import { SEO_CONFIG } from "~/app";
 import { cn } from "~/lib/cn";
+import { useSiteSettings } from "~/lib/hooks/use-site-settings";
 import { Button } from "~/ui/primitives/button";
 
 export function Footer({ className }: { className?: string }) {
+  const settings = useSiteSettings();
+
   return (
-    <footer className={cn("border-t bg-background", className)}>
+    <footer className={cn("bg-krs-navy text-krs-navy-foreground", className)}>
       <div
         className={`
           container mx-auto max-w-7xl px-4 py-12
@@ -23,130 +27,109 @@ export function Footer({ className }: { className?: string }) {
         >
           <div className="space-y-4">
             <Link className="flex items-center gap-2" href="/">
-              <span
-                className={`
-                  bg-gradient-to-r from-primary to-primary/70 bg-clip-text
-                  text-xl font-bold tracking-tight text-transparent
-                `}
-              >
-                {SEO_CONFIG.name}
+              <span className="font-display text-xl tracking-wide">
+                {settings.name}
               </span>
             </Link>
-            <p className="text-sm text-muted-foreground">
-              Your one-stop shop for everything tech. Premium products at
-              competitive prices.
+            <p className="text-sm text-krs-navy-foreground/70">
+              Fine watches and jewelry, serviced in-house and shipped insured.
+              Nothing on the shelf is made twice.
             </p>
-            <div className="flex space-x-4">
-              <Button
-                className="h-8 w-8 rounded-full"
-                size="icon"
-                variant="ghost"
-              >
-                <Facebook className="h-4 w-4" />
-                <span className="sr-only">Facebook</span>
-              </Button>
-              <Button
-                className="h-8 w-8 rounded-full"
-                size="icon"
-                variant="ghost"
-              >
-                <Twitter className="h-4 w-4" />
-                <span className="sr-only">Twitter</span>
-              </Button>
-              <Button
-                className="h-8 w-8 rounded-full"
-                size="icon"
-                variant="ghost"
-              >
-                <Instagram className="h-4 w-4" />
-                <span className="sr-only">Instagram</span>
-              </Button>
-              <Button
-                className="h-8 w-8 rounded-full"
-                size="icon"
-                variant="ghost"
-              >
-                <Github className="h-4 w-4" />
-                <span className="sr-only">GitHub</span>
-              </Button>
-              <Button
-                className="h-8 w-8 rounded-full"
-                size="icon"
-                variant="ghost"
-              >
-                <Linkedin className="h-4 w-4" />
-                <span className="sr-only">LinkedIn</span>
-              </Button>
-            </div>
+            {(settings.instagramUrl || settings.facebookUrl) && (
+              <div className="flex space-x-2">
+                {settings.instagramUrl && (
+                  <Button
+                    asChild
+                    className={`
+                      h-8 w-8 rounded-full text-krs-navy-foreground
+                      hover:bg-white/10 hover:text-primary
+                    `}
+                    size="icon"
+                    variant="ghost"
+                  >
+                    <a
+                      href={settings.instagramUrl}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <Instagram className="h-4 w-4" />
+                      <span className="sr-only">Instagram</span>
+                    </a>
+                  </Button>
+                )}
+                {settings.facebookUrl && (
+                  <Button
+                    asChild
+                    className={`
+                      h-8 w-8 rounded-full text-krs-navy-foreground
+                      hover:bg-white/10 hover:text-primary
+                    `}
+                    size="icon"
+                    variant="ghost"
+                  >
+                    <a
+                      href={settings.facebookUrl}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      <Facebook className="h-4 w-4" />
+                      <span className="sr-only">Facebook</span>
+                    </a>
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
           <div>
-            <h3 className="mb-4 text-sm font-semibold">Shop</h3>
+            <h3 className={`krs-ref mb-4 text-xs text-krs-navy-foreground/50`}>
+              Collections
+            </h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   className={`
-                    text-muted-foreground
-                    hover:text-foreground
+                    text-krs-navy-foreground/80
+                    hover:text-primary
                   `}
                   href="/products"
                 >
-                  All Products
+                  All Pieces
                 </Link>
               </li>
               <li>
                 <Link
                   className={`
-                    text-muted-foreground
-                    hover:text-foreground
+                    text-krs-navy-foreground/80
+                    hover:text-primary
                   `}
-                  href="/products?category=audio"
+                  href="/watches"
                 >
-                  Audio
+                  Watches
                 </Link>
               </li>
               <li>
                 <Link
                   className={`
-                    text-muted-foreground
-                    hover:text-foreground
+                    text-krs-navy-foreground/80
+                    hover:text-primary
                   `}
-                  href="/products?category=wearables"
+                  href="/jewelry"
                 >
-                  Wearables
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/products?category=smartphones"
-                >
-                  Smartphones
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/products?category=laptops"
-                >
-                  Laptops
+                  Jewelry
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="mb-4 text-sm font-semibold">Company</h3>
+            <h3 className={`krs-ref mb-4 text-xs text-krs-navy-foreground/50`}>
+              The House
+            </h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   className={`
-                    text-muted-foreground
-                    hover:text-foreground
+                    text-krs-navy-foreground/80
+                    hover:text-primary
                   `}
                   href="/about"
                 >
@@ -156,137 +139,71 @@ export function Footer({ className }: { className?: string }) {
               <li>
                 <Link
                   className={`
-                    text-muted-foreground
-                    hover:text-foreground
+                    text-krs-navy-foreground/80
+                    hover:text-primary
                   `}
-                  href="/careers"
+                  href="/about#standard"
                 >
-                  Careers
+                  The KRS Standard
                 </Link>
               </li>
               <li>
                 <Link
                   className={`
-                    text-muted-foreground
-                    hover:text-foreground
+                    text-krs-navy-foreground/80
+                    hover:text-primary
                   `}
-                  href="/blog"
+                  href="/auth/sign-up"
                 >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/press"
-                >
-                  Press
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/contact"
-                >
-                  Contact
+                  Client Account
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="mb-4 text-sm font-semibold">Support</h3>
+            <h3 className={`krs-ref mb-4 text-xs text-krs-navy-foreground/50`}>
+              Care
+            </h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/help"
-                >
-                  Help Center
-                </Link>
+                <span className="text-krs-navy-foreground/80">
+                  Resizing &amp; restringing — complimentary
+                </span>
               </li>
               <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/shipping"
-                >
-                  Shipping & Returns
-                </Link>
+                <span className="text-krs-navy-foreground/80">
+                  Movement service — in-house
+                </span>
               </li>
               <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/warranty"
-                >
-                  Warranty
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/privacy"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className={`
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  href="/terms"
-                >
-                  Terms of Service
-                </Link>
+                <span className="text-krs-navy-foreground/80">
+                  Shipping — insured, signature required
+                </span>
               </li>
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t pt-8">
+        <div className="mt-12 border-t border-krs-navy-border pt-8">
           <div
             className={`
               flex flex-col items-center justify-between gap-4
               md:flex-row
             `}
           >
-            <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} {SEO_CONFIG.name}. All rights
+            <p className="text-sm text-krs-navy-foreground/60">
+              &copy; {new Date().getFullYear()} {settings.name}. All rights
               reserved.
             </p>
             <div
-              className={
-                "flex items-center gap-4 text-sm text-muted-foreground"
-              }
+              className={`
+                flex items-center gap-4 text-sm text-krs-navy-foreground/60
+              `}
             >
-              <Link className="hover:text-foreground" href="/privacy">
+              <Link className="hover:text-primary" href="/privacy">
                 Privacy
               </Link>
-              <Link className="hover:text-foreground" href="/terms">
+              <Link className="hover:text-primary" href="/terms">
                 Terms
-              </Link>
-              <Link className="hover:text-foreground" href="/cookies">
-                Cookies
-              </Link>
-              <Link className="hover:text-foreground" href="/sitemap">
-                Sitemap
               </Link>
             </div>
           </div>

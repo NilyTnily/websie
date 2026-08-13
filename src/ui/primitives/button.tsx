@@ -9,7 +9,7 @@ const buttonVariants = cva(
   `
     inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm
     font-medium whitespace-nowrap shadow-sm transition-all duration-200
-    ease-in-out outline-none
+    ease-in-out outline-none select-none
     hover:shadow-md
     focus:shadow-lg
     focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/60

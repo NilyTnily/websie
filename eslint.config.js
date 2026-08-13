@@ -10,7 +10,7 @@ export default tseslint.config(
   tseslint.configs.recommended,
   tseslint.configs.stylistic,
   // fatima.eslint.plugin, // import { linter as fatima } from "fatima";
-  { ignores: ["node_modules", ".next"] },
+  { ignores: ["node_modules", ".next", ".tests"] },
   {
     files: ["**/*.{ts,tsx}"],
     ...eslintReact.configs["recommended-typescript"],

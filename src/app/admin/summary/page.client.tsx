@@ -169,7 +169,6 @@ const AdminPageClient: React.FC<AdminPageClientProps> = ({ initialData }) => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Users</h1>
       <DataTable columns={columns} data={initialData} />
 
       {selectedGalleryItem && (

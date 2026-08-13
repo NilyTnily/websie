@@ -1,11 +1,4 @@
-import {
-  BarChart,
-  LogOut,
-  Settings,
-  Shield,
-  Upload,
-  UserIcon,
-} from "lucide-react";
+import { LogOut, Package, Shield, UserIcon } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "~/lib/cn";
@@ -36,16 +29,22 @@ export function HeaderUserDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className="relative overflow-hidden rounded-full"
+          aria-label={userName || "Account"}
+          className={`
+            relative h-9 w-9 rounded-full border-transparent
+            text-krs-navy-foreground transition-colors
+            hover:bg-white/10 hover:text-primary
+          `}
           size="icon"
+          title={userName || "Account"}
           variant="ghost"
         >
-          <Avatar className="h-9 w-9">
+          <Avatar className="h-7 w-7">
             <AvatarImage
               alt={userName || "User"}
               src={userImage || undefined}
             />
-            <AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-primary">
               {userName ? (
                 userName
                   .split(" ")
@@ -89,27 +88,15 @@ export function HeaderUserDropdown({
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link className="cursor-pointer" href="/dashboard/stats">
-            <BarChart className="mr-2 h-4 w-4" />
-            Stats
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
           <Link className="cursor-pointer" href="/dashboard/profile">
             <UserIcon className="mr-2 h-4 w-4" />
             Profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link className="cursor-pointer" href="/dashboard/settings">
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link className="cursor-pointer" href="/dashboard/uploads">
-            <Upload className="mr-2 h-4 w-4" />
-            Uploads
+          <Link className="cursor-pointer" href="/dashboard/orders">
+            <Package className="mr-2 h-4 w-4" />
+            My Orders
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
@@ -126,8 +113,8 @@ export function HeaderUserDropdown({
             isDashboard
               ? "text-red-600"
               : `
-                txt-destructive
-                focus:text-destrctive
+                text-destructive
+                focus:text-destructive
               `,
           )}
         >
