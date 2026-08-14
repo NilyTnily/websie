@@ -8,48 +8,16 @@ import { db } from "~/db";
 import { testimonialTable } from "~/db/schema";
 import { requireAdmin } from "~/lib/admin";
 
+export type MutationResult<T = undefined> =
+  | { data: T; success: true }
+  | { error: string; success: false };
+
 export interface TestimonialInput {
   avatarUrl: null | string;
   customerHandle: string;
   customerName: string;
   quote: string;
   sortOrder?: number;
-}
-
-export type MutationResult<T = undefined> =
-  | { data: T; success: true }
-  | { error: string; success: false };
-
-export async function getTestimonials(): Promise<Testimonial[]> {
-  try {
-    return await db.query.testimonialTable.findMany({
-      orderBy: [asc(testimonialTable.sortOrder)],
-    });
-  } catch (error) {
-    console.error("Failed to fetch testimonials:", error);
-    return [];
-  }
-}
-
-export async function getAllTestimonialsForAdmin(): Promise<Testimonial[]> {
-  await requireAdmin();
-  return getTestimonials();
-}
-
-export async function getTestimonialById(
-  id: string,
-): Promise<null | Testimonial> {
-  await requireAdmin();
-  try {
-    return (
-      (await db.query.testimonialTable.findFirst({
-        where: eq(testimonialTable.id, id),
-      })) ?? null
-    );
-  } catch (error) {
-    console.error("Failed to fetch testimonial:", error);
-    return null;
-  }
 }
 
 export async function createTestimonial(
@@ -74,6 +42,50 @@ export async function createTestimonial(
   }
 }
 
+export async function deleteTestimonial(id: string): Promise<MutationResult> {
+  await requireAdmin();
+  try {
+    await db.delete(testimonialTable).where(eq(testimonialTable.id, id));
+    revalidatePath("/", "layout");
+    return { data: undefined, success: true };
+  } catch (error) {
+    console.error("Failed to delete testimonial:", error);
+    return { error: "Could not delete the testimonial.", success: false };
+  }
+}
+
+export async function getAllTestimonialsForAdmin(): Promise<Testimonial[]> {
+  await requireAdmin();
+  return getTestimonials();
+}
+
+export async function getTestimonialById(
+  id: string,
+): Promise<null | Testimonial> {
+  await requireAdmin();
+  try {
+    return (
+      (await db.query.testimonialTable.findFirst({
+        where: eq(testimonialTable.id, id),
+      })) ?? null
+    );
+  } catch (error) {
+    console.error("Failed to fetch testimonial:", error);
+    return null;
+  }
+}
+
+export async function getTestimonials(): Promise<Testimonial[]> {
+  try {
+    return await db.query.testimonialTable.findMany({
+      orderBy: [asc(testimonialTable.sortOrder)],
+    });
+  } catch (error) {
+    console.error("Failed to fetch testimonials:", error);
+    return [];
+  }
+}
+
 export async function updateTestimonial(
   id: string,
   input: TestimonialInput,
@@ -95,17 +107,5 @@ export async function updateTestimonial(
   } catch (error) {
     console.error("Failed to update testimonial:", error);
     return { error: "Could not update the testimonial.", success: false };
-  }
-}
-
-export async function deleteTestimonial(id: string): Promise<MutationResult> {
-  await requireAdmin();
-  try {
-    await db.delete(testimonialTable).where(eq(testimonialTable.id, id));
-    revalidatePath("/", "layout");
-    return { data: undefined, success: true };
-  } catch (error) {
-    console.error("Failed to delete testimonial:", error);
-    return { error: "Could not delete the testimonial.", success: false };
   }
 }

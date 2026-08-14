@@ -15,15 +15,11 @@ export function SiteSettingsProvider({
   children,
   settings,
 }: SiteSettingsProviderProps) {
-  return (
-    <SiteSettingsContext.Provider value={settings}>
-      {children}
-    </SiteSettingsContext.Provider>
-  );
+  return <SiteSettingsContext value={settings}>{children}</SiteSettingsContext>;
 }
 
 export function useSiteSettings(): SiteSettings {
-  const settings = React.useContext(SiteSettingsContext);
+  const settings = React.use(SiteSettingsContext);
   if (!settings) {
     throw new Error(
       "useSiteSettings must be used within a SiteSettingsProvider",

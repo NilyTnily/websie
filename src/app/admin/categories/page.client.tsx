@@ -8,8 +8,8 @@ import { useMemo } from "react";
 
 import type { CategoryWithCount } from "~/db/schema";
 
-import { defineMeta, filterFn } from "~/lib/filters";
 import { ConfirmSubmitButton } from "~/app/admin/confirm-submit-button";
+import { defineMeta, filterFn } from "~/lib/filters";
 import { StatCardGrid } from "~/ui/components/admin/stat-card";
 import { Button } from "~/ui/primitives/button";
 import { DataTable } from "~/ui/primitives/data-table/data-table";

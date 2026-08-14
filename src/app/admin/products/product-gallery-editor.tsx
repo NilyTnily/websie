@@ -6,15 +6,9 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { UploadButton } from "~/lib/uploadthing";
-import { Button } from "~/ui/primitives/button";
 import { Label } from "~/ui/primitives/label";
 
 let nextRowId = 0;
-function makeRowId(): string {
-  nextRowId += 1;
-  return `gallery-row-${nextRowId}`;
-}
-
 interface GalleryRow {
   id: string;
   url: string;
@@ -52,7 +46,10 @@ export function ProductGalleryEditor({
         >
           {rows.map((row) => (
             <div
-              className="group relative aspect-square overflow-hidden rounded-md border bg-muted"
+              className={`
+                group relative aspect-square overflow-hidden rounded-md border
+                bg-muted
+              `}
               key={row.id}
             >
               <Image
@@ -65,8 +62,7 @@ export function ProductGalleryEditor({
               <button
                 aria-label="Remove photo"
                 className={`
-                  absolute top-1 right-1 rounded-full bg-black/60 p-1
-                  text-white
+                  absolute top-1 right-1 rounded-full bg-black/60 p-1 text-white
                   hover:bg-black/80
                 `}
                 onClick={() =>
@@ -108,4 +104,9 @@ export function ProductGalleryEditor({
       <input name="galleryImages" type="hidden" value={galleryImagesValue} />
     </div>
   );
+}
+
+function makeRowId(): string {
+  nextRowId += 1;
+  return `gallery-row-${nextRowId}`;
 }

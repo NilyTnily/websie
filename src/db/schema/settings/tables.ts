@@ -14,4 +14,5 @@ export const siteSettingsTable = pgTable("site_settings", {
   name: text("name").notNull(),
   slogan: text("slogan").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  whatsappNumber: text("whatsapp_number"),
 });

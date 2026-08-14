@@ -67,7 +67,7 @@ export async function submitInquiryAction(
       note,
       subtotal: inquiry.subtotal,
     });
-    return { success: true, whatsappUrl: buildWhatsAppLink(message) };
+    return { success: true, whatsappUrl: await buildWhatsAppLink(message) };
   } catch (error) {
     console.error("Failed to submit inquiry:", error);
     return {

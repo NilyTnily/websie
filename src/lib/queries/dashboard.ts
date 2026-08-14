@@ -12,13 +12,6 @@ import {
 } from "~/db/schema";
 import { requireAdmin } from "~/lib/admin";
 
-export interface TopRequestedProduct {
-  id: string;
-  image: string;
-  name: string;
-  requestCount: number;
-}
-
 export interface DashboardStats {
   approvedValue: number;
   featuredCount: number;
@@ -30,6 +23,13 @@ export interface DashboardStats {
   totalProducts: number;
   totalRequestedValue: number;
   totalUsers: number;
+}
+
+export interface TopRequestedProduct {
+  id: string;
+  image: string;
+  name: string;
+  requestCount: number;
 }
 
 const EMPTY_STATS: DashboardStats = {

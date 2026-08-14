@@ -85,8 +85,8 @@ export function TestimonialForm({
           {avatarUrl && (
             <div
               className={`
-                relative h-12 w-12 shrink-0 overflow-hidden rounded-full
-                border bg-muted
+                relative h-12 w-12 shrink-0 overflow-hidden rounded-full border
+                bg-muted
               `}
             >
               <Image

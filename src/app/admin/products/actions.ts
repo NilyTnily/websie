@@ -116,6 +116,16 @@ function buildProductInput(
   };
 }
 
+function isValidImageUrl(value: string): boolean {
+  if (value.startsWith("/")) return true;
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 function optionalInt(
   formData: FormData,
   key: string,
@@ -139,6 +149,20 @@ function parseFeatures(raw: string): string[] {
     .filter(Boolean);
 }
 
+function parseGalleryImages(formData: FormData): string[] {
+  const raw = textField(formData, "galleryImages");
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (url): url is string => typeof url === "string" && isValidImageUrl(url),
+    );
+  } catch {
+    return [];
+  }
+}
+
 function parseSpecs(raw: string): Record<string, string> {
   const specs: Record<string, string> = {};
   for (const line of raw.split("\n")) {
@@ -153,28 +177,4 @@ function parseSpecs(raw: string): Record<string, string> {
 
 function textField(formData: FormData, key: string): string {
   return String(formData.get(key) ?? "").trim();
-}
-
-function isValidImageUrl(value: string): boolean {
-  if (value.startsWith("/")) return true;
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-function parseGalleryImages(formData: FormData): string[] {
-  const raw = textField(formData, "galleryImages");
-  if (!raw) return [];
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (url): url is string => typeof url === "string" && isValidImageUrl(url),
-    );
-  } catch {
-    return [];
-  }
 }

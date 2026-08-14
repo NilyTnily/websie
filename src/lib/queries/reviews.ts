@@ -21,20 +21,36 @@ export interface ProductReviewSummary {
   totalCount: number;
 }
 
-export interface ReviewWithProduct extends ProductReview {
-  product: { image: string; name: string };
-}
-
 export interface ReviewStats {
   approved: number;
   pending: number;
   total: number;
 }
 
+export interface ReviewWithProduct extends ProductReview {
+  product: { image: string; name: string };
+}
+
 const MutationResult = {
   err: (error: string) => ({ error, success: false as const }),
   ok: <T = undefined>(data?: T) => ({ data, success: true as const }),
 };
+
+export async function approveReview(
+  id: string,
+): Promise<{ error: string; success: false } | { success: true }> {
+  await requireAdmin();
+  try {
+    await db
+      .update(productReviewTable)
+      .set({ approved: true })
+      .where(eq(productReviewTable.id, id));
+    return MutationResult.ok();
+  } catch (error) {
+    console.error("Failed to approve review:", error);
+    return MutationResult.err("Could not approve the review.");
+  }
+}
 
 /** A review can only be left by a signed-in user who has an inquiry that actually included this product — no open review form, no separate spam defenses needed. */
 export async function canUserReviewProduct(
@@ -90,6 +106,19 @@ export async function createReview(
   }
 }
 
+export async function getAllReviewsForAdmin(): Promise<ReviewWithProduct[]> {
+  await requireAdmin();
+  try {
+    return await db.query.productReviewTable.findMany({
+      orderBy: [desc(productReviewTable.createdAt)],
+      with: { product: { columns: { image: true, name: true } } },
+    });
+  } catch (error) {
+    console.error("Failed to fetch reviews:", error);
+    return [];
+  }
+}
+
 export async function getApprovedReviewsForProduct(
   productId: string,
 ): Promise<ProductReviewSummary> {
@@ -113,19 +142,6 @@ export async function getApprovedReviewsForProduct(
   }
 }
 
-export async function getAllReviewsForAdmin(): Promise<ReviewWithProduct[]> {
-  await requireAdmin();
-  try {
-    return await db.query.productReviewTable.findMany({
-      orderBy: [desc(productReviewTable.createdAt)],
-      with: { product: { columns: { image: true, name: true } } },
-    });
-  } catch (error) {
-    console.error("Failed to fetch reviews:", error);
-    return [];
-  }
-}
-
 export async function getReviewStats(): Promise<ReviewStats> {
   await requireAdmin();
   try {
@@ -144,22 +160,6 @@ export async function getReviewStats(): Promise<ReviewStats> {
   } catch (error) {
     console.error("Failed to fetch review stats:", error);
     return { approved: 0, pending: 0, total: 0 };
-  }
-}
-
-export async function approveReview(
-  id: string,
-): Promise<{ error: string; success: false } | { success: true }> {
-  await requireAdmin();
-  try {
-    await db
-      .update(productReviewTable)
-      .set({ approved: true })
-      .where(eq(productReviewTable.id, id));
-    return MutationResult.ok();
-  } catch (error) {
-    console.error("Failed to approve review:", error);
-    return MutationResult.err("Could not approve the review.");
   }
 }
 

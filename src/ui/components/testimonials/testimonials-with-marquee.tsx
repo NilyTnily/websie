@@ -120,8 +120,8 @@ export function TestimonialsSection({
 
         <div
           className={`
-          relative flex w-full flex-col items-center justify-center px-4 py-2
-        `}
+            relative flex w-full flex-col items-center justify-center px-4 py-2
+          `}
         >
           {testimonial ? (
             <div ref={cardRef}>

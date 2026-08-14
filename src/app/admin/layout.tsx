@@ -38,7 +38,14 @@ export default async function AdminLayout({
             Admin Dashboard
           </span>
         </header>
-        <div className="flex-1 space-y-6 p-4 md:p-6">{children}</div>
+        <div
+          className={`
+            flex-1 space-y-6 p-4
+            md:p-6
+          `}
+        >
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

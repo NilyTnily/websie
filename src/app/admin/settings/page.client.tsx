@@ -30,64 +30,6 @@ interface ImageFieldProps {
   previewShape: "circle" | "square";
 }
 
-function ImageField({
-  currentUrl,
-  helperText,
-  label,
-  name,
-  onChange,
-  previewShape,
-}: ImageFieldProps) {
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={name}>{label}</Label>
-      <div className="flex items-center gap-3">
-        {currentUrl && (
-          <div
-            className={`
-              relative h-14 w-14 shrink-0 overflow-hidden border bg-muted
-              ${previewShape === "circle" ? "rounded-full" : "rounded-md"}
-            `}
-          >
-            <Image
-              alt={label}
-              className="object-contain"
-              fill
-              sizes="56px"
-              src={currentUrl}
-            />
-          </div>
-        )}
-        <div className="min-w-0 flex-1 space-y-1.5">
-          <Input
-            id={name}
-            name={name}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="https:// or upload a file"
-            value={currentUrl ?? ""}
-          />
-          <UploadButton
-            appearance={{
-              button: "h-8 px-3 text-xs",
-              container: "items-start",
-            }}
-            content={{ button: "Browse for file" }}
-            endpoint="imageUploader"
-            onClientUploadComplete={(res) => {
-              const uploaded = res[0]?.ufsUrl;
-              if (uploaded) onChange(uploaded);
-            }}
-            onUploadError={(uploadError: Error) => {
-              toast.error(`Upload failed: ${uploadError.message}`);
-            }}
-          />
-        </div>
-      </div>
-      <p className="text-xs text-muted-foreground">{helperText}</p>
-    </div>
-  );
-}
-
 interface SettingsPageClientProps {
   settings: SiteSettings;
 }
@@ -149,7 +91,12 @@ export function SettingsPageClient({ settings }: SettingsPageClientProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 border-t pt-6 sm:grid-cols-2">
+        <div
+          className={`
+            grid grid-cols-1 gap-4 border-t pt-6
+            sm:grid-cols-2
+          `}
+        >
           <ImageField
             currentUrl={logoUrl || null}
             helperText="Shown in the header next to the site name."
@@ -168,7 +115,12 @@ export function SettingsPageClient({ settings }: SettingsPageClientProps) {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 border-t pt-6 sm:grid-cols-2">
+        <div
+          className={`
+            grid grid-cols-1 gap-4 border-t pt-6
+            sm:grid-cols-2
+          `}
+        >
           <div className="space-y-1.5">
             <Label htmlFor="instagramUrl">Instagram URL</Label>
             <Input
@@ -189,6 +141,19 @@ export function SettingsPageClient({ settings }: SettingsPageClientProps) {
           </div>
         </div>
 
+        <div className="space-y-1.5 border-t pt-6">
+          <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
+          <Input
+            defaultValue={settings.whatsappNumber ?? ""}
+            id="whatsappNumber"
+            name="whatsappNumber"
+            placeholder="+1 555 000 0000"
+          />
+          <p className="text-xs text-muted-foreground">
+            Shown in the footer so visitors can reach you on WhatsApp.
+          </p>
+        </div>
+
         {state.error && (
           <p className="text-sm text-destructive">{state.error}</p>
         )}
@@ -200,6 +165,64 @@ export function SettingsPageClient({ settings }: SettingsPageClientProps) {
           {isPending ? "Saving…" : "Save Settings"}
         </Button>
       </form>
+    </div>
+  );
+}
+
+function ImageField({
+  currentUrl,
+  helperText,
+  label,
+  name,
+  onChange,
+  previewShape,
+}: ImageFieldProps) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={name}>{label}</Label>
+      <div className="flex items-center gap-3">
+        {currentUrl && (
+          <div
+            className={`
+              relative h-14 w-14 shrink-0 overflow-hidden border bg-muted
+              ${previewShape === "circle" ? "rounded-full" : "rounded-md"}
+            `}
+          >
+            <Image
+              alt={label}
+              className="object-contain"
+              fill
+              sizes="56px"
+              src={currentUrl}
+            />
+          </div>
+        )}
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <Input
+            id={name}
+            name={name}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="https:// or upload a file"
+            value={currentUrl ?? ""}
+          />
+          <UploadButton
+            appearance={{
+              button: "h-8 px-3 text-xs",
+              container: "items-start",
+            }}
+            content={{ button: "Browse for file" }}
+            endpoint="imageUploader"
+            onClientUploadComplete={(res) => {
+              const uploaded = res[0]?.ufsUrl;
+              if (uploaded) onChange(uploaded);
+            }}
+            onUploadError={(uploadError: Error) => {
+              toast.error(`Upload failed: ${uploadError.message}`);
+            }}
+          />
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground">{helperText}</p>
     </div>
   );
 }

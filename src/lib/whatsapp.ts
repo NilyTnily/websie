@@ -2,6 +2,8 @@ import "server-only";
 
 import type { InquiryItem } from "~/db/schema";
 
+import { getSiteSettings } from "~/lib/queries/settings";
+
 const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
   currency: "USD",
   maximumFractionDigits: 0,
@@ -38,9 +40,12 @@ export function buildInquiryMessage(input: InquiryMessageInput): string {
   return lines.join("\n");
 }
 
-/** Returns null when WHATSAPP_NUMBER isn't configured, so callers can fall back gracefully. */
-export function buildWhatsAppLink(message: string): null | string {
-  const rawNumber = process.env.WHATSAPP_NUMBER;
+/** Returns null when no WhatsApp number is configured, so callers can fall back gracefully. */
+export async function buildWhatsAppLink(
+  message: string,
+): Promise<null | string> {
+  const settings = await getSiteSettings();
+  const rawNumber = settings.whatsappNumber ?? process.env.WHATSAPP_NUMBER;
   if (!rawNumber) return null;
 
   const digits = rawNumber.replace(/\D/g, "");

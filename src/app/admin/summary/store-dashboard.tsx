@@ -84,7 +84,10 @@ export function StoreDashboard({ stats }: StoreDashboardProps) {
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium">Recent Inquiries</h3>
             <Link
-              className={`text-xs text-primary hover:underline`}
+              className={`
+                text-xs text-primary
+                hover:underline
+              `}
               href="/admin/inquiries"
             >
               View all
@@ -134,7 +137,10 @@ export function StoreDashboard({ stats }: StoreDashboardProps) {
                       </p>
                       <span
                         className={cn(
-                          "rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                          `
+                            rounded-full border px-2 py-0.5 text-[10px]
+                            font-medium
+                          `,
                           STATUS_BADGE_CLASS[inquiry.status],
                         )}
                       >

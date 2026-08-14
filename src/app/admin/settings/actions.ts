@@ -29,6 +29,7 @@ export async function updateSiteSettingsAction(
     logoUrl: optionalText(formData, "logoUrl"),
     name,
     slogan,
+    whatsappNumber: optionalText(formData, "whatsappNumber"),
   });
 
   if (!result.success) return { error: result.error };
@@ -37,10 +38,10 @@ export async function updateSiteSettingsAction(
   return { success: true };
 }
 
-function textField(formData: FormData, key: string): string {
-  return String(formData.get(key) ?? "").trim();
-}
-
 function optionalText(formData: FormData, key: string): null | string {
   return textField(formData, key) || null;
+}
+
+function textField(formData: FormData, key: string): string {
+  return String(formData.get(key) ?? "").trim();
 }

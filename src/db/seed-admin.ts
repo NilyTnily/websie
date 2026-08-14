@@ -1,8 +1,8 @@
 import "dotenv/config";
-
 import { randomBytes } from "node:crypto";
 
 import { auth } from "~/lib/auth";
+
 import { db } from "./index";
 
 /**

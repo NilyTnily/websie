@@ -32,7 +32,9 @@ export async function ProductReviews({ productId }: ProductReviewsProps) {
       <div className="flex items-center gap-3">
         <h2 className="font-display text-2xl text-foreground">Reviews</h2>
         {totalCount > 0 && (
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <div
+            className={`flex items-center gap-1.5 text-sm text-muted-foreground`}
+          >
             <div className="flex">
               {Array.from({ length: 5 }, (_, i) => (
                 <Star

@@ -20,50 +20,6 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
 });
 
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }, (_, i) => (
-        <Star
-          className={
-            i < rating
-              ? "h-3.5 w-3.5 fill-primary text-primary"
-              : "h-3.5 w-3.5 text-muted-foreground"
-          }
-          key={i}
-        />
-      ))}
-    </div>
-  );
-}
-
-function ReviewActions({ id }: { id: string }) {
-  const [isPending, startTransition] = useTransition();
-
-  return (
-    <div className="flex items-center justify-end gap-2">
-      <Button
-        disabled={isPending}
-        onClick={() => startTransition(() => approveReviewAction(id))}
-        size="sm"
-        variant="outline"
-      >
-        <Check className="h-3.5 w-3.5" />
-        Approve
-      </Button>
-      <Button
-        disabled={isPending}
-        onClick={() => startTransition(() => rejectReviewAction(id))}
-        size="sm"
-        variant="ghost"
-      >
-        <X className="h-3.5 w-3.5" />
-        Reject
-      </Button>
-    </div>
-  );
-}
-
 interface ReviewsPageClientProps {
   reviews: ReviewWithProduct[];
   stats: ReviewStats;
@@ -191,6 +147,50 @@ export function ReviewsPageClient({ reviews, stats }: ReviewsPageClientProps) {
       />
 
       <DataTable columns={columns} data={reviews} />
+    </div>
+  );
+}
+
+function ReviewActions({ id }: { id: string }) {
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <div className="flex items-center justify-end gap-2">
+      <Button
+        disabled={isPending}
+        onClick={() => startTransition(() => approveReviewAction(id))}
+        size="sm"
+        variant="outline"
+      >
+        <Check className="h-3.5 w-3.5" />
+        Approve
+      </Button>
+      <Button
+        disabled={isPending}
+        onClick={() => startTransition(() => rejectReviewAction(id))}
+        size="sm"
+        variant="ghost"
+      >
+        <X className="h-3.5 w-3.5" />
+        Reject
+      </Button>
+    </div>
+  );
+}
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }, (_, i) => (
+        <Star
+          className={
+            i < rating
+              ? "h-3.5 w-3.5 fill-primary text-primary"
+              : "h-3.5 w-3.5 text-muted-foreground"
+          }
+          key={i}
+        />
+      ))}
     </div>
   );
 }

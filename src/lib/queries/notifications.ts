@@ -15,19 +15,10 @@ export interface CreateNotificationInput {
   userId: string;
 }
 
-export async function getNotificationsForUser(
-  userId: string,
-): Promise<NotificationRow[]> {
-  try {
-    return await db.query.notificationTable.findMany({
-      limit: 30,
-      orderBy: [desc(notificationTable.createdAt)],
-      where: eq(notificationTable.userId, userId),
-    });
-  } catch (error) {
-    console.error("Failed to fetch notifications:", error);
-    return [];
-  }
+export async function clearAllNotifications(userId: string): Promise<void> {
+  await db
+    .delete(notificationTable)
+    .where(eq(notificationTable.userId, userId));
 }
 
 export async function createNotification(
@@ -45,6 +36,51 @@ export async function createNotification(
   } catch (error) {
     console.error("Failed to create notification:", error);
   }
+}
+
+export async function dismissNotification(
+  id: string,
+  userId: string,
+): Promise<void> {
+  await db
+    .delete(notificationTable)
+    .where(
+      and(eq(notificationTable.id, id), eq(notificationTable.userId, userId)),
+    );
+}
+
+export async function getNotificationsForUser(
+  userId: string,
+): Promise<NotificationRow[]> {
+  try {
+    return await db.query.notificationTable.findMany({
+      limit: 30,
+      orderBy: [desc(notificationTable.createdAt)],
+      where: eq(notificationTable.userId, userId),
+    });
+  } catch (error) {
+    console.error("Failed to fetch notifications:", error);
+    return [];
+  }
+}
+
+export async function markAllNotificationsRead(userId: string): Promise<void> {
+  await db
+    .update(notificationTable)
+    .set({ read: true })
+    .where(eq(notificationTable.userId, userId));
+}
+
+export async function markNotificationRead(
+  id: string,
+  userId: string,
+): Promise<void> {
+  await db
+    .update(notificationTable)
+    .set({ read: true })
+    .where(
+      and(eq(notificationTable.id, id), eq(notificationTable.userId, userId)),
+    );
 }
 
 export async function notifyAdmins(
@@ -67,40 +103,4 @@ export async function notifyAdmins(
   } catch (error) {
     console.error("Failed to notify admins:", error);
   }
-}
-
-export async function markNotificationRead(
-  id: string,
-  userId: string,
-): Promise<void> {
-  await db
-    .update(notificationTable)
-    .set({ read: true })
-    .where(
-      and(eq(notificationTable.id, id), eq(notificationTable.userId, userId)),
-    );
-}
-
-export async function markAllNotificationsRead(userId: string): Promise<void> {
-  await db
-    .update(notificationTable)
-    .set({ read: true })
-    .where(eq(notificationTable.userId, userId));
-}
-
-export async function dismissNotification(
-  id: string,
-  userId: string,
-): Promise<void> {
-  await db
-    .delete(notificationTable)
-    .where(
-      and(eq(notificationTable.id, id), eq(notificationTable.userId, userId)),
-    );
-}
-
-export async function clearAllNotifications(userId: string): Promise<void> {
-  await db
-    .delete(notificationTable)
-    .where(eq(notificationTable.userId, userId));
 }

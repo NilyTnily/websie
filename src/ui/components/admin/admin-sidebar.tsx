@@ -114,7 +114,9 @@ export function AdminSidebar({
                     alt={userName || "Admin"}
                     src={userImage || undefined}
                   />
-                  <AvatarFallback className="rounded-md bg-primary/10 text-primary">
+                  <AvatarFallback
+                    className={`rounded-md bg-primary/10 text-primary`}
+                  >
                     {(userName || "A").slice(0, 1).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>

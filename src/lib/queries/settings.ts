@@ -16,6 +16,7 @@ export interface UpdateSiteSettingsInput {
   logoUrl: null | string;
   name: string;
   slogan: string;
+  whatsappNumber: null | string;
 }
 
 const DEFAULT_SETTINGS: SiteSettings = {
@@ -28,6 +29,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   name: SEO_CONFIG.name,
   slogan: SEO_CONFIG.slogan,
   updatedAt: new Date(0),
+  whatsappNumber: process.env.WHATSAPP_NUMBER || null,
 };
 
 /** Falls back to the hardcoded SEO_CONFIG/SOCIAL_LINKS defaults until an admin saves settings for the first time. */

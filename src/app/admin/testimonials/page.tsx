@@ -47,9 +47,7 @@ export default async function AdminTestimonialsPage() {
                   </div>
                 </td>
                 <td
-                  className={`
-                    max-w-xs truncate px-4 py-3 text-muted-foreground
-                  `}
+                  className={`max-w-xs truncate px-4 py-3 text-muted-foreground`}
                 >
                   {testimonial.quote}
                 </td>

@@ -9,6 +9,7 @@ import type { GalleryMediaItem } from "~/ui/components/blocks/bento-media-galler
 
 import { UploadButton } from "~/lib/uploadthing";
 import { BentoMediaGallery } from "~/ui/components/blocks/bento-media-gallery";
+import { Alert, AlertDescription, AlertTitle } from "~/ui/primitives/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +20,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/ui/primitives/alert-dialog";
-import { Alert, AlertDescription, AlertTitle } from "~/ui/primitives/alert";
 import { Button } from "~/ui/primitives/button";
 import { Input } from "~/ui/primitives/input";
 import { Skeleton } from "~/ui/primitives/skeleton";

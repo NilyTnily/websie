@@ -24,6 +24,13 @@ export async function createTestimonialAction(
   redirect("/admin/testimonials");
 }
 
+export async function deleteTestimonialAction(
+  formData: FormData,
+): Promise<void> {
+  const id = String(formData.get("id") ?? "");
+  await deleteTestimonial(id);
+}
+
 export async function updateTestimonialAction(
   id: string,
   _prevState: TestimonialFormState,
@@ -35,13 +42,6 @@ export async function updateTestimonialAction(
   const result = await updateTestimonial(id, built.input);
   if (!result.success) return { error: result.error };
   redirect("/admin/testimonials");
-}
-
-export async function deleteTestimonialAction(
-  formData: FormData,
-): Promise<void> {
-  const id = String(formData.get("id") ?? "");
-  await deleteTestimonial(id);
 }
 
 function buildTestimonialInput(formData: FormData) {

@@ -16,13 +16,6 @@ export type CoreFieldName =
   | "strapMaterial"
   | "waterResistanceM";
 
-interface FieldSpec {
-  fieldName: CoreFieldName;
-  label: string;
-  placeholder?: string;
-  type: "number" | "text";
-}
-
 interface AttributeRow {
   fieldName: CoreFieldName | null;
   id: string;
@@ -30,6 +23,13 @@ interface AttributeRow {
   placeholder?: string;
   type: "number" | "text";
   value: string;
+}
+
+interface FieldSpec {
+  fieldName: CoreFieldName;
+  label: string;
+  placeholder?: string;
+  type: "number" | "text";
 }
 
 const WATCH_CORE_FIELDS: FieldSpec[] = [
@@ -99,23 +99,6 @@ const JEWELRY_SUGGESTIONS = [
 ];
 
 let nextRowId = 0;
-function makeRowId(): string {
-  nextRowId += 1;
-  return `row-${nextRowId}`;
-}
-
-function coreRowsFor(
-  isJewelry: boolean,
-  defaults: Partial<Record<CoreFieldName, null | number | string>>,
-): AttributeRow[] {
-  const fields = isJewelry ? JEWELRY_CORE_FIELDS : WATCH_CORE_FIELDS;
-  return fields.map((field) => ({
-    ...field,
-    id: makeRowId(),
-    value: defaults[field.fieldName]?.toString() ?? "",
-  }));
-}
-
 interface ProductAttributesEditorProps {
   defaultCoreValues: Partial<Record<CoreFieldName, null | number | string>>;
   defaultSpecs: Record<string, string>;
@@ -308,4 +291,21 @@ export function ProductAttributesEditor({
       <input name="specs" type="hidden" value={specsValue} />
     </div>
   );
+}
+
+function coreRowsFor(
+  isJewelry: boolean,
+  defaults: Partial<Record<CoreFieldName, null | number | string>>,
+): AttributeRow[] {
+  const fields = isJewelry ? JEWELRY_CORE_FIELDS : WATCH_CORE_FIELDS;
+  return fields.map((field) => ({
+    ...field,
+    id: makeRowId(),
+    value: defaults[field.fieldName]?.toString() ?? "",
+  }));
+}
+
+function makeRowId(): string {
+  nextRowId += 1;
+  return `row-${nextRowId}`;
 }
