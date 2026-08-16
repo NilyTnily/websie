@@ -72,6 +72,41 @@ export const ourFileRouter = {
       };
     }),
 
+  // Higher file-count image route for 360° frame sequences — kept separate
+  // from imageUploader so the normal gallery upload isn't accidentally
+  // allowed 36 files at once.
+  sequenceUploader: f({
+    image: { maxFileCount: 36, maxFileSize: "4MB" },
+  })
+    .middleware(async ({ req }) => {
+      const session = await auth.api.getSession({ headers: req.headers });
+      if (!session?.user?.id) throw new UploadThingError("Unauthorized");
+      return { userId: session.user.id };
+    })
+    .onUploadComplete(async ({ file, metadata }) => {
+      try {
+        await db.insert(uploadsTable).values({
+          id: createId(),
+          key: file.key,
+          type: "image",
+          url: file.ufsUrl,
+          userId: metadata.userId,
+        });
+      } catch (error) {
+        console.error(
+          "Failed to save 360 sequence frame details to database:",
+          error,
+        );
+        throw new UploadThingError("Failed to process upload metadata.");
+      }
+
+      return {
+        fileKey: file.key,
+        fileUrl: file.ufsUrl,
+        uploadedBy: metadata.userId,
+      };
+    }),
+
   // New route for video uploads
   videoUploader: f({
     video: { maxFileCount: 5, maxFileSize: "64MB" },

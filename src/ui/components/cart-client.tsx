@@ -95,7 +95,8 @@ export function CartClient({ className }: CartProps) {
       {isMounted && totalItems > 0 && (
         <Badge
           className={`
-            absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-[10px]
+            absolute -top-1 -right-1 h-[18px] w-[18px] rounded-none
+            border-transparent bg-krs-champagne p-0 text-[10px] text-krs-mocha
           `}
           variant="default"
         >
@@ -292,13 +293,21 @@ export function CartClient({ className }: CartProps) {
                   {CURRENCY_FORMATTER.format(subtotal)}
                 </span>
               </div>
-              <Button
-                className="w-full"
-                onClick={() => setStep("inquiry")}
-                size="lg"
-              >
-                Send Inquiry
+              <Button asChild className="w-full rounded-none" size="lg">
+                <Link href="/checkout" onClick={() => setIsOpen(false)}>
+                  Checkout
+                </Link>
               </Button>
+              <button
+                className={`
+                  block w-full text-center text-xs text-muted-foreground
+                  hover:text-primary
+                `}
+                onClick={() => setStep("inquiry")}
+                type="button"
+              >
+                Have a quick question instead? Send an inquiry →
+              </button>
               <div className="flex items-center justify-between">
                 {isDesktop ? (
                   <SheetClose asChild>

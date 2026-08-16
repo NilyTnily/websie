@@ -13,6 +13,7 @@ import {
   subcategoryTable,
 } from "~/db/schema";
 import { requireAdmin } from "~/lib/admin";
+import { notifyPendingSubscribers } from "~/lib/queries/stock-notifications";
 import { slugify } from "~/lib/slugify";
 
 export interface CategoryInput {
@@ -26,6 +27,11 @@ export type MutationResult<T = undefined> =
   | { error: string; success: false };
 
 export type ProductInput = Omit<NewProduct, "createdAt" | "id" | "updatedAt">;
+
+export interface ProductMediaInput {
+  mediaType: "360" | "image" | "video";
+  url: string;
+}
 
 export async function createCategory(
   input: CategoryInput,
@@ -61,7 +67,7 @@ export async function createCategory(
 
 export async function createProduct(
   input: ProductInput,
-  images: string[] = [],
+  media: ProductMediaInput[] = [],
 ): Promise<MutationResult<{ id: string }>> {
   await requireAdmin();
   try {
@@ -73,13 +79,14 @@ export async function createProduct(
     });
     await db.transaction(async (tx) => {
       await tx.insert(productTable).values({ ...input, id });
-      if (images.length > 0) {
+      if (media.length > 0) {
         await tx.insert(productImageTable).values(
-          images.map((url, index) => ({
+          media.map((item, index) => ({
             id: createId(),
+            mediaType: item.mediaType,
             productId: id,
             sortOrder: index,
-            url,
+            url: item.url,
           })),
         );
       }
@@ -192,10 +199,15 @@ export async function updateCategory(
 export async function updateProduct(
   id: string,
   input: ProductInput,
-  images: string[] = [],
+  media: ProductMediaInput[] = [],
 ): Promise<MutationResult> {
   await requireAdmin();
   try {
+    const existing = await db.query.productTable.findFirst({
+      columns: { inStock: true },
+      where: eq(productTable.id, id),
+    });
+
     await db.transaction(async (tx) => {
       await tx
         .update(productTable)
@@ -204,18 +216,24 @@ export async function updateProduct(
       await tx
         .delete(productImageTable)
         .where(eq(productImageTable.productId, id));
-      if (images.length > 0) {
+      if (media.length > 0) {
         await tx.insert(productImageTable).values(
-          images.map((url, index) => ({
+          media.map((item, index) => ({
             id: createId(),
+            mediaType: item.mediaType,
             productId: id,
             sortOrder: index,
-            url,
+            url: item.url,
           })),
         );
       }
     });
     revalidateStorefront();
+
+    if (existing && !existing.inStock && input.inStock) {
+      await notifyPendingSubscribers(id);
+    }
+
     return { data: undefined, success: true };
   } catch (error) {
     return {

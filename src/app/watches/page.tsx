@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { getProductsByCategorySlug } from "~/lib/queries/catalog";
 import { CollectionBrowser } from "~/ui/components/collection-browser";
@@ -59,11 +60,13 @@ export default async function WatchesPage() {
             md:px-6
           `}
         >
-          <CollectionBrowser
-            categories={[]}
-            lockedCategoryId={category.id}
-            products={products}
-          />
+          <Suspense fallback={null}>
+            <CollectionBrowser
+              categories={[]}
+              lockedCategoryId={category.id}
+              products={products}
+            />
+          </Suspense>
         </div>
       </main>
     </div>

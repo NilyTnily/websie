@@ -62,10 +62,16 @@ export const productTable = pgTable("product", {
   waterResistanceM: integer("water_resistance_m"),
 });
 
-// Additional gallery photos beyond product.image (the cover shown in
+// Additional gallery media beyond product.image (the cover shown in
 // listings/cards, kept as-is to avoid touching every place that reads it).
+// A "360" sequence is represented as multiple rows sharing mediaType "360"
+// on one product, ordered by sortOrder — the frontend groups them into a
+// single interactive viewer rather than showing each frame separately.
 export const productImageTable = pgTable("product_image", {
   id: text("id").primaryKey(),
+  mediaType: text("media_type", { enum: ["image", "video", "360"] })
+    .default("image")
+    .notNull(),
   productId: text("product_id")
     .notNull()
     .references(() => productTable.id, { onDelete: "cascade" }),

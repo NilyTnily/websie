@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
 
 import { BadgeCheck, Gem, ShieldCheck, Wrench } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 import { SEO_CONFIG } from "~/app";
-import { BLUR_DATA_URL } from "~/lib/image-placeholder";
+import { ImageFallback } from "~/ui/components/image-fallback";
 import { Button } from "~/ui/primitives/button";
-
-const ABOUT_IMAGE =
-  "https://images.unsplash.com/photo-1633451238042-85d93d267866?w=1600&auto=format&fit=crop&q=80";
 
 const standard = [
   {
@@ -46,107 +42,99 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main className="flex min-h-screen flex-col">
-      <section className="relative overflow-hidden">
-        <div className="relative aspect-[16/7] w-full">
-          <Image
-            alt="Close-up of a watch movement's gears and components"
-            blurDataURL={BLUR_DATA_URL}
-            className="object-cover"
-            fill
-            placeholder="blur"
-            priority
-            sizes="100vw"
-            src={ABOUT_IMAGE}
-          />
-          <div
-            className={`
-              pointer-events-none absolute inset-0 bg-gradient-to-t
-              from-black/70 via-black/10 to-transparent
-            `}
-          />
-        </div>
+      {/* Hero — empty image slot pending real workshop photography. */}
+      <section className={`
+        relative h-[420px] overflow-hidden
+        sm:h-[620px]
+      `}>
+        <ImageFallback />
         <div
           className={`
-            absolute inset-x-0 bottom-0 px-6 pb-8
-            sm:px-10
+            pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70
+            via-black/10 to-transparent
+          `}
+        />
+        <div
+          className={`
+            absolute inset-x-0 bottom-0 px-6 pb-10
+            sm:px-10 sm:pb-14
           `}
         >
           <div className="mx-auto max-w-7xl">
+            <p className="krs-eyebrow text-krs-champagne">About the house</p>
             <h1
               className={`
-                font-display text-3xl text-white
-                sm:text-4xl
+                mt-4 font-display text-4xl text-krs-ivory
+                sm:text-[66px]
               `}
             >
-              About {SEO_CONFIG.name}
+              Small on purpose
             </h1>
-            <p className="mt-2 max-w-md text-sm text-white/80">
-              {SEO_CONFIG.slogan}
-            </p>
           </div>
         </div>
       </section>
 
-      <section className="py-16">
+      <section className="py-20">
         <div
           className={`
-            container mx-auto max-w-3xl px-4
+            container mx-auto grid max-w-7xl grid-cols-1 gap-11 px-4
             sm:px-6
+            lg:grid-cols-2 lg:gap-[88px]
           `}
         >
-          <p className="text-lg leading-relaxed text-foreground">
-            {SEO_CONFIG.description}
-          </p>
-          <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-            Every timepiece is cased and finished by hand, every stone is set
-            one at a time, and every vintage piece in the archive has been
-            sourced, authenticated, and restored under our own roof before it
-            ever reaches the shelf. We are a small house on purpose — small
-            enough that the person who services your movement or restrings your
-            pearls is the same person who packed the box it arrived in.
-          </p>
+          <div>
+            <p className={`
+              font-display text-2xl text-foreground
+              sm:text-[26px]
+            `}>
+              {SEO_CONFIG.description}
+            </p>
+            <p className="mt-6 text-base leading-[1.9] text-muted-foreground">
+              Every timepiece is cased and finished by hand, every stone is set
+              one at a time, and every vintage piece in the archive has been
+              sourced, authenticated, and restored under our own roof before it
+              ever reaches the shelf. We are a small house on purpose — small
+              enough that the person who services your movement or restrings your
+              pearls is the same person who packed the box it arrived in.
+            </p>
+          </div>
+
+          {/* Two empty image slots pending real workshop photography (bench, stone setting). */}
+          <div className="relative">
+            <div className="relative aspect-[3/4]">
+              <ImageFallback />
+            </div>
+            <div className={`
+              relative mt-12 aspect-[3/4] max-w-[80%]
+              sm:ml-auto
+            `}>
+              <ImageFallback />
+            </div>
+          </div>
         </div>
       </section>
 
-      <section
-        className="border-y border-border bg-muted/40 py-16"
-        id="standard"
-      >
+      <section className="bg-krs-mocha py-16" id="standard">
         <div
           className={`
             container mx-auto max-w-7xl px-4
             sm:px-6
           `}
         >
-          <h2
-            className={`
-              max-w-lg font-display text-3xl text-foreground
-              sm:text-4xl
-            `}
-          >
-            The KRS Standard
-          </h2>
           <div
             className={`
-              mt-10 grid grid-cols-1 gap-8
+              grid grid-cols-1 gap-px bg-krs-champagne/25
               sm:grid-cols-2
               lg:grid-cols-4
             `}
           >
             {standard.map((item) => (
-              <div key={item.title}>
-                <div
-                  className={`
-                    flex h-10 w-10 items-center justify-center rounded-full
-                    bg-primary/10 text-primary
-                  `}
-                >
-                  {item.icon}
-                </div>
-                <h3 className="mt-4 text-base font-medium text-foreground">
+              <div className="bg-krs-mocha p-8" key={item.title}>
+                <div className="text-krs-champagne">{item.icon}</div>
+                <h3 className="mt-4 text-base font-medium text-krs-ivory">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-sm text-krs-ivory/70">
                   {item.description}
                 </p>
               </div>
@@ -179,7 +167,8 @@ export default function AboutPage() {
           <Link href="/products">
             <Button
               className={`
-                h-11 px-8 text-xs font-medium tracking-[0.15em] uppercase
+                h-11 rounded-none px-8 text-xs font-medium tracking-[0.15em]
+                uppercase
               `}
               variant="outline"
             >

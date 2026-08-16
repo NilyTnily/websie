@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #12100E; }
+  a { color: #C8A97E; text-decoration: none; }
+  a:hover { color: #E0C79C; }
+</style>
+</helmet>
+
+<div style="font-family: Montserrat, sans-serif; background: #12100E; color: #F5F2EB; padding: 56px 56px 120px;">
+
+  <div style="max-width: 1100px;">
+    <div style="font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #C8A97E;">KRS mobile · iOS &amp; Android</div>
+    <div style="font-family: Cinzel, serif; font-size: 40px; letter-spacing: .04em; margin-top: 12px;">The salon, in a pocket</div>
+    <div style="font-size: 15px; line-height: 1.7; color: rgba(245,242,235,.65); max-width: 78ch; margin-top: 10px; text-wrap: pretty;">A full shopping app: browse the shelf, buy, track the courier, and keep every certificate and service record in the vault. Dark by default — a lit object on a dark ground is how jewelry is actually displayed. iOS below, Android adaptations at the end.</div>
+  </div>
+
+  <!-- iOS row 1 -->
+  <div style="display: flex; gap: 48px; margin-top: 64px; flex-wrap: wrap;">
+
+    <!-- 1 · ONBOARDING -->
+    <div data-screen-label="App — Onboarding">
+      <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-bottom: 14px;">01 · Onboarding</div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position: relative; height: 100%; background: #0D0D0D; font-family: Montserrat, sans-serif;">
+          <img src="https://images.unsplash.com/photo-1508962914676-134849a727f0?w=900&auto=format&fit=crop&q=85" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .62;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(to top, #0D0D0D 8%, rgba(13,13,13,.35) 55%, rgba(13,13,13,.7));"></div>
+          <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 84px 28px 52px; color: #F5F2EB;">
+            <div style="text-align: center; font-family: Cinzel, serif; font-size: 22px; letter-spacing: .42em; padding-left: .42em;">KRS</div>
+            <div>
+              <div style="font-size: 10px; letter-spacing: .34em; text-transform: uppercase; color: #C8A97E;">Fine watches &amp; jewelry</div>
+              <div style="font-family: Cinzel, serif; font-size: 42px; line-height: 1.12; letter-spacing: .02em; margin-top: 18px;">Precision<br>worn close.</div>
+              <div style="font-size: 14px; font-weight: 300; line-height: 1.75; color: rgba(245,242,235,.75); margin-top: 16px;">96 pieces on the shelf, each one graded on our own bench before it is listed.</div>
+              <div style="display: grid; gap: 10px; margin-top: 32px;">
+                <div style="height: 52px; background: #C8A97E; color: #2B1E17; display: grid; place-items: center; font-size: 11px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase;">Enter the salon</div>
+                <div style="height: 52px; border: 1px solid rgba(245,242,235,.35); display: grid; place-items: center; font-size: 11px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase;">I have an account</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <!-- 2 · HOME FEED -->
+    <div data-screen-label="App — Home feed">
+      <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-bottom: 14px;">02 · Home feed</div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="height: 100%; background: #12100E; color: #F5F2EB; font-family: Montserrat, sans-serif; display: flex; flex-direction: column;">
+          <div style="flex: 1; overflow: hidden;">
+            <div style="padding: 62px 20px 16px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 9px; letter-spacing: .3em; text-transform: uppercase; color: #C8A97E;">Good evening, Rowan</div>
+                <div style="font-family: Cinzel, serif; font-size: 21px; letter-spacing: .06em; margin-top: 6px;">The Shelf</div>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <div style="width: 36px; height: 36px; border: 1px solid rgba(245,242,235,.2); display: grid; place-items: center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F5F2EB" stroke-width="1.6"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></div>
+                <div style="width: 36px; height: 36px; border: 1px solid rgba(245,242,235,.2); display: grid; place-items: center; position: relative;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F5F2EB" stroke-width="1.6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg><span style="position: absolute; top: -5px; right: -5px; width: 15px; height: 15px; background: #C8A97E; color: #2B1E17; font-size: 9px; display: grid; place-items: center;">2</span></div>
+              </div>
+            </div>
+
+            <div style="position: relative; height: 400px; margin: 8px 20px 0; overflow: hidden;">
+              <img src="https://images.unsplash.com/photo-1533139502658-0198f920d8e8?w=900&auto=format&fit=crop&q=85" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+              <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(13,13,13,.9), transparent 55%);"></div>
+              <div style="position: absolute; top: 14px; left: 14px; background: rgba(13,13,13,.75); color: #C8A97E; font-size: 9px; letter-spacing: .24em; text-transform: uppercase; padding: 6px 11px;">Just arrived</div>
+              <div style="position: absolute; left: 18px; right: 18px; bottom: 18px;">
+                <div style="font-size: 9px; letter-spacing: .26em; text-transform: uppercase; color: rgba(245,242,235,.65);">Audemars Piguet</div>
+                <div style="font-family: Cinzel, serif; font-size: 24px; margin-top: 8px; letter-spacing: .02em;">Royal Oak 15500ST</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 12px;">
+                  <div style="font-size: 11px; color: rgba(245,242,235,.6); letter-spacing: .08em;">Steel 41mm · one on the shelf</div>
+                  <div style="font-family: Cinzel, serif; font-size: 20px;">$42,500</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; padding: 24px 20px 0; overflow: hidden;">
+              <sc-for list="{{ chips }}" as="c" hint-placeholder-count="5">
+                <span style="border: 1px solid rgba(245,242,235,.22); padding: 8px 14px; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; white-space: nowrap; color: rgba(245,242,235,.75);">{{ c }}</span>
+              </sc-for>
+            </div>
+
+            <div style="padding: 26px 20px 0; display: flex; justify-content: space-between; align-items: baseline;">
+              <div style="font-family: Cinzel, serif; font-size: 15px; letter-spacing: .12em;">Under $10,000</div>
+              <div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: #C8A97E;">See all</div>
+            </div>
+            <div style="display: flex; gap: 12px; padding: 16px 20px 0; overflow: hidden;">
+              <sc-for list="{{ feedRow }}" as="p" hint-placeholder-count="3">
+                <div style="width: 148px; flex-shrink: 0;">
+                  <div style="height: 176px; overflow: hidden; background: #241c17;"><img src="{{ p.image }}" alt="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                  <div style="font-size: 9px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.5); margin-top: 12px;">{{ p.house }}</div>
+                  <div style="font-family: Cinzel, serif; font-size: 14px; margin-top: 5px;">{{ p.name }}</div>
+                  <div style="font-family: Cinzel, serif; font-size: 13px; color: #C8A97E; margin-top: 6px;">{{ p.price }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid rgba(245,242,235,.12); background: #0D0D0D; padding: 12px 0 30px; display: grid; grid-template-columns: repeat(4, 1fr);">
+            <div style="display: grid; justify-items: center; gap: 7px; color: #C8A97E;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9h18M3 15h18"></path><rect x="3" y="4" width="18" height="16"></rect></svg><span style="font-size: 8px; letter-spacing: .18em; text-transform: uppercase;">Shelf</span></div>
+            <div style="display: grid; justify-items: center; gap: 7px; color: rgba(245,242,235,.45);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span style="font-size: 8px; letter-spacing: .18em; text-transform: uppercase;">Search</span></div>
+            <div style="display: grid; justify-items: center; gap: 7px; color: rgba(245,242,235,.45);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg><span style="font-size: 8px; letter-spacing: .18em; text-transform: uppercase;">Bag</span></div>
+            <div style="display: grid; justify-items: center; gap: 7px; color: rgba(245,242,235,.45);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="8" width="18" height="13"></rect><path d="M8 8V6a4 4 0 0 1 8 0v2"></path></svg><span style="font-size: 8px; letter-spacing: .18em; text-transform: uppercase;">Vault</span></div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <!-- 3 · CATEGORY BROWSE -->
+    <div data-screen-label="App — Browse">
+      <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-bottom: 14px;">03 · Browse</div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="height: 100%; background: #12100E; color: #F5F2EB; font-family: Montserrat, sans-serif; display: flex; flex-direction: column;">
+          <div style="padding: 62px 20px 14px; border-bottom: 1px solid rgba(245,242,235,.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-family: Cinzel, serif; font-size: 21px; letter-spacing: .06em;">Watches</div>
+              <div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: #C8A97E;">Filter · 2</div>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 14px; overflow: hidden;">
+              <span style="background: #C8A97E; color: #2B1E17; padding: 7px 12px; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; white-space: nowrap;">$5k–$25k ✕</span>
+              <span style="border: 1px solid rgba(245,242,235,.22); padding: 7px 12px; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; white-space: nowrap; color: rgba(245,242,235,.7);">37–42mm ✕</span>
+              <span style="border: 1px solid rgba(245,242,235,.22); padding: 7px 12px; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; white-space: nowrap; color: rgba(245,242,235,.7);">Steel</span>
+            </div>
+            <div style="font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: rgba(245,242,235,.45); margin-top: 14px;">31 pieces · sorted by featured</div>
+          </div>
+          <div style="flex: 1; overflow: hidden; padding: 18px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 14px; align-content: start;">
+            <sc-for list="{{ browseGrid }}" as="p" hint-placeholder-count="6">
+              <div>
+                <div style="aspect-ratio: 4/5; overflow: hidden; background: #241c17; position: relative;">
+                  <img src="{{ p.image }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                  <div style="position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border: 1px solid rgba(245,242,235,.45); display: grid; place-items: center;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F5F2EB" stroke-width="1.8"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></div>
+                </div>
+                <div style="font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5); margin-top: 11px;">{{ p.house }}</div>
+                <div style="font-family: Cinzel, serif; font-size: 13px; margin-top: 5px; line-height: 1.35;">{{ p.name }}</div>
+                <div style="font-family: Cinzel, serif; font-size: 13px; color: #C8A97E; margin-top: 6px;">{{ p.price }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border-top: 1px solid rgba(245,242,235,.12); background: #0D0D0D; padding: 12px 0 30px; display: grid; grid-template-columns: repeat(4, 1fr); font-size: 8px; letter-spacing: .18em; text-transform: uppercase; text-align: center; color: rgba(245,242,235,.45);">
+            <span style="color: #C8A97E;">Shelf</span><span>Search</span><span>Bag</span><span>Vault</span>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <!-- 4 · PRODUCT -->
+    <div data-screen-label="App — Product detail">
+      <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-bottom: 14px;">04 · Product detail</div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="height: 100%; background: #12100E; color: #F5F2EB; font-family: Montserrat, sans-serif; display: flex; flex-direction: column;">
+          <div style="flex: 1; overflow: hidden;">
+            <div style="position: relative; height: 400px; background: #241c17;">
+              <img src="https://images.unsplash.com/photo-1508962914676-134849a727f0?w=900&auto=format&fit=crop&q=85" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+              <div style="position: absolute; top: 60px; left: 18px; width: 34px; height: 34px; background: rgba(13,13,13,.6); backdrop-filter: blur(8px); display: grid; place-items: center; color: #F5F2EB; font-size: 15px;">←</div>
+              <div style="position: absolute; top: 60px; right: 18px; width: 34px; height: 34px; background: rgba(13,13,13,.6); backdrop-filter: blur(8px); display: grid; place-items: center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F5F2EB" stroke-width="1.6"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></div>
+              <div style="position: absolute; bottom: 16px; left: 18px; display: flex; gap: 8px; align-items: center; background: rgba(13,13,13,.7); backdrop-filter: blur(8px); padding: 8px 12px; color: #C8A97E; font-size: 9px; letter-spacing: .2em; text-transform: uppercase;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg> Hold to loupe · 10×
+              </div>
+              <div style="position: absolute; bottom: 16px; right: 18px; display: flex; gap: 5px;">
+                <span style="width: 18px; height: 2px; background: #C8A97E;"></span><span style="width: 18px; height: 2px; background: rgba(245,242,235,.3);"></span><span style="width: 18px; height: 2px; background: rgba(245,242,235,.3);"></span>
+              </div>
+            </div>
+
+            <div style="padding: 24px 20px 0;">
+              <div style="font-size: 9px; letter-spacing: .3em; text-transform: uppercase; color: #C8A97E;">Patek Philippe</div>
+              <div style="font-family: Cinzel, serif; font-size: 26px; letter-spacing: .02em; margin-top: 10px; line-height: 1.25;">Nautilus 5711/1A-010</div>
+              <div style="font-size: 10px; letter-spacing: .16em; color: rgba(245,242,235,.5); margin-top: 8px;">REF. 5711/1A-010 · STEEL 40MM · ONE ON THE SHELF</div>
+              <div style="font-family: Cinzel, serif; font-size: 32px; margin-top: 18px;">$34,000</div>
+              <div style="font-size: 13px; font-weight: 300; line-height: 1.8; color: rgba(245,242,235,.7); margin-top: 16px;">The original luxury sports watch, with a porthole-inspired case and the horizontally embossed blue dial that made the Nautilus an icon.</div>
+
+              <div style="border: 1px solid rgba(245,242,235,.14); margin-top: 22px;">
+                <div style="display: flex; justify-content: space-between; padding: 13px 15px; border-bottom: 1px solid rgba(245,242,235,.09); font-size: 12px;"><span style="color: rgba(245,242,235,.6);">Movement</span><span>Cal. 26-330 SC</span></div>
+                <div style="display: flex; justify-content: space-between; padding: 13px 15px; border-bottom: 1px solid rgba(245,242,235,.09); font-size: 12px;"><span style="color: rgba(245,242,235,.6);">Case</span><span>40mm steel</span></div>
+                <div style="display: flex; justify-content: space-between; padding: 13px 15px; font-size: 12px;"><span style="color: rgba(245,242,235,.6);">Water resistance</span><span>120m</span></div>
+              </div>
+              <div style="display: flex; gap: 10px; margin-top: 16px; align-items: center; font-size: 11px; color: #C8A97E; letter-spacing: .14em; text-transform: uppercase;">✦ Insured, signature required · ships in 2 days</div>
+            </div>
+          </div>
+
+          <div style="background: #0D0D0D; border-top: 1px solid rgba(245,242,235,.12); padding: 14px 20px 32px; display: flex; gap: 10px;">
+            <div style="width: 52px; height: 52px; border: 1px solid rgba(245,242,235,.25); display: grid; place-items: center; font-size: 11px; letter-spacing: .1em; color: rgba(245,242,235,.75);">Ask</div>
+            <div style="flex: 1; height: 52px; background: #C8A97E; color: #2B1E17; display: grid; place-items: center; font-size: 11px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase;">Add to bag</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+  </div>
+
+  <!-- iOS row 2 -->
+  <div style="display: flex; gap: 48px; margin-top: 64px; flex-wrap: wrap;">
+
+    <!-- 5 · BAG & CHECKOUT -->
+    <div data-screen-label="App — Bag and checkout">
+      <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-bottom: 14px;">05 · Bag &amp; checkout</div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="height: 100%; background: #12100E; color: #F5F2EB; font-family: Montserrat, sans-serif; display: flex; flex-direction: column;">
+          <div style="flex: 1; overflow: hidden;">
+            <div style="padding: 62px 20px 16px; border-bottom: 1px solid rgba(245,242,235,.1); display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-family: Cinzel, serif; font-size: 21px; letter-spacing: .06em;">Your Bag</div>
+              <div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5);">2 pieces</div>
+            </div>
+
+            <div style="padding: 18px 20px 0; display: grid; gap: 18px;">
+              <div style="display: flex; gap: 14px;">
+                <div style="width: 78px; height: 96px; overflow: hidden; background: #241c17;"><img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&auto=format&fit=crop&q=75" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
+                <div style="flex: 1;">
+                  <div style="font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5);">KRS · J210</div>
+                  <div style="font-family: Cinzel, serif; font-size: 15px; margin-top: 6px;">Cascade Pearl Necklace</div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px;">
+                    <span style="border: 1px solid rgba(245,242,235,.22); padding: 4px 12px; font-size: 12px;">− 1 +</span>
+                    <span style="font-family: Cinzel, serif; font-size: 16px;">$4,200</span>
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 14px;">
+                <div style="width: 78px; height: 96px; overflow: hidden; background: #241c17;"><img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=300&auto=format&fit=crop&q=75" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
+                <div style="flex: 1;">
+                  <div style="font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5);">KRS · J033</div>
+                  <div style="font-family: Cinzel, serif; font-size: 15px; margin-top: 6px;">Aurora Diamond Studs</div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px;">
+                    <span style="border: 1px solid rgba(245,242,235,.22); padding: 4px 12px; font-size: 12px;">− 1 +</span>
+                    <span style="font-family: Cinzel, serif; font-size: 16px;">$2,400</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding: 24px 20px 0;">
+              <div style="font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #C8A97E;">Presentation</div>
+              <div style="display: grid; gap: 8px; margin-top: 12px;">
+                <div style="border: 1px solid #C8A97E; padding: 13px 15px; display: flex; justify-content: space-between; font-size: 12px;"><span>House case — mocha lacquer</span><span style="color: #C8A97E;">Included</span></div>
+                <div style="border: 1px solid rgba(245,242,235,.16); padding: 13px 15px; display: flex; justify-content: space-between; font-size: 12px; color: rgba(245,242,235,.75);"><span>Gift presentation</span><span>$40</span></div>
+                <div style="border: 1px solid rgba(245,242,235,.16); padding: 13px 15px; display: flex; justify-content: space-between; font-size: 12px; color: rgba(245,242,235,.75);"><span>Engraving, 20 characters</span><span>$120</span></div>
+              </div>
+            </div>
+
+            <div style="padding: 22px 20px 0; display: grid; gap: 9px; font-size: 12px; font-weight: 300;">
+              <div style="display: flex; justify-content: space-between;"><span style="color: rgba(245,242,235,.6);">Subtotal</span><span>$6,600</span></div>
+              <div style="display: flex; justify-content: space-between;"><span style="color: rgba(245,242,235,.6);">Insured delivery · signature</span><span>Included</span></div>
+              <div style="display: flex; justify-content: space-between;"><span style="color: rgba(245,242,235,.6);">Duties &amp; taxes</span><span>Prepaid</span></div>
+            </div>
+          </div>
+
+          <div style="background: #0D0D0D; border-top: 1px solid rgba(245,242,235,.12); padding: 16px 20px 32px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;">
+              <span style="font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #C8A97E;">Total</span>
+              <span style="font-family: Cinzel, serif; font-size: 26px;">$6,600</span>
+            </div>
+            <div style="height: 52px; background: #F5F2EB; color: #0D0D0D; display: grid; place-items: center; font-size: 15px; font-weight: 500; letter-spacing: .02em;"> Pay</div>
+            <div style="height: 46px; border: 1px solid rgba(245,242,235,.25); display: grid; place-items: center; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; margin-top: 9px;">Card or bank transfer</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <!-- 6 · ORDER TRACKING -->
+    <div data-screen-label="App — Order tracking">
+      <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-bottom: 14px;">06 · Order tracking</div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="height: 100%; background: #12100E; color: #F5F2EB; font-family: Montserrat, sans-serif; display: flex; flex-direction: column;">
+          <div style="flex: 1; overflow: hidden;">
+            <div style="padding: 62px 20px 18px;">
+              <div style="font-size: 9px; letter-spacing: .3em; text-transform: uppercase; color: #C8A97E;">Order KRS-10428</div>
+              <div style="font-family: Cinzel, serif; font-size: 26px; letter-spacing: .03em; margin-top: 10px;">Arriving Tuesday</div>
+              <div style="font-size: 13px; font-weight: 300; color: rgba(245,242,235,.65); margin-top: 8px;">18 August, before 6pm · signature required</div>
+            </div>
+
+            <div style="margin: 0 20px; height: 150px; position: relative; overflow: hidden; background: #1a1512; border: 1px solid rgba(245,242,235,.12);">
+              <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&auto=format&fit=crop&q=75" alt="" style="width: 100%; height: 100%; object-fit: cover; opacity: .35;">
+              <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 22px;">
+                <div>
+                  <div style="font-size: 9px; letter-spacing: .24em; text-transform: uppercase; color: rgba(245,242,235,.6);">Sealed at the salon</div>
+                  <div style="font-family: Cinzel, serif; font-size: 17px; margin-top: 6px;">Cascade Pearl Necklace</div>
+                </div>
+                <div style="width: 46px; height: 46px; border: 1px solid #C8A97E; display: grid; place-items: center; color: #C8A97E; font-size: 17px;">✦</div>
+              </div>
+            </div>
+
+            <div style="padding: 30px 20px 0;">
+              <sc-for list="{{ track }}" as="t" hint-placeholder-count="4">
+                <div style="display: grid; grid-template-columns: 30px 1fr; gap: 14px;">
+                  <div style="display: grid; justify-items: center;">
+                    <span style="width: 11px; height: 11px; border: 1px solid {{ t.color }}; background: {{ t.fill }}; margin-top: 4px;"></span>
+                    <span style="width: 1px; flex: 1; background: rgba(245,242,235,.16); min-height: 44px;"></span>
+                  </div>
+                  <div style="padding-bottom: 22px;">
+                    <div style="font-size: 14px; color: {{ t.color }};">{{ t.title }}</div>
+                    <div style="font-size: 12px; font-weight: 300; color: rgba(245,242,235,.5); margin-top: 5px;">{{ t.meta }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="margin: 6px 20px 0; border: 1px solid rgba(245,242,235,.14); padding: 16px;">
+              <div style="font-size: 9px; letter-spacing: .26em; text-transform: uppercase; color: #C8A97E;">Your courier</div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                <div>
+                  <div style="font-size: 14px;">Malca-Amit · secured transit</div>
+                  <div style="font-size: 12px; font-weight: 300; color: rgba(245,242,235,.5); margin-top: 4px;">Waybill 7742 118 9032</div>
+                </div>
+                <div style="font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #C8A97E;">Track</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background: #0D0D0D; border-top: 1px solid rgba(245,242,235,.12); padding: 14px 20px 32px; display: flex; gap: 10px;">
+            <div style="flex: 1; height: 50px; border: 1px solid rgba(245,242,235,.25); display: grid; place-items: center; font-size: 11px; letter-spacing: .2em; text-transform: uppercase;">Reschedule</div>
+            <div style="flex: 1; height: 50px; background: #C8A97E; color: #2B1E17; display: grid; place-items: center; font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase;">Message us</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <!-- 7 · VAULT -->
+    <div data-screen-label="App — Vault and certificates">
+      <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-bottom: 14px;">07 · Vault &amp; certificates</div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="height: 100%; background: #12100E; color: #F5F2EB; font-family: Montserrat, sans-serif; display: flex; flex-direction: column;">
+          <div style="flex: 1; overflow: hidden;">
+            <div style="padding: 62px 20px 20px; border-bottom: 1px solid rgba(245,242,235,.1);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                  <div style="font-size: 9px; letter-spacing: .3em; text-transform: uppercase; color: #C8A97E;">Client since 2021</div>
+                  <div style="font-family: Cinzel, serif; font-size: 24px; letter-spacing: .05em; margin-top: 8px;">The Vault</div>
+                </div>
+                <div style="width: 42px; height: 42px; border: 1px solid rgba(245,242,235,.25); display: grid; place-items: center; font-family: Cinzel, serif; font-size: 15px;">RH</div>
+              </div>
+              <div style="display: flex; gap: 28px; margin-top: 22px;">
+                <div><div style="font-family: Cinzel, serif; font-size: 21px;">$52,750</div><div style="font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5); margin-top: 5px;">Insured value</div></div>
+                <div><div style="font-family: Cinzel, serif; font-size: 21px;">4</div><div style="font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5); margin-top: 5px;">Pieces</div></div>
+                <div><div style="font-family: Cinzel, serif; font-size: 21px; color: #D98C6A;">1</div><div style="font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5); margin-top: 5px;">Service due</div></div>
+              </div>
+            </div>
+
+            <div style="padding: 18px 20px 0; display: grid; gap: 12px;">
+              <sc-for list="{{ vault }}" as="v" hint-placeholder-count="3">
+                <div style="border: 1px solid rgba(245,242,235,.14); display: grid; grid-template-columns: 84px 1fr;">
+                  <div style="background: #241c17; overflow: hidden;"><img src="{{ v.image }}" alt="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                  <div style="padding: 14px 16px;">
+                    <div style="font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5);">{{ v.house }}</div>
+                    <div style="font-family: Cinzel, serif; font-size: 15px; margin-top: 6px;">{{ v.name }}</div>
+                    <div style="font-size: 11px; font-weight: 300; color: {{ v.serviceColor }}; margin-top: 8px;">{{ v.service }}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                      <span style="font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: #C8A97E;">Certificate ↓</span>
+                      <span style="font-family: Cinzel, serif; font-size: 14px;">{{ v.value }}</span>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="margin: 16px 20px 0; background: #1a1512; border: 1px solid rgba(200,169,126,.35); padding: 18px;">
+              <div style="font-size: 9px; letter-spacing: .26em; text-transform: uppercase; color: #C8A97E;">Bench notice</div>
+              <div style="font-family: Cinzel, serif; font-size: 16px; margin-top: 10px;">Speedmaster is due a service</div>
+              <div style="font-size: 12px; font-weight: 300; line-height: 1.7; color: rgba(245,242,235,.6); margin-top: 8px;">Last full service March 2021. Complimentary collection within Greater London.</div>
+              <div style="height: 42px; background: #C8A97E; color: #2B1E17; display: grid; place-items: center; font-size: 10px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; margin-top: 14px;">Book the bench</div>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid rgba(245,242,235,.12); background: #0D0D0D; padding: 12px 0 30px; display: grid; grid-template-columns: repeat(4, 1fr); font-size: 8px; letter-spacing: .18em; text-transform: uppercase; text-align: center; color: rgba(245,242,235,.45);">
+            <span>Shelf</span><span>Search</span><span>Bag</span><span style="color: #C8A97E;">Vault</span>
+          </div>
+        </div>
+      </x-import>
+    </div>
+  </div>
+
+  <!-- ANDROID -->
+  <div style="margin-top: 88px;">
+    <div style="font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #C8A97E;">Android</div>
+    <div style="font-family: Cinzel, serif; font-size: 28px; letter-spacing: .04em; margin-top: 10px;">Same house, Material behaviour</div>
+    <div style="font-size: 15px; line-height: 1.7; color: rgba(245,242,235,.6); max-width: 74ch; margin-top: 8px;">Gesture nav instead of the home indicator, a top app bar that scrolls with content, Google Pay, and a bottom nav bar with the Material touch target. The palette, type and photography do not change.</div>
+  </div>
+
+  <div style="display: flex; gap: 48px; margin-top: 40px; flex-wrap: wrap;">
+
+    <div data-screen-label="Android — Home feed">
+      <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-bottom: 14px;">A1 · Home feed</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" dark="{{ true }}" hint-size="412px,892px">
+        <div style="height: 100%; background: #12100E; color: #F5F2EB; font-family: Montserrat, sans-serif; display: flex; flex-direction: column;">
+          <div style="flex: 1; overflow: hidden;">
+            <div style="padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-family: Cinzel, serif; font-size: 20px; letter-spacing: .34em; padding-left: .34em;">KRS</div>
+              <div style="display: flex; gap: 18px; color: rgba(245,242,235,.8);">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+              </div>
+            </div>
+            <div style="position: relative; height: 380px; margin: 4px 16px 0; overflow: hidden; border-radius: 4px;">
+              <img src="https://images.unsplash.com/photo-1533139502658-0198f920d8e8?w=900&auto=format&fit=crop&q=85" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+              <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(13,13,13,.9), transparent 55%);"></div>
+              <div style="position: absolute; left: 18px; right: 18px; bottom: 18px;">
+                <div style="font-size: 9px; letter-spacing: .26em; text-transform: uppercase; color: rgba(245,242,235,.65);">Audemars Piguet</div>
+                <div style="font-family: Cinzel, serif; font-size: 23px; margin-top: 8px;">Royal Oak 15500ST</div>
+                <div style="font-family: Cinzel, serif; font-size: 18px; color: #C8A97E; margin-top: 8px;">$42,500</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px; padding: 20px 16px 0; overflow: hidden;">
+              <sc-for list="{{ chips }}" as="c" hint-placeholder-count="5">
+                <span style="border: 1px solid rgba(245,242,235,.22); border-radius: 999px; padding: 8px 15px; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; white-space: nowrap; color: rgba(245,242,235,.75);">{{ c }}</span>
+              </sc-for>
+            </div>
+            <div style="display: flex; gap: 12px; padding: 22px 16px 0; overflow: hidden;">
+              <sc-for list="{{ feedRow }}" as="p" hint-placeholder-count="3">
+                <div style="width: 150px; flex-shrink: 0;">
+                  <div style="height: 178px; overflow: hidden; background: #241c17; border-radius: 4px;"><img src="{{ p.image }}" alt="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                  <div style="font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5); margin-top: 12px;">{{ p.house }}</div>
+                  <div style="font-family: Cinzel, serif; font-size: 14px; margin-top: 5px;">{{ p.name }}</div>
+                  <div style="font-family: Cinzel, serif; font-size: 13px; color: #C8A97E; margin-top: 6px;">{{ p.price }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background: #0D0D0D; border-top: 1px solid rgba(245,242,235,.12); padding: 10px 0; display: grid; grid-template-columns: repeat(4, 1fr);">
+            <div style="display: grid; justify-items: center; gap: 5px;"><span style="background: rgba(200,169,126,.22); border-radius: 999px; padding: 4px 20px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C8A97E" stroke-width="1.6"><rect x="3" y="4" width="18" height="16"></rect><path d="M3 9h18M3 15h18"></path></svg></span><span style="font-size: 10px; color: #C8A97E;">Shelf</span></div>
+            <div style="display: grid; justify-items: center; gap: 5px; color: rgba(245,242,235,.5);"><span style="padding: 4px 20px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></span><span style="font-size: 10px;">Search</span></div>
+            <div style="display: grid; justify-items: center; gap: 5px; color: rgba(245,242,235,.5);"><span style="padding: 4px 20px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg></span><span style="font-size: 10px;">Bag</span></div>
+            <div style="display: grid; justify-items: center; gap: 5px; color: rgba(245,242,235,.5);"><span style="padding: 4px 20px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="8" width="18" height="13"></rect><path d="M8 8V6a4 4 0 0 1 8 0v2"></path></svg></span><span style="font-size: 10px;">Vault</span></div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Android — Product detail">
+      <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-bottom: 14px;">A2 · Product detail</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" dark="{{ true }}" hint-size="412px,892px">
+        <div style="height: 100%; background: #12100E; color: #F5F2EB; font-family: Montserrat, sans-serif; display: flex; flex-direction: column;">
+          <div style="flex: 1; overflow: hidden;">
+            <div style="position: relative; height: 390px; background: #241c17;">
+              <img src="https://images.unsplash.com/photo-1508962914676-134849a727f0?w=900&auto=format&fit=crop&q=85" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+              <div style="position: absolute; top: 14px; left: 14px; width: 38px; height: 38px; border-radius: 999px; background: rgba(13,13,13,.6); display: grid; place-items: center; font-size: 16px;">←</div>
+              <div style="position: absolute; top: 14px; right: 14px; width: 38px; height: 38px; border-radius: 999px; background: rgba(13,13,13,.6); display: grid; place-items: center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F5F2EB" stroke-width="1.6"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></div>
+              <div style="position: absolute; bottom: 14px; left: 16px; display: flex; gap: 8px; align-items: center; border-radius: 999px; background: rgba(13,13,13,.72); padding: 8px 14px; color: #C8A97E; font-size: 9px; letter-spacing: .18em; text-transform: uppercase;">Hold to loupe · 10×</div>
+            </div>
+            <div style="padding: 22px 20px 0;">
+              <div style="font-size: 9px; letter-spacing: .3em; text-transform: uppercase; color: #C8A97E;">Patek Philippe</div>
+              <div style="font-family: Cinzel, serif; font-size: 25px; margin-top: 10px; line-height: 1.25;">Nautilus 5711/1A-010</div>
+              <div style="font-family: Cinzel, serif; font-size: 30px; margin-top: 16px;">$34,000</div>
+              <div style="font-size: 13px; font-weight: 300; line-height: 1.8; color: rgba(245,242,235,.7); margin-top: 14px;">The original luxury sports watch, with a porthole-inspired case and the horizontally embossed blue dial that made the Nautilus an icon.</div>
+              <div style="border: 1px solid rgba(245,242,235,.14); border-radius: 4px; margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; padding: 13px 15px; border-bottom: 1px solid rgba(245,242,235,.09); font-size: 12px;"><span style="color: rgba(245,242,235,.6);">Movement</span><span>Cal. 26-330 SC</span></div>
+                <div style="display: flex; justify-content: space-between; padding: 13px 15px; font-size: 12px;"><span style="color: rgba(245,242,235,.6);">Case</span><span>40mm steel</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="background: #0D0D0D; border-top: 1px solid rgba(245,242,235,.12); padding: 14px 16px; display: flex; gap: 10px;">
+            <div style="width: 56px; height: 50px; border: 1px solid rgba(245,242,235,.25); border-radius: 999px; display: grid; place-items: center; font-size: 11px; color: rgba(245,242,235,.75);">Ask</div>
+            <div style="flex: 1; height: 50px; background: #C8A97E; color: #2B1E17; border-radius: 999px; display: grid; place-items: center; font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase;">Add to bag</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div data-screen-label="Android — Checkout">
+      <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-bottom: 14px;">A3 · Checkout</div>
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" dark="{{ true }}" hint-size="412px,892px">
+        <div style="height: 100%; background: #12100E; color: #F5F2EB; font-family: Montserrat, sans-serif; display: flex; flex-direction: column;">
+          <div style="flex: 1; overflow: hidden;">
+            <div style="padding: 18px 20px 16px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid rgba(245,242,235,.1);">
+              <span style="font-size: 17px;">←</span>
+              <span style="font-family: Cinzel, serif; font-size: 19px; letter-spacing: .05em;">Checkout</span>
+            </div>
+            <div style="padding: 20px 20px 0;">
+              <div style="font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #C8A97E;">Deliver to</div>
+              <div style="border: 1px solid rgba(245,242,235,.16); border-radius: 4px; padding: 16px; margin-top: 12px;">
+                <div style="font-size: 14px;">Rowan Halloran</div>
+                <div style="font-size: 12px; font-weight: 300; color: rgba(245,242,235,.6); margin-top: 6px; line-height: 1.6;">18 Marylebone High Street<br>London W1U 4QF</div>
+                <div style="font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #C8A97E; margin-top: 12px;">Change</div>
+              </div>
+            </div>
+            <div style="padding: 24px 20px 0;">
+              <div style="font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: #C8A97E;">How it travels</div>
+              <div style="display: grid; gap: 8px; margin-top: 12px;">
+                <div style="border: 1px solid #C8A97E; border-radius: 4px; padding: 14px 16px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 13px;"><span>Insured courier · signature</span><span style="color: #C8A97E;">Included</span></div>
+                  <div style="font-size: 11px; font-weight: 300; color: rgba(245,242,235,.55); margin-top: 6px;">Arrives Tue 18 Aug</div>
+                </div>
+                <div style="border: 1px solid rgba(245,242,235,.16); border-radius: 4px; padding: 14px 16px;">
+                  <div style="display: flex; justify-content: space-between; font-size: 13px; color: rgba(245,242,235,.8);"><span>Hand delivery by an associate</span><span>$180</span></div>
+                  <div style="font-size: 11px; font-weight: 300; color: rgba(245,242,235,.45); margin-top: 6px;">Greater London · fitting on arrival</div>
+                </div>
+              </div>
+            </div>
+            <div style="padding: 24px 20px 0; display: grid; gap: 9px; font-size: 12px; font-weight: 300;">
+              <div style="display: flex; justify-content: space-between;"><span style="color: rgba(245,242,235,.6);">Subtotal</span><span>$6,600</span></div>
+              <div style="display: flex; justify-content: space-between;"><span style="color: rgba(245,242,235,.6);">Delivery</span><span>Included</span></div>
+              <div style="display: flex; justify-content: space-between;"><span style="color: rgba(245,242,235,.6);">Duties &amp; taxes</span><span>Prepaid</span></div>
+            </div>
+          </div>
+          <div style="background: #0D0D0D; border-top: 1px solid rgba(245,242,235,.12); padding: 16px 16px 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px;">
+              <span style="font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #C8A97E;">Total</span>
+              <span style="font-family: Cinzel, serif; font-size: 25px;">$6,600</span>
+            </div>
+            <div style="height: 50px; background: #F5F2EB; color: #0D0D0D; border-radius: 999px; display: grid; place-items: center; font-size: 14px; font-weight: 500;">Buy with Google Pay</div>
+            <div style="height: 46px; border: 1px solid rgba(245,242,235,.25); border-radius: 999px; display: grid; place-items: center; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; margin-top: 9px;">Card or bank transfer</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const U = (id, w) => `https://images.unsplash.com/${id}?w=${w || 600}&auto=format&fit=crop&q=80`;
+
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      chips: ["All", "Under $10k", "Steel", "Vintage", "Just arrived", "Jewelry"],
+      feedRow: [
+        { house: "Tudor", name: "Black Bay 58", price: "$4,375", image: U("photo-1523170335258-f5ed11844a49") },
+        { house: "Omega", name: "Speedmaster", price: "$7,400", image: U("photo-1533139502658-0198f920d8e8") },
+        { house: "Cartier", name: "Santos", price: "$9,150", image: U("photo-1605143185650-77944b152643") },
+      ],
+      browseGrid: [
+        { house: "Patek Philippe", name: "Nautilus 5711/1A", price: "$34,000", image: U("photo-1508962914676-134849a727f0") },
+        { house: "Rolex", name: "Submariner Date", price: "$14,800", image: U("photo-1524592094714-0f0654e20314") },
+        { house: "Omega", name: "Speedmaster Moonwatch", price: "$7,400", image: U("photo-1533139502658-0198f920d8e8") },
+        { house: "Tudor", name: "Black Bay Fifty-Eight", price: "$4,375", image: U("photo-1523170335258-f5ed11844a49") },
+        { house: "Cartier", name: "Santos de Cartier", price: "$9,150", image: U("photo-1605143185650-77944b152643") },
+        { house: "Panerai", name: "Luminor Marina", price: "$6,900", image: U("photo-1614164185128-e4ec99c436d7") },
+      ],
+      track: [
+        { title: "Order placed", meta: "14 Aug, 18:22", color: "rgba(245,242,235,.75)", fill: "#C8A97E" },
+        { title: "Graded and sealed at the salon", meta: "15 Aug, 09:40 · photographed for your vault", color: "rgba(245,242,235,.75)", fill: "#C8A97E" },
+        { title: "Collected by secured courier", meta: "15 Aug, 14:10 · insured to declared value", color: "#C8A97E", fill: "#C8A97E" },
+        { title: "Out for delivery", meta: "Expected Tue 18 Aug · signature required", color: "rgba(245,242,235,.45)", fill: "transparent" },
+      ],
+      vault: [
+        { house: "Patek Philippe", name: "Nautilus 5711/1A", service: "Next service Mar 2028", serviceColor: "rgba(245,242,235,.6)", value: "$34,000", image: U("photo-1508962914676-134849a727f0", 300) },
+        { house: "Omega", name: "Speedmaster Moonwatch", service: "Service overdue — 5 yrs", serviceColor: "#D98C6A", value: "$7,400", image: U("photo-1533139502658-0198f920d8e8", 300) },
+        { house: "KRS", name: "Ember Gemstone Ring", service: "Cleaned Jun 2026", serviceColor: "rgba(245,242,235,.6)", value: "$3,850", image: U("photo-1611955167811-4711904bb9f8", 300) },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

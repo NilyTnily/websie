@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
@@ -8,6 +8,7 @@ import * as React from "react";
 import { cn } from "~/lib/cn";
 import { useWishlist } from "~/lib/hooks/use-wishlist";
 import { BLUR_DATA_URL } from "~/lib/image-placeholder";
+import { ImageFallback } from "~/ui/components/image-fallback";
 import { Button } from "~/ui/primitives/button";
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
@@ -20,9 +21,8 @@ type ProductCardProps = Omit<
   React.HTMLAttributes<HTMLDivElement>,
   "onError"
 > & {
-  onAddToCart?: (productId: string) => void;
   product: {
-    category: string;
+    house: string;
     id: string;
     image: string;
     inStock?: boolean;
@@ -34,89 +34,59 @@ type ProductCardProps = Omit<
 
 export function ProductCard({
   className,
-  onAddToCart,
   product,
   ...props
 }: ProductCardProps) {
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [isHovered, setIsHovered] = React.useState(false);
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const [hasError, setHasError] = React.useState(false);
 
   const isInWishlist = isWishlisted(product.id);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    onAddToCart?.(product.id);
-  };
-
-  const handleAddToWishlist = (e: React.MouseEvent) => {
+  const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     toggleWishlist(product.id);
   };
 
   return (
-    <div className={cn("group", className)} {...props}>
-      <Link href={`/products/${product.id}`}>
+    <div className={cn("group relative", className)} {...props}>
+      <Link className="block" href={`/products/${product.id}`}>
         <div
-          className={`
-            relative overflow-hidden bg-card transition-shadow duration-300
-            hover:shadow-lg
-          `}
+          className="relative overflow-hidden bg-card"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
           <div
             className={`
-              relative aspect-square overflow-hidden bg-gradient-to-b
+              relative aspect-[4/5] overflow-hidden bg-gradient-to-b
               from-accent to-muted
             `}
           >
-            <Image
-              alt={product.name}
-              blurDataURL={BLUR_DATA_URL}
-              className={cn(
-                `
-                  object-cover opacity-0 transition-[opacity,transform]
-                  duration-500 ease-out
-                `,
-                isHovered && "scale-105",
-                isLoaded && "opacity-100",
-              )}
-              fill
-              onLoad={() => setIsLoaded(true)}
-              placeholder="blur"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              src={product.image}
-            />
+            {hasError ? (
+              <ImageFallback />
+            ) : (
+              <Image
+                alt={product.name}
+                blurDataURL={BLUR_DATA_URL}
+                className={cn(
+                  `
+                    object-cover opacity-0 transition-[opacity,transform]
+                    duration-500 ease-out
+                  `,
+                  isHovered && "scale-105",
+                  isLoaded && "opacity-100",
+                )}
+                fill
+                onError={() => setHasError(true)}
+                onLoad={() => setIsLoaded(true)}
+                placeholder="blur"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                src={product.image}
+              />
+            )}
 
             <div aria-hidden="true" className="krs-photo-grade" />
-
-            <Button
-              aria-pressed={isInWishlist}
-              className={cn(
-                `
-                  absolute right-2 bottom-2 z-10 rounded-full bg-background/80
-                  backdrop-blur-sm transition-opacity duration-300
-                `,
-                !isHovered && !isInWishlist && "opacity-0",
-              )}
-              onClick={handleAddToWishlist}
-              size="icon"
-              type="button"
-              variant="outline"
-            >
-              <Heart
-                className={cn(
-                  "h-4 w-4",
-                  isInWishlist
-                    ? "fill-secondary text-secondary"
-                    : "text-muted-foreground",
-                )}
-              />
-              <span className="sr-only">
-                {isInWishlist ? "Remove from wishlist" : "Save to wishlist"}
-              </span>
-            </Button>
 
             {!product.inStock && (
               <div
@@ -125,42 +95,62 @@ export function ProductCard({
                   bg-background/85 backdrop-blur-sm
                 `}
               >
-                <span className="krs-ref text-xs text-muted-foreground">
+                <span className="krs-meta text-xs text-muted-foreground">
                   Out of Stock
                 </span>
               </div>
             )}
           </div>
 
-          <div className="p-4">
-            <p className="krs-ref text-[11px] text-muted-foreground">
-              {product.category} · Ref. {product.ref}
-            </p>
-            <h3
-              className={`
-                mt-1 line-clamp-2 font-display text-base text-foreground
-              `}
-            >
-              {product.name}
-            </h3>
-            <div className="mt-3 flex items-center justify-between">
-              <span className="text-sm text-foreground">
-                {CURRENCY_FORMATTER.format(product.price)}
-              </span>
-              <Button
-                className="h-8 gap-1.5 px-3 text-xs"
-                disabled={!product.inStock}
-                onClick={handleAddToCart}
-                size="sm"
-                variant="ghost"
+          <div className="krs-hairline" />
+
+          <div className="flex items-baseline justify-between p-4">
+            <div className="min-w-0">
+              <p className="krs-meta text-[10px] text-muted-foreground">
+                {product.house} · Ref. {product.ref}
+              </p>
+              <h3
+                className={`
+                  mt-1 line-clamp-2 font-display text-base text-foreground
+                `}
               >
-                <ShoppingBag className="h-3.5 w-3.5" />
-                Add to Bag
-              </Button>
+                {product.name}
+              </h3>
             </div>
+            <span className="krs-price shrink-0 pl-3 text-sm text-foreground">
+              {CURRENCY_FORMATTER.format(product.price)}
+            </span>
           </div>
         </div>
       </Link>
+
+      <Button
+        aria-pressed={isInWishlist}
+        className={cn(
+          `
+            absolute top-2 right-2 z-10 h-[30px] w-[30px] rounded-none
+            border-krs-ivory/60 bg-background/80 backdrop-blur-sm
+            transition-opacity duration-300
+          `,
+          !isHovered && !isInWishlist && "opacity-0",
+        )}
+        onClick={handleToggleWishlist}
+        size="icon"
+        type="button"
+        variant="outline"
+      >
+        <Heart
+          className={cn(
+            "h-4 w-4",
+            isInWishlist
+              ? "fill-secondary text-secondary"
+              : "text-muted-foreground",
+          )}
+        />
+        <span className="sr-only">
+          {isInWishlist ? "Remove from wishlist" : "Save to wishlist"}
+        </span>
+      </Button>
     </div>
   );
 }

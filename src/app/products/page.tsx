@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { getAllProducts, getCategoriesWithCounts } from "~/lib/queries/catalog";
 import { CollectionBrowser } from "~/ui/components/collection-browser";
 
@@ -8,12 +10,16 @@ interface ProductsPageProps {
 export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
-  const [{ category: categorySlug }, categories, products] = await Promise.all([
-    searchParams,
-    getCategoriesWithCounts(),
-    getAllProducts(),
-  ]);
+  const [{ category: categorySlug }, categories, products] =
+    await Promise.all([
+      searchParams,
+      getCategoriesWithCounts(),
+      getAllProducts(),
+    ]);
   const initialCategoryId = categories.find((c) => c.slug === categorySlug)?.id;
+  const houseCount = new Set(
+    products.map((p) => p.subcategory?.name).filter(Boolean),
+  ).size;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -25,19 +31,24 @@ export default async function ProductsPage({
           `}
         >
           <div className="mb-8">
-            <h1 className="font-display text-3xl text-foreground">
+            <p className="krs-eyebrow text-krs-tobacco">
+              {products.length} pieces · {houseCount} houses
+            </p>
+            <h1 className="mt-3 font-display text-4xl text-foreground">
               The Collection
             </h1>
-            <p className="mt-1 text-muted-foreground">
+            <p className="mt-2 text-muted-foreground">
               Every piece currently on the shelf.
             </p>
           </div>
 
-          <CollectionBrowser
-            categories={categories}
-            initialCategoryId={initialCategoryId}
-            products={products}
-          />
+          <Suspense fallback={null}>
+            <CollectionBrowser
+              categories={categories}
+              initialCategoryId={initialCategoryId}
+              products={products}
+            />
+          </Suspense>
         </div>
       </main>
     </div>

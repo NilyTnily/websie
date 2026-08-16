@@ -1,9 +1,7 @@
-import { getCurrentUser } from "~/lib/auth";
+import { redirect } from "next/navigation";
 
-import { DashboardPageClient } from "./page.client";
-
-export default async function DashboardPage() {
-  const user = await getCurrentUser();
-
-  return <DashboardPageClient user={user} />;
+// Folded into the Vault's Details tab — this route was a duplicate of the
+// same account info shown there.
+export default function DashboardStatsPage() {
+  redirect("/dashboard/profile");
 }

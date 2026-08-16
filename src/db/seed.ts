@@ -2,6 +2,7 @@ import "dotenv/config";
 
 import { db } from "./index";
 import { categoryTable, productTable, subcategoryTable } from "./schema";
+import { watchBrandProducts, watchBrandSubcategories } from "./watch-brands-data";
 
 async function main() {
   console.log("Seeding catalog...");
@@ -25,37 +26,11 @@ async function main() {
       slug: "fine-jewelry",
       sortOrder: 1,
     },
-  ]);
+  ])
+    .onConflictDoNothing();
 
   await db.insert(subcategoryTable).values([
-    {
-      categoryId: "timepieces",
-      id: "chronograph",
-      name: "Chronograph",
-      slug: "chronograph",
-      sortOrder: 0,
-    },
-    {
-      categoryId: "timepieces",
-      id: "dress",
-      name: "Dress",
-      slug: "dress",
-      sortOrder: 1,
-    },
-    {
-      categoryId: "timepieces",
-      id: "field",
-      name: "Field",
-      slug: "field",
-      sortOrder: 2,
-    },
-    {
-      categoryId: "timepieces",
-      id: "sport",
-      name: "Sport",
-      slug: "sport",
-      sortOrder: 3,
-    },
+    ...watchBrandSubcategories,
     {
       categoryId: "fine-jewelry",
       id: "necklace",
@@ -94,143 +69,7 @@ async function main() {
   ]);
 
   await db.insert(productTable).values([
-    {
-      caseMaterial: "Steel",
-      caseSizeMm: 40,
-      categoryId: "timepieces",
-      description:
-        "Our flagship chronograph. A column-wheel movement finished by hand and viewed through an exhibition caseback, cased in 904L steel with a domed, double-AR-coated sapphire crystal.",
-      featured: true,
-      features: [
-        "Column-wheel chronograph movement, 72-hour power reserve",
-        "Domed sapphire crystal, anti-reflective both sides",
-        "Hand-stitched Barénia calfskin strap",
-        "Exhibition caseback, hand-finished Côtes de Genève",
-        "Water resistant to 100m",
-        "Delivered in a lacquered walnut presentation case",
-      ],
-      id: "meridian-chronograph",
-      image:
-        "https://images.unsplash.com/photo-1508962914676-134849a727f0?w=1200&auto=format&fit=crop&q=80",
-      inStock: true,
-      movement: "Automatic",
-      name: "KRS Meridian Chronograph",
-      price: 18500,
-      ref: "KRS-771.4C",
-      specs: {
-        Case: "40mm, 904L steel",
-        Crystal: "Domed sapphire, AR-coated both faces",
-        Movement: "KRS Calibre 4 — automatic column-wheel chronograph",
-        "Power Reserve": "72 hours",
-        Strap: "Hand-stitched Barénia calfskin",
-        Warranty: "5-year international movement warranty",
-        "Water Resistance": "100m / 10 ATM",
-      },
-      strapMaterial: "Leather",
-      subcategoryId: "chronograph",
-      waterResistanceM: 100,
-    },
-    {
-      caseMaterial: "Steel",
-      caseSizeMm: 39,
-      categoryId: "timepieces",
-      description:
-        "Built for use, not display. A matte dial with full lume Arabic numerals, a screw-down crown, and a vegetable-tanned strap that ages with you.",
-      featured: false,
-      features: [
-        "Swiss automatic movement, 42-hour reserve",
-        "Scratch-resistant sapphire crystal",
-        "Screw-down crown, 100m water resistance",
-        "Full lume Arabic numerals for low-light legibility",
-        "Full-grain vegetable-tanned leather strap",
-      ],
-      id: "solstice-field-watch",
-      image:
-        "https://images.unsplash.com/photo-1533139502658-0198f920d8e8?w=1200&auto=format&fit=crop&q=80",
-      inStock: true,
-      movement: "Automatic",
-      name: "KRS Solstice Field Watch",
-      price: 6200,
-      ref: "KRS-410.2F",
-      specs: {
-        Case: "39mm, brushed 316L steel",
-        Crystal: "Flat sapphire, AR-coated",
-        Movement: "Swiss automatic, 42-hour reserve",
-        Strap: "Vegetable-tanned leather, quick-release",
-        Warranty: "3-year international movement warranty",
-        "Water Resistance": "100m / 10 ATM",
-      },
-      strapMaterial: "Leather",
-      subcategoryId: "field",
-      waterResistanceM: 100,
-    },
-    {
-      caseMaterial: "Rose Gold",
-      caseSizeMm: 36,
-      categoryId: "timepieces",
-      description:
-        "An ultra-thin dress watch cased in solid 18k rose gold, hand-wound, with a sunburst dial and applied gold indices. Restraint, executed precisely.",
-      featured: true,
-      features: [
-        "Solid 18k rose gold case",
-        "Ultra-thin hand-wound movement",
-        "Sunburst dial with applied gold indices",
-        "Sapphire crystal, front and back",
-        "Genuine alligator strap, gold deployant clasp",
-      ],
-      id: "aurum-dress-watch",
-      image:
-        "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=1200&auto=format&fit=crop&q=80",
-      inStock: true,
-      movement: "Hand-Wound",
-      name: "KRS Aurum Dress Watch",
-      price: 24800,
-      ref: "KRS-118.9G",
-      specs: {
-        Case: "36mm, solid 18k rose gold",
-        Crystal: "Sapphire, front and back",
-        Movement: "KRS Calibre 1 — hand-wound, 45-hour reserve",
-        Strap: "Alligator leather, 18k gold deployant clasp",
-        Warranty: "5-year international movement warranty",
-        "Water Resistance": "30m / 3 ATM",
-      },
-      strapMaterial: "Leather",
-      subcategoryId: "dress",
-      waterResistanceM: 30,
-    },
-    {
-      caseMaterial: "Steel",
-      caseSizeMm: 41,
-      categoryId: "timepieces",
-      description:
-        "A sport chronograph with a tachymeter bezel and screw-down pushers, rated to 200m. Legible under load, precise at rest.",
-      featured: false,
-      features: [
-        "Automatic chronograph, 48-hour reserve",
-        "Tachymeter scale on fixed bezel",
-        "Luminous hour and chronograph hands",
-        "Screw-down pushers, 200m water resistance",
-      ],
-      id: "ondine-chronograph",
-      image:
-        "https://images.unsplash.com/photo-1582043568773-a7a2b57239f5?w=1200&auto=format&fit=crop&q=80",
-      inStock: true,
-      movement: "Automatic",
-      name: "KRS Ondine Chronograph",
-      price: 12400,
-      ref: "KRS-905.1C",
-      specs: {
-        Case: "41mm, brushed steel",
-        Crystal: "Sapphire, AR-coated",
-        Movement: "Automatic chronograph, 48-hour reserve",
-        Strap: "Nubuck leather, quick-release",
-        Warranty: "5-year international movement warranty",
-        "Water Resistance": "200m / 20 ATM",
-      },
-      strapMaterial: "Leather",
-      subcategoryId: "sport",
-      waterResistanceM: 200,
-    },
+    ...watchBrandProducts,
     {
       categoryId: "fine-jewelry",
       description:
@@ -377,35 +216,177 @@ async function main() {
       subcategoryId: "pendant",
     },
     {
-      caseMaterial: "Gold-Plated Brass",
-      caseSizeMm: 34,
-      categoryId: "timepieces",
+      categoryId: "fine-jewelry",
       description:
-        "Sourced in 2025 and fully serviced in our workshop, this 1968 skeleton dress watch keeps its original gilt movement on display. One-of-one — the archive holds no second example.",
+        "Six-prong classic studs in 18k white gold, 0.6ct of eye-clean round brilliant diamond each. The pair you reach for when the dress code says nothing flashy, everything elegant.",
       featured: false,
       features: [
-        "Original 1968 gilt hand-wound movement, fully serviced",
-        "Open skeleton dial, roman numeral chapter ring",
-        "New sapphire crystal, period-correct dome profile",
-        "Hand-aged leather strap, gold deployant",
-        "Sold with a complete restoration dossier",
+        "0.6ct round brilliant diamond per stud, eye-clean",
+        "18k white gold, six-prong classic setting",
+        "Secure butterfly backs, easy single-hand removal",
+        "Delivered in a fitted presentation case",
       ],
-      id: "archive-skeleton-1968",
+      gemstone: "Diamond",
+      id: "aurora-diamond-studs",
       image:
-        "https://images.unsplash.com/photo-1605143185650-77944b152643?w=1200&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=1200&auto=format&fit=crop&q=80",
       inStock: true,
-      movement: "Hand-Wound",
-      name: "KRS Archive Skeleton, Restored 1968",
-      price: 9800,
-      ref: "KRS-V1968",
+      metal: "18k White Gold",
+      name: "KRS Aurora Diamond Studs",
+      price: 2400,
+      ref: "KRS-J033",
       specs: {
-        Case: "34mm gold-plated brass, original patina retained",
-        Condition: "Fully serviced, original gilt movement preserved",
-        Included: "Restoration dossier + archive certificate",
-        Movement: "Manual-wind, open skeleton dial, serviced 2026",
-        Provenance: "Sourced 2025, restored in-house",
+        Hallmark: "18k stamped, KRS assay mark",
+        Material: "18k white gold",
+        Setting: "Six-prong classic",
+        "Stone(s)": "0.6ct per stud, round brilliant",
+        Warranty: "Lifetime cleaning & inspection",
       },
-      strapMaterial: "Leather",
+      subcategoryId: "earrings",
+    },
+    {
+      categoryId: "fine-jewelry",
+      description:
+        "A pair of pear-cut sapphire drops in open 18k white gold frames, each stone floating against the light. Evening weight with a whisper-light presence.",
+      featured: false,
+      features: [
+        "Pear-cut sapphire, 1.1ct each, open-set",
+        "18k white gold open drop frames",
+        "Lever-back closures, secure for all-day wear",
+        "Delivered in a fitted presentation case",
+      ],
+      gemstone: "Sapphire",
+      id: "celeste-sapphire-drops",
+      image:
+        "https://images.unsplash.com/photo-1611955167811-4711904bb9f8?w=1200&auto=format&fit=crop&q=80",
+      inStock: true,
+      metal: "18k White Gold",
+      name: "KRS Celeste Sapphire Drops",
+      price: 3900,
+      ref: "KRS-J188",
+      specs: {
+        "Center Stone": "1.1ct pear-cut sapphire, each",
+        Hallmark: "18k stamped, KRS assay mark",
+        Material: "18k white gold",
+        Setting: "Open drop frame",
+        Warranty: "Lifetime cleaning & inspection",
+      },
+      subcategoryId: "earrings",
+    },
+    {
+      categoryId: "fine-jewelry",
+      description:
+        "A continuous line of round brilliant diamonds, 2.3ct total, in a single 18k white gold strand. No gaps, no noise — just one even shimmer end to end.",
+      featured: true,
+      features: [
+        "2.3ct total round brilliant diamond, tennis-set",
+        "18k white gold, flexible single-strand construction",
+        "Lobster clasp with two safety links",
+        "Complimentary sizing and inspection",
+      ],
+      gemstone: "Diamond",
+      id: "serene-tennis-bracelet",
+      image:
+        "https://images.unsplash.com/photo-1589674781759-c21c37956a44?w=1200&auto=format&fit=crop&q=80",
+      inStock: true,
+      metal: "18k White Gold",
+      name: "KRS Serene Tennis Bracelet",
+      price: 5200,
+      ref: "KRS-J245",
+      specs: {
+        Hallmark: "18k stamped, KRS assay mark",
+        Material: "18k white gold",
+        Setting: "Tennis, 4-prong",
+        "Stone(s)": "2.3ct total diamond, tennis-set",
+        Warranty: "Complimentary sizing & inspection",
+      },
+      subcategoryId: "bracelet",
+    },
+    {
+      categoryId: "fine-jewelry",
+      description:
+        "A slim 18k yellow gold bangle with a brushed finish and a mirror-polished inner rim. Cut to slip on cleanly and never catch on a cuff.",
+      featured: false,
+      features: [
+        "Slim 18k yellow gold profile, brushed exterior",
+        "Mirror-polished inner rim",
+        "Hinge-free slip-on silhouette",
+        "Delivered in a fitted presentation case",
+      ],
+      id: "lumen-gold-bangle",
+      image:
+        "https://images.unsplash.com/photo-1719862056514-0cdacd9142b5?w=1200&auto=format&fit=crop&q=80",
+      inStock: true,
+      metal: "18k Yellow Gold",
+      name: "KRS Lumen Gold Bangle",
+      price: 2900,
+      ref: "KRS-J119",
+      specs: {
+        Finish: "Brushed exterior, polished interior",
+        Hallmark: "18k stamped, KRS assay mark",
+        Material: "18k yellow gold",
+        Warranty: "Lifetime cleaning & inspection",
+      },
+      subcategoryId: "bracelet",
+    },
+    {
+      categoryId: "fine-jewelry",
+      description:
+        "Fourteen tiny brilliant diamonds set in a graduated line along an 18k yellow gold chain, catching light in sequence as you move.",
+      featured: false,
+      features: [
+        "0.35ct total graduated diamond stations",
+        "18k yellow gold cable chain, 17-inch",
+        "Round brilliant diamonds, individually hand-set",
+        "Delivered in a fitted presentation case",
+      ],
+      gemstone: "Diamond",
+      id: "solstice-station-necklace",
+      image:
+        "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&auto=format&fit=crop&q=80",
+      inStock: true,
+      metal: "18k Yellow Gold",
+      name: "KRS Solstice Station Necklace",
+      price: 2200,
+      ref: "KRS-J071",
+      specs: {
+        Chain: "17 in cable chain",
+        Hallmark: "18k stamped, KRS assay mark",
+        Material: "18k yellow gold",
+        "Stone(s)": "0.35ct total diamond, graduated stations",
+        Warranty: "Lifetime cleaning & inspection",
+      },
+      subcategoryId: "necklace",
+    },
+    {
+      categoryId: "fine-jewelry",
+      description:
+        "A deep rose-gold cocktail ring crowned with a 2.2ct vivid pink sapphire and a halo of pavé diamonds. Made for the hand that reaches for the door first.",
+      featured: true,
+      features: [
+        "2.2ct vivid pink sapphire, halo-set",
+        "0.4ct pavé diamond halo",
+        "18k rose gold cathedral mount",
+        "Complimentary resizing within 60 days",
+      ],
+      gemstone: "Sapphire",
+      id: "verona-cocktail-ring",
+      image:
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=1200&auto=format&fit=crop&q=80",
+      inStock: true,
+      metal: "18k Rose Gold",
+      name: "KRS Verona Cocktail Ring",
+      price: 5600,
+      ref: "KRS-J203",
+      specs: {
+        "Center Stone": "2.2ct vivid pink sapphire",
+        Hallmark: "18k stamped, KRS assay mark",
+        Material: "18k rose gold",
+        Setting: "Cathedral, pavé halo",
+        "Stone(s)": "0.4ct pavé diamond halo",
+        Warranty: "Complimentary resizing, 60 days",
+      },
+      subcategoryId: "ring",
     },
   ]);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, User, X } from "lucide-react";
+import { Menu, Search, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -73,7 +73,7 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
   const isDashboard =
     user &&
     (pathname.startsWith("/dashboard") || pathname.startsWith("/admin"));
-  const navigation = isDashboard ? dashboardNavigation : mainNavigation;
+  const navigation = mainNavigation;
 
   const isNavActive = (item: { href: string }) => {
     if (item.href === "/") return pathname === "/";
@@ -134,18 +134,31 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
                 />
               </span>
             ) : null}
-            <span className="font-display text-2xl tracking-wide">
+            <span className="font-display krs-brand-mark text-2xl">
               {settings.name}
             </span>
           </Link>
 
           <div className="flex items-center gap-1">
-            {!isDashboard &&
-              (isPending ? (
-                <Skeleton className="h-9 w-9 rounded-full" />
-              ) : (
-                <Cart />
-              ))}
+            <Link href="/products">
+              <Button
+                aria-label="Search the collection"
+                className={`
+                  text-krs-navy-foreground
+                  hover:bg-white/10
+                `}
+                size="icon"
+                variant="ghost"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </Link>
+
+            {isPending ? (
+              <Skeleton className="h-9 w-9 rounded-full" />
+            ) : (
+              <Cart />
+            )}
 
             {isPending ? (
               <Skeleton className="h-9 w-9 rounded-full" />
@@ -304,20 +317,19 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
 
           {showAuth && user && (
             <div className="space-y-1 px-4 py-3">
-              {!isDashboard &&
-                dashboardNavigation.map((item) => (
-                  <Link
-                    className={`
-                      block px-3 py-2 text-sm text-krs-navy-foreground/80
-                      hover:text-primary
-                    `}
-                    href={item.href}
-                    key={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                ))}
+              {dashboardNavigation.map((item) => (
+                <Link
+                  className={`
+                    block px-3 py-2 text-sm text-krs-navy-foreground/80
+                    hover:text-primary
+                  `}
+                  href={item.href}
+                  key={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
               <Link
                 className={`
                   block px-3 py-2 text-sm text-krs-navy-foreground/80

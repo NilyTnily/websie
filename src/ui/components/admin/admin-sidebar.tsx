@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  BellRing,
   FolderTree,
+  Home,
   Inbox,
   LayoutDashboard,
   LogOut,
@@ -31,10 +33,12 @@ import {
 
 const ADMIN_NAV = [
   { href: "/admin/summary", icon: LayoutDashboard, name: "Summary" },
+  { href: "/admin/homepage", icon: Home, name: "Homepage" },
   { href: "/admin/categories", icon: FolderTree, name: "Categories" },
   { href: "/admin/products", icon: Package, name: "Products" },
   { href: "/admin/inquiries", icon: Inbox, name: "Inquiries" },
   { href: "/admin/reviews", icon: Star, name: "Reviews" },
+  { href: "/admin/stock-notifications", icon: BellRing, name: "Stock Alerts" },
   { href: "/admin/testimonials", icon: Quote, name: "Testimonials" },
   { href: "/admin/settings", icon: Settings, name: "Settings" },
 ];

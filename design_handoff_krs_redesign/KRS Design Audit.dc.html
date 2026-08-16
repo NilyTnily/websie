@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #0D0D0D; }
+  a { color: #C8A97E; text-decoration: none; }
+  a:hover { color: #E0C79C; }
+</style>
+</helmet>
+
+<div style="font-family: Montserrat, sans-serif; background: #0D0D0D; color: #F5F2EB; padding: 72px 0 120px;">
+
+  <div style="max-width: 1080px; margin: 0 auto; padding: 0 48px;">
+    <div style="font-family: Montserrat, sans-serif; font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #C8A97E;">Design audit · August 2026</div>
+    <h1 style="font-family: Cinzel, serif; font-size: 56px; font-weight: 400; letter-spacing: .04em; margin: 20px 0 0; line-height: 1.15;">KRS, scored</h1>
+    <p style="max-width: 62ch; font-size: 16px; line-height: 1.7; color: rgba(245,242,235,.7); margin: 20px 0 0; text-wrap: pretty;">Seven screens of the live build, scored against what a house selling a $34,000 Nautilus needs to look like. Scores are out of 10. The short version: the engineering is well above the design. Nothing here is broken — it is under-committed.</p>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(200,169,126,.22); margin: 56px 0 0; border: 1px solid rgba(200,169,126,.22);">
+      <div style="background: #0D0D0D; padding: 28px;">
+        <div style="font-family: Cinzel, serif; font-size: 44px; color: #C8A97E;">5.7</div>
+        <div style="font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-top: 8px;">Overall, out of 10</div>
+      </div>
+      <div style="background: #0D0D0D; padding: 28px;">
+        <div style="font-family: Cinzel, serif; font-size: 44px; color: #F5F2EB;">6.5</div>
+        <div style="font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-top: 8px;">Best screen — product detail</div>
+      </div>
+      <div style="background: #0D0D0D; padding: 28px;">
+        <div style="font-family: Cinzel, serif; font-size: 44px; color: #6B4B3E;">4.0</div>
+        <div style="font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.55); margin-top: 8px;">Weakest — cart &amp; checkout</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- scorecard -->
+  <div style="max-width: 1080px; margin: 72px auto 0; padding: 0 48px;">
+    <h2 style="font-family: Cinzel, serif; font-size: 13px; font-weight: 500; letter-spacing: .28em; text-transform: uppercase; color: #C8A97E; margin: 0 0 24px;">Scorecard</h2>
+    <div style="border-top: 1px solid rgba(245,242,235,.14);">
+      <sc-for list="{{ scores }}" as="s" hint-placeholder-count="7">
+        <div style="display: grid; grid-template-columns: 220px 1fr 64px; align-items: center; gap: 24px; padding: 18px 0; border-bottom: 1px solid rgba(245,242,235,.14);">
+          <div style="font-size: 15px; letter-spacing: .02em;">{{ s.screen }}</div>
+          <div style="height: 3px; background: rgba(245,242,235,.1); position: relative;">
+            <div style="position: absolute; left: 0; top: 0; bottom: 0; background: #C8A97E; width: {{ s.pct }};"></div>
+          </div>
+          <div style="font-family: Cinzel, serif; font-size: 20px; text-align: right; color: #F5F2EB;">{{ s.score }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- per-screen findings -->
+  <div style="max-width: 1080px; margin: 88px auto 0; padding: 0 48px; display: grid; gap: 56px;">
+
+    <div>
+      <div style="display: flex; align-items: baseline; gap: 16px;">
+        <span style="font-family: Cinzel, serif; font-size: 28px; color: #C8A97E;">5.5</span>
+        <h3 style="font-family: Cinzel, serif; font-size: 24px; font-weight: 400; letter-spacing: .05em; margin: 0;">Home</h3>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 20px;">
+        <div>
+          <div style="font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.45); margin-bottom: 12px;">What's wrong</div>
+          <ul style="margin: 0; padding-left: 18px; display: grid; gap: 10px; font-size: 15px; line-height: 1.6; color: rgba(245,242,235,.78);">
+            <li>The collections grid is <code style="color:#C8A97E;">grid-cols-3</code> holding two categories. A permanent empty third cell is the first thing below the fold.</li>
+            <li>Hero title, collections, featured, testimonials and CTA all use the same 36px Playfair centered heading on the same 80px rhythm. Five sections, one voice, no hierarchy.</li>
+            <li>The CTA offers two outline buttons of identical weight. Neither is primary, so neither gets clicked.</li>
+            <li>"Discover Watches →" is repeated under a tile that is already entirely clickable.</li>
+            <li>An autoplaying CGI video with no default poster carries the whole first impression, and the headline sits on top of the busiest part of the frame.</li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.45); margin-bottom: 12px;">What's right</div>
+          <ul style="margin: 0; padding-left: 18px; display: grid; gap: 10px; font-size: 15px; line-height: 1.6; color: rgba(245,242,235,.78);">
+            <li>Copy is genuinely good. "Nothing on the shelf is made twice" is worth building a page around.</li>
+            <li>Zero border-radius is a real position, and mostly held.</li>
+            <li>The hairline divider is a nice restrained device most stores would have made a 1px border.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div style="display: flex; align-items: baseline; gap: 16px;">
+        <span style="font-family: Cinzel, serif; font-size: 28px; color: #C8A97E;">6.0</span>
+        <h3 style="font-family: Cinzel, serif; font-size: 24px; font-weight: 400; letter-spacing: .05em; margin: 0;">Collection</h3>
+      </div>
+      <ul style="margin: 20px 0 0; padding-left: 18px; display: grid; gap: 10px; font-size: 15px; line-height: 1.6; color: rgba(245,242,235,.78); max-width: 88ch;">
+        <li>Two search fields on one screen — one in the header, one above the grid — with different behaviour.</li>
+        <li>The price slider spans $2,200 to $412,000 at <code style="color:#C8A97E;">step={50}</code>. That is over eight thousand drag positions for one thumb.</li>
+        <li>Seven facet groups render in a flat vertical stack with no collapse, so the sidebar height changes drastically as scope changes. Watch facets (movement, case size, water resistance) sit next to jewelry facets with nothing separating the two worlds.</li>
+        <li>Sort is a bare native <code style="color:#C8A97E;">&lt;select&gt;</code> — the one element on the page that doesn't obey the design language.</li>
+        <li>The product card nests a wishlist button and an "Add to Bag" button inside the <code style="color:#C8A97E;">&lt;Link&gt;</code> that wraps the whole card. Interactive elements inside a link is both an a11y problem and a mis-click generator.</li>
+        <li>96 pieces, no pagination, no grouping by house. A Rolex and a pair of studs get identical cards.</li>
+      </ul>
+    </div>
+
+    <div>
+      <div style="display: flex; align-items: baseline; gap: 16px;">
+        <span style="font-family: Cinzel, serif; font-size: 28px; color: #C8A97E;">6.5</span>
+        <h3 style="font-family: Cinzel, serif; font-size: 24px; font-weight: 400; letter-spacing: .05em; margin: 0;">Product detail</h3>
+      </div>
+      <ul style="margin: 20px 0 0; padding-left: 18px; display: grid; gap: 10px; font-size: 15px; line-height: 1.6; color: rgba(245,242,235,.78); max-width: 88ch;">
+        <li>The best screen in the build. The specs table and the details list are exactly right for the category.</li>
+        <li>The price is 24px at normal weight — visually equal to the paragraph under it. On a $34,000 piece that number should be the second thing you see.</li>
+        <li>The buy panel scrolls away. Gallery, specs, related pieces and reviews run long below it with no sticky rail to return to.</li>
+        <li>The trust bar — hallmarked, insured, lifetime care — is a small grey list at the bottom of the column. It is the entire argument for buying here rather than at auction.</li>
+        <li>The loupe interaction exists in the CSS and is the single most distinctive thing in the codebase. It appears on one component.</li>
+      </ul>
+    </div>
+
+    <div>
+      <div style="display: flex; align-items: baseline; gap: 16px;">
+        <span style="font-family: Cinzel, serif; font-size: 28px; color: #6B4B3E;">4.0</span>
+        <h3 style="font-family: Cinzel, serif; font-size: 24px; font-weight: 400; letter-spacing: .05em; margin: 0;">Cart &amp; checkout</h3>
+      </div>
+      <ul style="margin: 20px 0 0; padding-left: 18px; display: grid; gap: 10px; font-size: 15px; line-height: 1.6; color: rgba(245,242,235,.78); max-width: 88ch;">
+        <li>There is no checkout route in the app. The bag is a drawer that ends at an inquiry form. For a house that ships insured and signature-required, the most reassuring moment in the journey is missing entirely.</li>
+        <li>No shipping estimate, no duties note, no presentation-case or engraving choice, no gift note — all standard at this price and all margin.</li>
+        <li>The drawer gives no route back to the piece and no cross-sell.</li>
+      </ul>
+    </div>
+
+    <div>
+      <div style="display: flex; align-items: baseline; gap: 16px;">
+        <span style="font-family: Cinzel, serif; font-size: 28px; color: #C8A97E;">6.0</span>
+        <h3 style="font-family: Cinzel, serif; font-size: 24px; font-weight: 400; letter-spacing: .05em; margin: 0;">About / brand story</h3>
+      </div>
+      <ul style="margin: 20px 0 0; padding-left: 18px; display: grid; gap: 10px; font-size: 15px; line-height: 1.6; color: rgba(245,242,235,.78); max-width: 88ch;">
+        <li>A 16:7 stock hero, two paragraphs, then a four-tile icon grid. That is the shape of every template About page.</li>
+        <li>The writing is the best on the site — "small enough that the person who services your movement is the same person who packed the box" — and it is set at 14px grey.</li>
+        <li>No workshop imagery, no people, no process. The claim is craft; the page shows none of it.</li>
+      </ul>
+    </div>
+
+    <div>
+      <div style="display: flex; align-items: baseline; gap: 16px;">
+        <span style="font-family: Cinzel, serif; font-size: 28px; color: #6B4B3E;">5.0</span>
+        <h3 style="font-family: Cinzel, serif; font-size: 24px; font-weight: 400; letter-spacing: .05em; margin: 0;">Account &amp; orders</h3>
+      </div>
+      <ul style="margin: 20px 0 0; padding-left: 18px; display: grid; gap: 10px; font-size: 15px; line-height: 1.6; color: rgba(245,242,235,.78); max-width: 88ch;">
+        <li>Reads as a generic order list. The site promises "a record of every service and restoration on your collection" in its own CTA and then doesn't deliver one.</li>
+        <li>No certificates, no provenance dossier, no service history, no valuation — the things an owner of these pieces actually returns for.</li>
+        <li>Signed-in navigation swaps the whole main nav out for Profile / My Orders, so the catalog disappears while you are logged in and browsing.</li>
+      </ul>
+    </div>
+
+    <div>
+      <div style="display: flex; align-items: baseline; gap: 16px;">
+        <span style="font-family: Cinzel, serif; font-size: 28px; color: #C8A97E;">6.5</span>
+        <h3 style="font-family: Cinzel, serif; font-size: 24px; font-weight: 400; letter-spacing: .05em; margin: 0;">Admin</h3>
+      </div>
+      <ul style="margin: 20px 0 0; padding-left: 18px; display: grid; gap: 10px; font-size: 15px; line-height: 1.6; color: rgba(245,242,235,.78); max-width: 88ch;">
+        <li>Nine well-chosen sections and a working editor for homepage copy — more capable than most stores this size. It just looks like stock shadcn.</li>
+        <li>The summary opens on four flat counters. Nothing tells the owner which piece is about to sell out, which inquiry is aging, or what a photo shoot would be worth.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- cross-cutting -->
+  <div style="max-width: 1080px; margin: 96px auto 0; padding: 56px 48px; border-top: 1px solid rgba(200,169,126,.28); background: linear-gradient(180deg, rgba(43,30,23,.55), transparent);">
+    <h2 style="font-family: Cinzel, serif; font-size: 13px; font-weight: 500; letter-spacing: .28em; text-transform: uppercase; color: #C8A97E; margin: 0 0 32px;">Cross-cutting — the four that matter</h2>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px;">
+      <div>
+        <h4 style="font-family: Cinzel, serif; font-size: 19px; font-weight: 400; margin: 0 0 10px; letter-spacing: .04em;">Two brands are fighting</h4>
+        <p style="margin: 0; font-size: 15px; line-height: 1.7; color: rgba(245,242,235,.75);">The code says navy and brass, explicitly a Harry Winston reference. Your brand book says mocha, tobacco, champagne, ivory, onyx — Italian elegance, Japanese precision. The site is currently dressed as someone else. Everything below follows from fixing this one.</p>
+      </div>
+      <div>
+        <h4 style="font-family: Cinzel, serif; font-size: 19px; font-weight: 400; margin: 0 0 10px; letter-spacing: .04em;">Three typefaces, one job</h4>
+        <p style="margin: 0; font-size: 15px; line-height: 1.7; color: rgba(245,242,235,.75);">Playfair, EB Garamond and IBM Plex Mono all run at once, and the uppercase mono treatment is applied to nav, prices, filter labels, spec values and footer heads alike. The loudest typographic device on the site is used for the least important content.</p>
+      </div>
+      <div>
+        <h4 style="font-family: Cinzel, serif; font-size: 19px; font-weight: 400; margin: 0 0 10px; letter-spacing: .04em;">Everything is 80px apart</h4>
+        <p style="margin: 0; font-size: 15px; line-height: 1.7; color: rgba(245,242,235,.75);">Every section is <code style="color:#C8A97E;">py-20</code> inside <code style="color:#C8A97E;">max-w-7xl</code>. No full-bleed moment, no change of tempo, no image ever allowed to be large. Luxury retail is built on the contrast between one enormous image and a lot of empty space; this site has neither extreme.</p>
+      </div>
+      <div>
+        <h4 style="font-family: Cinzel, serif; font-size: 19px; font-weight: 400; margin: 0 0 10px; letter-spacing: .04em;">Mobile is a narrowed desktop</h4>
+        <p style="margin: 0; font-size: 15px; line-height: 1.7; color: rgba(245,242,235,.75);">The 64px header keeps four icon buttons and hides the entire catalog behind a hamburger. Filters become a left sheet. There is no thumb-reachable primary action anywhere in the flow — and no app at all.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width: 1080px; margin: 64px auto 0; padding: 0 48px;">
+    <p style="font-size: 15px; line-height: 1.7; color: rgba(245,242,235,.6); max-width: 78ch; margin: 0;">Where this goes next: the brand book palette applied properly, one editorial rhythm instead of five identical bands, the loupe promoted to the signature interaction it was written to be, a real checkout, an owner's vault in the account, and a native shopping app for iOS and Android.</p>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const rows = [
+      ["Home", 5.5], ["Collection", 6.0], ["Product detail", 6.5],
+      ["Cart & checkout", 4.0], ["About / brand story", 6.0],
+      ["Account & orders", 5.0], ["Admin", 6.5],
+    ];
+    return {
+      scores: rows.map(([screen, score]) => ({
+        screen, score: score.toFixed(1), pct: `${score * 10}%`,
+      })),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

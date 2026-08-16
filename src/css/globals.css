@@ -9,9 +9,8 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-garamond), Georgia, "Times New Roman", serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+  --font-display: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-montserrat), Helvetica, Arial, sans-serif;
 }
 
 @layer base {
@@ -25,87 +24,66 @@
 }
 
 /*
- * KRS design tokens — Harry Winston reference direction.
- * Light is the default: a bright, editorial white body with a deep-navy
- * header/footer bookend, muted brass as the only accent (thin outlines,
- * links), never a solid gold fill. Dark stays available via the toggle for
- * users who want it, but it is no longer the default identity.
+ * KRS design tokens — brand-book direction (mocha / tobacco / champagne /
+ * ivory / onyx). Single palette, no light/dark toggle: an editorial ivory
+ * body with onyx/mocha dark bands (header, footer, loupe band, checkout
+ * sidebar, admin), champagne as the only accent — never a decorative fill
+ * outside of buttons/CTAs sitting on a dark surface.
  */
 :root {
-  --background: #ffffff;
-  --foreground: #14162b;
-  --card: #ffffff;
-  --card-foreground: #14162b;
-  --popover: #ffffff;
-  --popover-foreground: #14162b;
-  --primary: #9c7a3c;
-  --primary-foreground: #ffffff;
-  --secondary: #6b1e23;
-  --secondary-foreground: #ffffff;
-  --muted: #f6f4ef;
-  --muted-foreground: #5b5a6b;
-  --accent: #f2ede1;
-  --accent-foreground: #14162b;
+  --background: #fbfaf7;
+  --foreground: #0d0d0d;
+  --card: #fbfaf7;
+  --card-foreground: #0d0d0d;
+  --popover: #fbfaf7;
+  --popover-foreground: #0d0d0d;
+  --primary: #2b1e17;
+  --primary-foreground: #f5f2eb;
+  --secondary: #c8a97e;
+  --secondary-foreground: #2b1e17;
+  --muted: #efeae0;
+  --muted-foreground: #6b4b3e;
+  --accent: #efeae0;
+  --accent-foreground: #0d0d0d;
   --destructive: #8c2a2a;
-  --destructive-foreground: #ffffff;
-  --border: #e1dfd8;
-  --input: #e1dfd8;
-  --ring: #9c7a3c;
+  --destructive-foreground: #f5f2eb;
+  --border: rgba(43, 30, 23, 0.16);
+  --input: rgba(43, 30, 23, 0.22);
+  --ring: #c8a97e;
   --radius: 0rem;
-  --sidebar: #f6f4ef;
-  --sidebar-foreground: #14162b;
-  --sidebar-primary: #9c7a3c;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f2ede1;
-  --sidebar-accent-foreground: #14162b;
-  --sidebar-border: #e1dfd8;
-  --sidebar-ring: #9c7a3c;
+  --sidebar: #0d0d0d;
+  --sidebar-foreground: #f5f2eb;
+  --sidebar-primary: #c8a97e;
+  --sidebar-primary-foreground: #2b1e17;
+  --sidebar-accent: #171310;
+  --sidebar-accent-foreground: #f5f2eb;
+  --sidebar-border: rgba(245, 242, 235, 0.12);
+  --sidebar-ring: #c8a97e;
 
-  --krs-emerald: #1f4d3d;
-  --krs-loupe-ring: #9c7a3c;
-  --krs-navy: #0d0f2e;
-  --krs-navy-foreground: #f5f3ee;
-  --krs-navy-border: #2a2c4a;
+  --krs-onyx: #0d0d0d;
+  --krs-onyx-raised: #12100e;
+  --krs-onyx-card: #171310;
+  --krs-mocha: #2b1e17;
+  --krs-mocha-tint: #241c17;
+  --krs-tobacco: #6b4b3e;
+  --krs-champagne: #c8a97e;
+  --krs-champagne-light: #e0c79c;
+  --krs-ivory: #f5f2eb;
+  --krs-ivory-bright: #fbfaf7;
+  --krs-bone: #efeae0;
+  --krs-warm-grey: #8a7a6d;
+  --krs-ash: #a3958a;
+  --krs-alert: #8c2a2a;
+  --krs-alert-on-dark: #d98c6a;
+
+  --krs-loupe-ring: #c8a97e;
+  --krs-navy: #0d0d0d;
+  --krs-navy-foreground: #f5f2eb;
+  --krs-navy-border: rgba(245, 242, 235, 0.12);
 
   /* Real value is set from JS (Header measures itself via ResizeObserver).
      This fallback only covers the instant before that effect runs. */
   --header-height: 105px;
-}
-
-.dark {
-  --background: #0b0b0c;
-  --foreground: #ede7dc;
-  --card: #141415;
-  --card-foreground: #ede7dc;
-  --popover: #141415;
-  --popover-foreground: #ede7dc;
-  --primary: #c9a227;
-  --primary-foreground: #0b0b0c;
-  --secondary: #6b1e23;
-  --secondary-foreground: #ede7dc;
-  --muted: #1c1c1e;
-  --muted-foreground: #a39a8a;
-  --accent: #201c11;
-  --accent-foreground: #ede7dc;
-  --destructive: #8c2a2a;
-  --destructive-foreground: #ede7dc;
-  --border: #2a2a2c;
-  --input: #2a2a2c;
-  --ring: #c9a227;
-  --sidebar: #131314;
-  --sidebar-foreground: #ede7dc;
-  --sidebar-primary: #c9a227;
-  --sidebar-primary-foreground: #0b0b0c;
-  --sidebar-accent: #201c11;
-  --sidebar-accent-foreground: #ede7dc;
-  --sidebar-border: #2a2a2c;
-  --sidebar-ring: #c9a227;
-
-  --krs-emerald: #2a6650;
-  --krs-loupe-ring: #c9a227;
-  --krs-navy: #0d0f2e;
-  --krs-navy-foreground: #f5f3ee;
-  --krs-navy-border: #2a2c4a;
 }
 
 @theme inline {
@@ -128,7 +106,21 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-krs-emerald: var(--krs-emerald);
+  --color-krs-onyx: var(--krs-onyx);
+  --color-krs-onyx-raised: var(--krs-onyx-raised);
+  --color-krs-onyx-card: var(--krs-onyx-card);
+  --color-krs-mocha: var(--krs-mocha);
+  --color-krs-mocha-tint: var(--krs-mocha-tint);
+  --color-krs-tobacco: var(--krs-tobacco);
+  --color-krs-champagne: var(--krs-champagne);
+  --color-krs-champagne-light: var(--krs-champagne-light);
+  --color-krs-ivory: var(--krs-ivory);
+  --color-krs-ivory-bright: var(--krs-ivory-bright);
+  --color-krs-bone: var(--krs-bone);
+  --color-krs-warm-grey: var(--krs-warm-grey);
+  --color-krs-ash: var(--krs-ash);
+  --color-krs-alert: var(--krs-alert);
+  --color-krs-alert-on-dark: var(--krs-alert-on-dark);
   --color-krs-navy: var(--krs-navy);
   --color-krs-navy-foreground: var(--krs-navy-foreground);
   --color-krs-navy-border: var(--krs-navy-border);
@@ -173,10 +165,56 @@
   }
 }
 
-/* Reference numbers, prices, specs — set like a caseback stamp. */
+/* Eyebrow labels above headings — smallest, widest tracking. */
+.krs-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+
+/* Nav items, UI labels, filter groups. */
+.krs-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* Reference numbers, spec values, footer heads — set like a caseback stamp. */
+.krs-meta {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Prices and Cinzel numerals — no letter-spacing, size set per context. */
+.krs-price {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* The "KRS" wordmark — padding-left matches letter-spacing so it stays
+   optically centered rather than drifting right. */
+.krs-brand-mark {
+  font-family: var(--font-display);
+  letter-spacing: 0.34em;
+  padding-left: 0.34em;
+}
+
+/* Deprecated alias for .krs-meta — kept so existing consumers don't break
+   mid-migration. New code should use .krs-eyebrow/.krs-label/.krs-meta
+   directly; delete this once every consumer above has been repointed. */
 .krs-ref {
-  font-family: var(--font-mono);
-  letter-spacing: 0.08em;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
@@ -213,8 +251,8 @@
   border: 1px solid var(--krs-loupe-ring);
   border-radius: 9999px;
   box-shadow: 0 0 0 1px
-    color-mix(in oklab, var(--krs-loupe-ring) 35%, transparent), 0 12px 32px
-    -8px rgb(0 0 0 / 0.55);
+    color-mix(in oklab, var(--krs-loupe-ring) 35%, transparent), 0 18px 46px
+    -10px rgb(0 0 0 / 0.7);
   pointer-events: none;
   position: absolute;
 }
@@ -266,6 +304,33 @@
 
 @media (prefers-reduced-motion: reduce) {
   .krs-hero-in {
+    animation: none;
+  }
+}
+
+/* -------------------------------------------------------------------- */
+/* House marquee — the scrolling brand strip on the home page. Duplicated */
+/* list content translated by exactly -50% loops seamlessly.             */
+/* -------------------------------------------------------------------- */
+@keyframes krs-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.krs-marquee-track {
+  animation: krs-marquee 46s linear infinite;
+}
+
+.krs-marquee:hover .krs-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .krs-marquee-track {
     animation: none;
   }
 }

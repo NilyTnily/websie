@@ -2,7 +2,10 @@
 
 import { redirect } from "next/navigation";
 
-import type { ProductInput } from "~/lib/queries/catalog-admin";
+import type {
+  ProductInput,
+  ProductMediaInput,
+} from "~/lib/queries/catalog-admin";
 
 import {
   createProduct,
@@ -21,7 +24,7 @@ export async function createProductAction(
   const built = buildProductInput(formData);
   if ("error" in built) return { error: built.error };
 
-  const result = await createProduct(built.input, parseGalleryImages(formData));
+  const result = await createProduct(built.input, parseGalleryMedia(formData));
   if (!result.success) return { error: result.error };
   redirect("/admin/products");
 }
@@ -42,7 +45,7 @@ export async function updateProductAction(
   const result = await updateProduct(
     id,
     built.input,
-    parseGalleryImages(formData),
+    parseGalleryMedia(formData),
   );
   if (!result.success) return { error: result.error };
   redirect("/admin/products");
@@ -149,15 +152,24 @@ function parseFeatures(raw: string): string[] {
     .filter(Boolean);
 }
 
-function parseGalleryImages(formData: FormData): string[] {
+const MEDIA_TYPES = new Set(["360", "image", "video"]);
+
+function parseGalleryMedia(formData: FormData): ProductMediaInput[] {
   const raw = textField(formData, "galleryImages");
   if (!raw) return [];
   try {
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (url): url is string => typeof url === "string" && isValidImageUrl(url),
-    );
+    return parsed.filter((item): item is ProductMediaInput => {
+      if (typeof item !== "object" || item === null) return false;
+      const { mediaType, url } = item as Record<string, unknown>;
+      return (
+        typeof url === "string" &&
+        isValidImageUrl(url) &&
+        typeof mediaType === "string" &&
+        MEDIA_TYPES.has(mediaType)
+      );
+    });
   } catch {
     return [];
   }

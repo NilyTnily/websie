@@ -1,13 +1,16 @@
-import { Flame, Package, Tags, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import type { Inquiry } from "~/db/schema";
-import type { DashboardStats } from "~/lib/queries/dashboard";
+import type {
+  DashboardStats,
+  InquiriesAging,
+  QueueItem,
+  RevenueDelta,
+} from "~/lib/queries/dashboard";
 
 import { cn } from "~/lib/cn";
 import { formatOrderNumber } from "~/lib/order-number";
-import { StatCardGrid } from "~/ui/components/admin/stat-card";
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
   currency: "USD",
@@ -16,7 +19,7 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
 });
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
-  dateStyle: "medium",
+  dateStyle: "full",
 });
 
 const STATUS_LABEL: Record<Inquiry["status"], string> = {
@@ -25,195 +28,239 @@ const STATUS_LABEL: Record<Inquiry["status"], string> = {
   rejected: "Rejected",
 };
 
-const STATUS_BADGE_CLASS: Record<Inquiry["status"], string> = {
-  approved: `
-    border-green-200 bg-green-100 text-green-800
-    dark:border-green-900 dark:bg-green-950/40 dark:text-green-400
-  `,
-  pending: `
-    border-amber-200 bg-amber-100 text-amber-800
-    dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-400
-  `,
-  rejected: `
-    border-red-200 bg-red-100 text-red-800
-    dark:border-red-900 dark:bg-red-950/40 dark:text-red-400
-  `,
-};
-
 interface StoreDashboardProps {
+  awaitingDispatch: number;
+  inquiriesAging: InquiriesAging;
+  needsYouFirst: QueueItem[];
+  revenueDelta: RevenueDelta;
   stats: DashboardStats;
 }
 
-export function StoreDashboard({ stats }: StoreDashboardProps) {
+export function StoreDashboard({
+  awaitingDispatch,
+  inquiriesAging,
+  needsYouFirst,
+  revenueDelta,
+  stats,
+}: StoreDashboardProps) {
+  const statCards = [
+    {
+      delta:
+        revenueDelta.percentChange === null
+          ? null
+          : `${revenueDelta.percentChange >= 0 ? "+" : ""}${revenueDelta.percentChange}% vs. prior`,
+      label: "Revenue · 30 days",
+      value: CURRENCY_FORMATTER.format(revenueDelta.currentValue),
+    },
+    {
+      delta: `${stats.pendingCount} awaiting review`,
+      label: "Awaiting dispatch",
+      value: String(awaitingDispatch),
+    },
+    {
+      delta:
+        inquiriesAging.count > 0
+          ? `Oldest ${inquiriesAging.oldestDays} day${inquiriesAging.oldestDays === 1 ? "" : "s"}`
+          : null,
+      label: "Inquiries aging",
+      value: String(inquiriesAging.count),
+    },
+    {
+      delta: `${stats.featuredCount} featured`,
+      label: "Out of stock",
+      value: String(stats.outOfStock),
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold">Store Overview</h2>
-        <p className="text-sm text-muted-foreground">
-          What's moving, what needs attention, and where the requested value
-          stands.
-        </p>
-      </div>
-
-      <StatCardGrid
-        stats={[
-          {
-            label: "Approved Value",
-            value: CURRENCY_FORMATTER.format(stats.approvedValue),
-          },
-          {
-            label: "Total Requested",
-            value: CURRENCY_FORMATTER.format(stats.totalRequestedValue),
-          },
-          { label: "Needs Review", value: stats.pendingCount },
-          { label: "Products", value: stats.totalProducts },
-          { label: "Out of Stock", value: stats.outOfStock },
-          { label: "Featured", value: stats.featuredCount },
-          { label: "Categories", value: stats.totalCategories },
-          { label: "Customers", value: stats.totalUsers },
-        ]}
-      />
-
+    <div className={`
+      -m-4 bg-krs-onyx-card px-4 py-10 text-krs-ivory
+      md:-m-6 md:px-10
+    `}>
       <div
         className={`
-          grid grid-cols-1 gap-6
-          lg:grid-cols-2
+          flex flex-col gap-4 border-b border-krs-ivory/12 pb-6
+          sm:flex-row sm:items-end sm:justify-between
         `}
       >
-        <div className="space-y-3 rounded-md border p-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium">Recent Inquiries</h3>
-            <Link
-              className={`
-                text-xs text-primary
-                hover:underline
-              `}
-              href="/admin/inquiries"
-            >
-              View all
-            </Link>
+        <div>
+          <p className="krs-eyebrow text-krs-champagne">
+            {DATE_FORMATTER.format(new Date())}
+          </p>
+          <h1 className="mt-3 font-display text-3xl text-krs-ivory">
+            Today on the floor
+          </h1>
+        </div>
+        <div className="flex gap-3">
+          <Link
+            className={`
+              flex h-[42px] items-center border border-krs-ivory/22 px-5 text-xs
+              tracking-[0.18em] uppercase
+            `}
+            href="/admin/products/new"
+          >
+            Add piece
+          </Link>
+          <Link
+            className={`
+              flex h-[42px] items-center bg-krs-champagne px-5 text-xs
+              font-semibold tracking-[0.18em] text-krs-mocha uppercase
+              hover:bg-krs-champagne-light
+            `}
+            href="/admin/homepage"
+          >
+            Edit homepage
+          </Link>
+        </div>
+      </div>
+
+      <div className={`
+        mt-8 grid grid-cols-1 gap-px bg-krs-champagne/20
+        sm:grid-cols-2
+        lg:grid-cols-4
+      `}>
+        {statCards.map((card) => (
+          <div className="bg-krs-onyx-card p-6" key={card.label}>
+            <p className="krs-meta text-krs-ivory/50">{card.label}</p>
+            <p className="mt-3 font-display text-3xl text-krs-ivory">
+              {card.value}
+            </p>
+            {card.delta && (
+              <p className="mt-1.5 text-xs text-krs-champagne">
+                {card.delta}
+              </p>
+            )}
           </div>
-          {stats.recentInquiries.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No inquiries yet.</p>
+        ))}
+      </div>
+
+      <div className={`
+        mt-7 grid grid-cols-1 gap-6
+        lg:grid-cols-[1.6fr_1fr]
+      `}>
+        <div className="border border-krs-ivory/12">
+          <div className={`
+            krs-label border-b border-krs-ivory/12 px-6 py-4 text-krs-champagne
+          `}>
+            Needs you first
+          </div>
+          {needsYouFirst.length === 0 ? (
+            <p className="p-6 text-sm text-krs-ivory/50">
+              Nothing needs attention right now.
+            </p>
           ) : (
-            <ul className="space-y-3">
-              {stats.recentInquiries.map((inquiry) => (
-                <li key={inquiry.id}>
-                  <Link
-                    className={`
-                      flex items-center gap-3 rounded-md p-1.5
-                      hover:bg-muted/50
-                    `}
-                    href={`/admin/inquiries/${inquiry.id}`}
-                  >
-                    <div
-                      className={`
-                        relative h-10 w-10 shrink-0 overflow-hidden rounded-md
-                        border bg-muted
-                      `}
-                    >
-                      {inquiry.items[0] && (
-                        <Image
-                          alt={inquiry.items[0].name}
-                          className="object-cover"
-                          fill
-                          sizes="40px"
-                          src={inquiry.items[0].image}
-                        />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {inquiry.customerName}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatOrderNumber(inquiry.orderNumber)} ·{" "}
-                        {DATE_FORMATTER.format(inquiry.createdAt)}
-                      </p>
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <p className="text-sm font-semibold">
-                        {CURRENCY_FORMATTER.format(inquiry.subtotal)}
-                      </p>
-                      <span
-                        className={cn(
-                          `
-                            rounded-full border px-2 py-0.5 text-[10px]
-                            font-medium
-                          `,
-                          STATUS_BADGE_CLASS[inquiry.status],
-                        )}
-                      >
-                        {STATUS_LABEL[inquiry.status]}
+            needsYouFirst.map((item, i) => (
+              <Link
+                className={cn(
+                  `
+                    flex items-center gap-5 border-krs-ivory/7 px-6 py-4
+                    hover:bg-krs-ivory/5
+                  `,
+                  i < needsYouFirst.length - 1 && "border-b",
+                )}
+                href={item.href}
+                key={`${item.title}-${i}`}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm">{item.title}</p>
+                  <p className="mt-1 text-xs font-light text-krs-ivory/50">
+                    {item.meta}
+                  </p>
+                </div>
+                <span
+                  className="krs-meta shrink-0 border px-2.5 py-1 text-[10px]"
+                  style={{ borderColor: item.tagColor, color: item.tagColor }}
+                >
+                  {item.tag}
+                </span>
+                <span className="krs-meta shrink-0 text-krs-champagne">
+                  Open
+                </span>
+              </Link>
+            ))
+          )}
+        </div>
+
+        <div className="border border-krs-ivory/12 p-6">
+          <p className="krs-label text-krs-champagne">Moving fastest</p>
+          <div className="mt-6 grid gap-5">
+            {stats.topProducts.length === 0 ? (
+              <p className="text-sm text-krs-ivory/50">No inquiries yet.</p>
+            ) : (
+              stats.topProducts.map((product) => {
+                const max = stats.topProducts[0]?.requestCount || 1;
+                const pct = Math.round((product.requestCount / max) * 100);
+                return (
+                  <div key={product.id}>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="truncate">{product.name}</span>
+                      <span className="shrink-0 pl-2 text-krs-ivory/55">
+                        {product.requestCount}×
                       </span>
                     </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="space-y-3 rounded-md border p-4">
-          <div className="flex items-center gap-2">
-            <Flame className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-medium">Most Requested Pieces</h3>
-          </div>
-          {stats.topProducts.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No inquiries yet.</p>
-          ) : (
-            <ul className="space-y-3">
-              {stats.topProducts.map((product, index) => (
-                <li className="flex items-center gap-3" key={product.id}>
-                  <span className="w-4 text-xs text-muted-foreground">
-                    {index + 1}
-                  </span>
-                  <div
-                    className={`
-                      relative h-10 w-10 shrink-0 overflow-hidden rounded-md
-                      border bg-muted
-                    `}
-                  >
-                    <Image
-                      alt={product.name}
-                      className="object-cover"
-                      fill
-                      sizes="40px"
-                      src={product.image}
-                    />
+                    <div className="mt-2 h-[2px] bg-krs-ivory/12">
+                      <div
+                        className="h-[2px] bg-krs-champagne"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
                   </div>
-                  <p className="min-w-0 flex-1 truncate text-sm font-medium">
-                    {product.name}
-                  </p>
-                  <p className="shrink-0 text-xs text-muted-foreground">
-                    {product.requestCount}× requested
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
+                );
+              })
+            )}
+          </div>
         </div>
       </div>
 
-      <div
-        className={`
-          grid grid-cols-2 gap-2 text-xs text-muted-foreground
-          sm:grid-cols-4
-        `}
-      >
-        <span className="flex items-center gap-1.5">
-          <Package className="h-3.5 w-3.5" />
-          {stats.totalProducts} products across {stats.totalCategories}{" "}
-          categories
-        </span>
-        <span className="flex items-center gap-1.5">
-          <Tags className="h-3.5 w-3.5" />
-          {stats.featuredCount} featured on homepage
-        </span>
-        <span className="flex items-center gap-1.5">
-          <Users className="h-3.5 w-3.5" />
-          {stats.totalUsers} registered customers
-        </span>
+      <div className="mt-7 border border-krs-ivory/12">
+        <div className={`
+          krs-label border-b border-krs-ivory/12 px-6 py-4 text-krs-champagne
+        `}>
+          Recent inquiries
+        </div>
+        {stats.recentInquiries.length === 0 ? (
+          <p className="p-6 text-sm text-krs-ivory/50">No inquiries yet.</p>
+        ) : (
+          stats.recentInquiries.map((inquiry, i) => (
+            <Link
+              className={cn(
+                `
+                  flex items-center gap-4 border-krs-ivory/7 px-6 py-4
+                  hover:bg-krs-ivory/5
+                `,
+                i < stats.recentInquiries.length - 1 && "border-b",
+              )}
+              href={`/admin/inquiries/${inquiry.id}`}
+              key={inquiry.id}
+            >
+              <div className={`
+                relative h-10 w-10 shrink-0 overflow-hidden bg-krs-mocha-tint
+              `}>
+                {inquiry.items[0] && (
+                  <Image
+                    alt={inquiry.items[0].name}
+                    className="object-cover"
+                    fill
+                    sizes="40px"
+                    src={inquiry.items[0].image}
+                  />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm">{inquiry.customerName}</p>
+                <p className="krs-meta mt-1 text-krs-ivory/50">
+                  {formatOrderNumber(inquiry.orderNumber)}
+                </p>
+              </div>
+              <p className="krs-price shrink-0 text-sm">
+                {CURRENCY_FORMATTER.format(inquiry.subtotal)}
+              </p>
+              <span className="krs-meta shrink-0 text-krs-ivory/50">
+                {STATUS_LABEL[inquiry.status]}
+              </span>
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400&family=EB+Garamond:ital,wght@0,400..600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #8a8a8a; }
+  a { color: #9c7a3c; text-decoration: none; }
+  a:hover { color: #7c5f2c; }
+</style>
+</helmet>
+
+<div style="font-family: 'EB Garamond', Georgia, serif; background: #8a8a8a; padding: 56px 40px 96px; display: flex; flex-direction: column; gap: 64px; align-items: center;">
+
+  <div style="width: 1280px; color: #fff;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; opacity: .7;">Recreation — current production UI</div>
+    <div style="font-family: 'Playfair Display', serif; font-size: 34px; margin-top: 8px;">KRS — Fine Watches &amp; Jewelry, as it stands today</div>
+    <div style="font-size: 16px; opacity: .8; max-width: 70ch; margin-top: 6px;">Rebuilt from <span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">src/app</span> and <span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">src/ui</span> — same tokens (navy #0d0f2e, brass #9c7a3c, radius 0), same Playfair / EB Garamond / Plex Mono type, same copy. This is the baseline the audit scores.</div>
+  </div>
+
+  <!-- ══════════════════════════ 1. HOME ══════════════════════════ -->
+  <div data-screen-label="Recreation — Home" style="width: 1280px;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; opacity: .75; margin-bottom: 10px;">01 · Home — src/app/page.tsx</div>
+    <div style="background: #ffffff; color: #14162b; box-shadow: 0 24px 60px -20px rgba(0,0,0,.5);">
+
+      <!-- header -->
+      <div style="background: #0d0f2e; color: #f5f3ee; border-bottom: 1px solid #2a2c4a;">
+        <div style="max-width: 1152px; margin: 0 auto; padding: 0 32px;">
+          <div style="position: relative; display: flex; height: 64px; align-items: center; justify-content: space-between;">
+            <div style="width: 36px;"></div>
+            <a href="#" style="position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; color: #f5f3ee;">
+              <img src="assets/logo.png" alt="KRS" style="height: 32px; width: 32px; object-fit: contain;">
+              <span style="font-family: 'Playfair Display', serif; font-size: 24px; letter-spacing: .025em;">KRS</span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <div style="width: 36px; height: 36px; display: grid; place-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></div>
+              <div style="width: 36px; height: 36px; display: grid; place-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+              <div style="width: 36px; height: 36px; display: grid; place-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg></div>
+              <div style="width: 36px; height: 36px; display: grid; place-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+            </div>
+          </div>
+        </div>
+        <div style="border-top: 1px solid #2a2c4a;">
+          <nav style="max-width: 1152px; margin: 0 auto; padding: 12px 32px; display: flex; justify-content: center;">
+            <ul style="display: flex; gap: 24px; list-style: none; margin: 0; padding: 0;">
+              <li><a href="#" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #9c7a3c;">Home</a></li>
+              <li><a href="#" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: rgba(245,243,238,.8);">Catalog</a></li>
+              <li><a href="#" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: rgba(245,243,238,.8);">About Us</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <!-- hero -->
+      <div style="position: relative; height: 620px; overflow: hidden;">
+        <img src="https://images.unsplash.com/photo-1508962914676-134849a727f0?w=1600&auto=format&fit=crop&q=80" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;">
+        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.7), rgba(0,0,0,.1) 50%, transparent);"></div>
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 0 40px 56px;">
+          <div style="max-width: 1152px; margin: 0 auto;">
+            <h1 style="font-family: 'Playfair Display', serif; font-size: 48px; line-height: 1.1; font-weight: 400; color: #fff; margin: 0; max-width: 512px;">Precision worn close.</h1>
+            <p style="margin: 16px 0 0; max-width: 384px; font-size: 16px; color: rgba(255,255,255,.8);">Automatic movements finished by hand, stones set one at a time, and a small archive of vintage pieces restored ourselves.</p>
+            <a href="#" style="display: inline-flex; align-items: center; height: 44px; margin-top: 24px; padding: 0 24px; border: 1px solid rgba(255,255,255,.6); color: #fff; font-family: 'EB Garamond', serif; font-size: 12px; font-weight: 500; letter-spacing: .15em; text-transform: uppercase;">Discover</a>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 24px; background: #f6f4ef;"></div>
+
+      <!-- collections -->
+      <div style="padding: 80px 0;">
+        <div style="max-width: 1152px; margin: 0 auto; padding: 0 24px;">
+          <div style="text-align: center; margin-bottom: 40px;">
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 400; margin: 0;">Collections</h2>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;">
+            <a href="#" style="display: block; text-align: center; color: inherit;">
+              <div style="position: relative; aspect-ratio: 1; overflow: hidden; background: linear-gradient(#f2ede1, #f6f4ef);">
+                <img src="https://images.unsplash.com/photo-1633451238042-85d93d267866?w=900&auto=format&fit=crop&q=75" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 20px; margin: 20px 0 0; font-weight: 400;">Watches</h3>
+              <p style="margin: 4px auto 0; max-width: 22ch; font-size: 15px; color: #5b5a6b;">Automatic and hand-wound movements, cased by hand.</p>
+              <p style="margin-top: 12px; font-family: 'EB Garamond', serif; font-size: 12px; font-weight: 500; letter-spacing: .15em; text-transform: uppercase; color: #9c7a3c;">Discover Watches →</p>
+            </a>
+            <a href="#" style="display: block; text-align: center; color: inherit;">
+              <div style="position: relative; aspect-ratio: 1; overflow: hidden; background: linear-gradient(#f2ede1, #f6f4ef);">
+                <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900&auto=format&fit=crop&q=75" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 20px; margin: 20px 0 0; font-weight: 400;">Jewelry</h3>
+              <p style="margin: 4px auto 0; max-width: 22ch; font-size: 15px; color: #5b5a6b;">Hand-set stones in 18k gold, one piece at a time.</p>
+              <p style="margin-top: 12px; font-family: 'EB Garamond', serif; font-size: 12px; font-weight: 500; letter-spacing: .15em; text-transform: uppercase; color: #9c7a3c;">Discover Jewelry →</p>
+            </a>
+            <div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="max-width: 1152px; margin: 0 auto; height: 1px; background: linear-gradient(to right, transparent, #e1dfd8 15%, #e1dfd8 85%, transparent);"></div>
+
+      <!-- featured -->
+      <div style="padding: 80px 0;">
+        <div style="max-width: 1152px; margin: 0 auto; padding: 0 24px;">
+          <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 40px;">
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 400; margin: 0;">From the Current Shelf</h2>
+            <a href="#" style="font-size: 15px; color: #5b5a6b;">View all →</a>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
+            <sc-for list="{{ featured }}" as="p" hint-placeholder-count="4">
+              <div style="background: #fff;">
+                <div style="position: relative; aspect-ratio: 1; overflow: hidden; background: linear-gradient(#f2ede1, #f6f4ef);">
+                  <img src="{{ p.image }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                  <div style="position: absolute; inset: 0; background: radial-gradient(120% 120% at 50% 35%, transparent 45%, rgba(255,255,255,.65) 100%);"></div>
+                </div>
+                <div style="padding: 16px;">
+                  <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5b5a6b;">{{ p.meta }}</p>
+                  <h3 style="margin: 4px 0 0; font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 400;">{{ p.name }}</h3>
+                  <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-size: 15px;">{{ p.price }}</span>
+                    <span style="font-size: 12px; color: #14162b; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px;">Add to Bag</span>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- testimonials -->
+      <div style="padding: 80px 0; background: #f6f4ef;">
+        <div style="max-width: 1152px; margin: 0 auto; padding: 0 24px; text-align: center;">
+          <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 400; margin: 0;">From the Client Book</h2>
+          <p style="margin: 8px 0 40px; color: #5b5a6b;">Notes from the client book — unedited, on request.</p>
+          <div style="display: flex; gap: 24px; text-align: left;">
+            <div style="flex: 1; background: #fff; border: 1px solid #e1dfd8; padding: 24px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 999px; background: #f2ede1;"></div>
+                <div><div style="font-size: 15px;">A. Nakamura</div><div style="font-size: 13px; color: #5b5a6b;">@anakamura</div></div>
+              </div>
+              <p style="margin: 16px 0 0; font-size: 15px; color: #5b5a6b;">Movement service came back better than the day I bought it. Packed like it was going to a museum.</p>
+            </div>
+            <div style="flex: 1; background: #fff; border: 1px solid #e1dfd8; padding: 24px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 999px; background: #f2ede1;"></div>
+                <div><div style="font-size: 15px;">M. Devereux</div><div style="font-size: 13px; color: #5b5a6b;">@mdevereux</div></div>
+              </div>
+              <p style="margin: 16px 0 0; font-size: 15px; color: #5b5a6b;">They restrung the pearls twice until the drape was right and never mentioned a charge.</p>
+            </div>
+            <div style="flex: 1; background: #fff; border: 1px solid #e1dfd8; padding: 24px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 999px; background: #f2ede1;"></div>
+                <div><div style="font-size: 15px;">R. Halloran</div><div style="font-size: 13px; color: #5b5a6b;">@rhalloran</div></div>
+              </div>
+              <p style="margin: 16px 0 0; font-size: 15px; color: #5b5a6b;">Bought the Nautilus sight-unseen on their dossier alone. The dossier was right.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- cta -->
+      <div style="padding: 80px 0;">
+        <div style="max-width: 1152px; margin: 0 auto; padding: 0 24px;">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 24px; background: #f6f4ef; padding: 64px 32px; text-align: center;">
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 400; margin: 0; max-width: 576px;">Open a client account</h2>
+            <p style="margin: 0; max-width: 448px; color: #5b5a6b;">Track orders, save pieces to a wishlist, and keep a record of every service and restoration on your collection.</p>
+            <div style="display: flex; gap: 12px;">
+              <a href="#" style="display: inline-flex; align-items: center; height: 44px; padding: 0 32px; border: 1px solid #e1dfd8; color: #14162b; font-size: 12px; font-weight: 500; letter-spacing: .15em; text-transform: uppercase;">Create Account</a>
+              <a href="#" style="display: inline-flex; align-items: center; height: 44px; padding: 0 32px; border: 1px solid #e1dfd8; color: #14162b; font-size: 12px; font-weight: 500; letter-spacing: .15em; text-transform: uppercase;">Browse the Collection</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- footer -->
+      <div style="background: #0d0f2e; color: #f5f3ee;">
+        <div style="max-width: 1152px; margin: 0 auto; padding: 48px 32px;">
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;">
+            <div>
+              <div style="font-family: 'Playfair Display', serif; font-size: 20px; letter-spacing: .025em;">KRS</div>
+              <p style="margin: 16px 0 0; font-size: 15px; color: rgba(245,243,238,.7);">Fine watches and jewelry, serviced in-house and shipped insured. Nothing on the shelf is made twice.</p>
+            </div>
+            <div>
+              <h3 style="margin: 0 0 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: rgba(245,243,238,.5); font-weight: 400;">Collections</h3>
+              <ul style="list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 15px;">
+                <li><a href="#" style="color: rgba(245,243,238,.8);">All Pieces</a></li>
+                <li><a href="#" style="color: rgba(245,243,238,.8);">Watches</a></li>
+                <li><a href="#" style="color: rgba(245,243,238,.8);">Jewelry</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 style="margin: 0 0 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: rgba(245,243,238,.5); font-weight: 400;">The House</h3>
+              <ul style="list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 15px;">
+                <li><a href="#" style="color: rgba(245,243,238,.8);">About Us</a></li>
+                <li><a href="#" style="color: rgba(245,243,238,.8);">The KRS Standard</a></li>
+                <li><a href="#" style="color: rgba(245,243,238,.8);">Client Account</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 style="margin: 0 0 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: rgba(245,243,238,.5); font-weight: 400;">Care</h3>
+              <ul style="list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 15px; color: rgba(245,243,238,.8);">
+                <li>Resizing &amp; restringing — complimentary</li>
+                <li>Movement service — in-house</li>
+                <li>Shipping — insured, signature required</li>
+              </ul>
+            </div>
+          </div>
+          <div style="margin-top: 48px; border-top: 1px solid #2a2c4a; padding-top: 32px; display: flex; align-items: center; justify-content: space-between; font-size: 15px; color: rgba(245,243,238,.6);">
+            <span>© 2026 KRS. All rights reserved.</span>
+            <span style="display: flex; gap: 16px;"><a href="#" style="color: rgba(245,243,238,.6);">Privacy</a><a href="#" style="color: rgba(245,243,238,.6);">Terms</a></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ 2. COLLECTION ══════════════════════════ -->
+  <div data-screen-label="Recreation — Collection" style="width: 1280px;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; opacity: .75; margin-bottom: 10px;">02 · Collection — src/app/products/page.tsx + collection-browser.tsx</div>
+    <div style="background: #ffffff; color: #14162b; box-shadow: 0 24px 60px -20px rgba(0,0,0,.5);">
+      <div style="background: #0d0f2e; color: #f5f3ee; border-bottom: 1px solid #2a2c4a;">
+        <div style="max-width: 1152px; margin: 0 auto; padding: 0 32px;">
+          <div style="position: relative; display: flex; height: 64px; align-items: center; justify-content: space-between;">
+            <div style="width: 36px;"></div>
+            <div style="position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px;">
+              <img src="assets/logo.png" alt="KRS" style="height: 32px; width: 32px; object-fit: contain;">
+              <span style="font-family: 'Playfair Display', serif; font-size: 24px; letter-spacing: .025em;">KRS</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px; opacity: .9; font-size: 12px;">
+              <div style="width: 36px; height: 36px; display: grid; place-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></div>
+              <div style="width: 36px; height: 36px; display: grid; place-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg></div>
+              <div style="width: 36px; height: 36px; display: grid; place-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+            </div>
+          </div>
+        </div>
+        <div style="border-top: 1px solid #2a2c4a;">
+          <nav style="max-width: 1152px; margin: 0 auto; padding: 12px 32px; display: flex; justify-content: center;">
+            <ul style="display: flex; gap: 24px; list-style: none; margin: 0; padding: 0;">
+              <li><a href="#" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: rgba(245,243,238,.8);">Home</a></li>
+              <li><a href="#" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #9c7a3c;">Catalog</a></li>
+              <li><a href="#" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: rgba(245,243,238,.8);">About Us</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <div style="padding: 40px 24px;">
+        <div style="max-width: 1232px; margin: 0 auto;">
+          <div style="margin-bottom: 32px;">
+            <h1 style="font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 400; margin: 0;">The Collection</h1>
+            <p style="margin: 4px 0 0; color: #5b5a6b;">Every piece currently on the shelf.</p>
+          </div>
+          <div style="display: flex; gap: 40px;">
+            <aside style="width: 224px; flex-shrink: 0; display: grid; gap: 32px; align-content: start;">
+              <div>
+                <h3 style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5b5a6b; font-weight: 400;">Category</h3>
+                <ul style="list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; font-size: 15px;">
+                  <li style="color: #9c7a3c; font-weight: 500;">All Pieces</li>
+                  <li style="color: #5b5a6b;">Watches</li>
+                  <li style="color: #5b5a6b;">Jewelry</li>
+                </ul>
+              </div>
+              <div>
+                <h3 style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5b5a6b; font-weight: 400;">Type</h3>
+                <ul style="list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; font-size: 15px;">
+                  <sc-for list="{{ facetTypes }}" as="t" hint-placeholder-count="6">
+                    <li style="display: flex; align-items: center; gap: 8px;"><span style="width: 16px; height: 16px; border: 1px solid #e1dfd8; display: block;"></span>{{ t }}</li>
+                  </sc-for>
+                </ul>
+              </div>
+              <div>
+                <h3 style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5b5a6b; font-weight: 400;">Metal</h3>
+                <ul style="list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; font-size: 15px;">
+                  <li style="display: flex; align-items: center; gap: 8px;"><span style="width: 16px; height: 16px; border: 1px solid #e1dfd8; display: block;"></span>18k Rose Gold</li>
+                  <li style="display: flex; align-items: center; gap: 8px;"><span style="width: 16px; height: 16px; border: 1px solid #e1dfd8; display: block;"></span>18k White Gold</li>
+                  <li style="display: flex; align-items: center; gap: 8px;"><span style="width: 16px; height: 16px; border: 1px solid #e1dfd8; display: block;"></span>18k Yellow Gold</li>
+                </ul>
+              </div>
+              <div>
+                <h3 style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5b5a6b; font-weight: 400;">Case Size</h3>
+                <div style="margin-top: 16px; height: 4px; background: #e1dfd8; position: relative;"><span style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: #9c7a3c;"></span></div>
+                <div style="margin-top: 12px; display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5b5a6b;"><span>36mm</span><span>45mm</span></div>
+              </div>
+              <div>
+                <h3 style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5b5a6b; font-weight: 400;">Price</h3>
+                <div style="margin-top: 16px; height: 4px; background: #e1dfd8; position: relative;"><span style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: #9c7a3c;"></span></div>
+                <div style="margin-top: 12px; display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5b5a6b;"><span>$2,200</span><span>$412,000</span></div>
+              </div>
+              <div>
+                <h3 style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5b5a6b; font-weight: 400;">Availability</h3>
+                <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px; font-size: 15px;"><span style="width: 16px; height: 16px; border: 1px solid #e1dfd8; display: block;"></span>In stock only</div>
+              </div>
+            </aside>
+
+            <div style="flex: 1; min-width: 0;">
+              <div style="max-width: 384px; margin-bottom: 16px; position: relative;">
+                <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #5b5a6b;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></span>
+                <div style="height: 36px; border: 1px solid #e1dfd8; display: flex; align-items: center; padding-left: 36px; font-size: 15px; color: #8b8a97;">Search by name or reference number</div>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e1dfd8; padding-bottom: 16px; margin-bottom: 24px;">
+                <p style="margin: 0; font-size: 15px; color: #5b5a6b;">96 pieces</p>
+                <div style="height: 32px; border: 1px solid #e1dfd8; display: flex; align-items: center; padding: 0 8px; font-size: 12px;">Featured ▾</div>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                <sc-for list="{{ collection }}" as="p" hint-placeholder-count="9">
+                  <div>
+                    <div style="position: relative; aspect-ratio: 1; overflow: hidden; background: linear-gradient(#f2ede1, #f6f4ef);">
+                      <img src="{{ p.image }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                      <div style="position: absolute; inset: 0; background: radial-gradient(120% 120% at 50% 35%, transparent 45%, rgba(255,255,255,.65) 100%);"></div>
+                    </div>
+                    <div style="padding: 16px;">
+                      <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #5b5a6b;">{{ p.meta }}</p>
+                      <h3 style="margin: 4px 0 0; font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 400;">{{ p.name }}</h3>
+                      <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 15px;">{{ p.price }}</span>
+                        <span style="font-size: 12px;">Add to Bag</span>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ 3. PRODUCT DETAIL ══════════════════════════ -->
+  <div data-screen-label="Recreation — Product detail" style="width: 1280px;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; opacity: .75; margin-bottom: 10px;">03 · Product detail — src/app/products/[id]/page.tsx</div>
+    <div style="background: #ffffff; color: #14162b; box-shadow: 0 24px 60px -20px rgba(0,0,0,.5); padding: 40px 24px;">
+      <div style="max-width: 1232px; margin: 0 auto;">
+        <nav style="margin-bottom: 24px; font-size: 15px; color: #5b5a6b; display: flex; gap: 6px;">
+          <span>Home</span><span>/</span><span>Collections</span><span>/</span><span>Jewelry</span><span>/</span><span style="color: #14162b;">KRS Cascade Pearl Necklace</span>
+        </nav>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+          <div>
+            <div style="position: relative; aspect-ratio: 1; overflow: hidden; background: linear-gradient(#f2ede1, #f6f4ef);">
+              <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&auto=format&fit=crop&q=80" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+              <div style="width: 72px; height: 72px; border: 1px solid #9c7a3c; overflow: hidden;"><img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200&auto=format&fit=crop&q=60" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
+              <div style="width: 72px; height: 72px; border: 1px solid #e1dfd8; overflow: hidden;"><img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=200&auto=format&fit=crop&q=60" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
+              <div style="width: 72px; height: 72px; border: 1px solid #e1dfd8; overflow: hidden;"><img src="https://images.unsplash.com/photo-1611955167811-4711904bb9f8?w=200&auto=format&fit=crop&q=60" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #9c7a3c;">Jewelry · Ref. KRS-J210</p>
+            <h1 style="margin: 8px 0 0; font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 400;">KRS Cascade Pearl Necklace</h1>
+            <p style="margin: 16px 0 0; font-size: 24px;">$4,200</p>
+            <p style="margin: 24px 0 0; color: #5b5a6b;">Hand-strung Akoya pearls, matched one by one for lustre and overtone, finished with an 18k white gold clasp set in pavé diamond.</p>
+            <div style="margin: 24px 0 0; height: 1px; background: linear-gradient(to right, transparent, #e1dfd8 15%, #e1dfd8 85%, transparent);"></div>
+            <div style="margin-top: 24px; display: flex; gap: 12px; align-items: center;">
+              <div style="display: flex; border: 1px solid #e1dfd8; height: 40px; align-items: center;">
+                <span style="width: 36px; text-align: center;">−</span><span style="width: 32px; text-align: center; font-size: 15px;">1</span><span style="width: 36px; text-align: center;">+</span>
+              </div>
+              <div style="flex: 1; height: 40px; background: #9c7a3c; color: #fff; display: grid; place-items: center; font-size: 15px;">Add to Bag</div>
+              <div style="width: 40px; height: 40px; border: 1px solid #e1dfd8; display: grid; place-items: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5b5a6b" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></div>
+            </div>
+            <ul style="list-style: none; margin: 32px 0 0; padding: 0; display: grid; gap: 12px; font-size: 15px; color: #5b5a6b;">
+              <li style="display: flex; gap: 10px; align-items: center;"><span style="color: #9c7a3c;">✓</span>Hallmarked &amp; Authenticated</li>
+              <li style="display: flex; gap: 10px; align-items: center;"><span style="color: #9c7a3c;">✓</span>Insured White-Glove Shipping</li>
+              <li style="display: flex; gap: 10px; align-items: center;"><span style="color: #9c7a3c;">✓</span>Lifetime Care Included</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="height: 1px; background: #e1dfd8; margin: 40px 0;"></div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+          <section>
+            <h2 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 400;">Details</h2>
+            <ul style="list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; font-size: 15px; color: #5b5a6b;">
+              <li>· Hand-strung 7–8mm Akoya pearls, hand-matched for lustre</li>
+              <li>· 18k white gold clasp set with 0.15ct pavé diamonds</li>
+              <li>· 16-inch princess length</li>
+              <li>· Delivered in a fitted presentation case</li>
+            </ul>
+          </section>
+          <section>
+            <h2 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 400;">Specification</h2>
+            <div style="margin-top: 16px; display: grid; gap: 8px; font-size: 15px;">
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e1dfd8; padding-bottom: 8px;"><span>Hallmark</span><span style="font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: #5b5a6b; font-size: 13px;">18k stamped, KRS assay mark</span></div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e1dfd8; padding-bottom: 8px;"><span>Length</span><span style="font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: #5b5a6b; font-size: 13px;">16 in / 40.6 cm</span></div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e1dfd8; padding-bottom: 8px;"><span>Material</span><span style="font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: #5b5a6b; font-size: 13px;">Akoya pearl, 18k white gold clasp</span></div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e1dfd8; padding-bottom: 8px;"><span>Stone(s)</span><span style="font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: #5b5a6b; font-size: 13px;">0.15ct diamond pavé (clasp)</span></div>
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #e1dfd8; padding-bottom: 8px;"><span>Warranty</span><span style="font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: #5b5a6b; font-size: 13px;">Lifetime restringing service</span></div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ 4. ACCOUNT / ORDERS + CART ══════════════════════════ -->
+  <div data-screen-label="Recreation — Account and cart" style="width: 1280px;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; opacity: .75; margin-bottom: 10px;">04 · Account orders + cart drawer — dashboard/orders, cart-client.tsx</div>
+    <div style="display: flex; gap: 24px;">
+      <div style="flex: 1; background: #ffffff; color: #14162b; box-shadow: 0 24px 60px -20px rgba(0,0,0,.5); padding: 40px;">
+        <h1 style="margin: 0; font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 400;">My Orders</h1>
+        <p style="margin: 4px 0 32px; color: #5b5a6b;">Every piece you have ordered from the house.</p>
+        <div style="border: 1px solid #e1dfd8; padding: 20px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #5b5a6b;"><span>Order KRS-10428</span><span>14 Jul 2026</span></div>
+          <div style="display: flex; gap: 16px; margin-top: 16px; align-items: center;">
+            <div style="width: 64px; height: 64px; background: #f6f4ef; overflow: hidden;"><img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200&auto=format&fit=crop&q=60" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div style="flex: 1;">
+              <div style="font-family: 'Playfair Display', serif; font-size: 16px;">KRS Cascade Pearl Necklace</div>
+              <div style="font-size: 14px; color: #5b5a6b;">Qty 1 · $4,200</div>
+            </div>
+            <span style="border: 1px solid #e1dfd8; padding: 4px 10px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: #5b5a6b;">Shipped</span>
+          </div>
+          <div style="margin-top: 20px; display: flex; align-items: center; gap: 8px;">
+            <span style="height: 2px; flex: 1; background: #9c7a3c;"></span><span style="height: 2px; flex: 1; background: #9c7a3c;"></span><span style="height: 2px; flex: 1; background: #9c7a3c;"></span><span style="height: 2px; flex: 1; background: #e1dfd8;"></span>
+          </div>
+          <div style="margin-top: 8px; display: flex; justify-content: space-between; font-size: 12px; color: #5b5a6b;"><span>Placed</span><span>Packed</span><span>Shipped</span><span>Delivered</span></div>
+        </div>
+        <div style="border: 1px solid #e1dfd8; padding: 20px;">
+          <div style="display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #5b5a6b;"><span>Order KRS-10391</span><span>02 Jun 2026</span></div>
+          <div style="display: flex; gap: 16px; margin-top: 16px; align-items: center;">
+            <div style="width: 64px; height: 64px; background: #f6f4ef; overflow: hidden;"><img src="https://images.unsplash.com/photo-1611955167811-4711904bb9f8?w=200&auto=format&fit=crop&q=60" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div style="flex: 1;">
+              <div style="font-family: 'Playfair Display', serif; font-size: 16px;">KRS Ember Gemstone Ring</div>
+              <div style="font-size: 14px; color: #5b5a6b;">Qty 1 · $3,850</div>
+            </div>
+            <span style="border: 1px solid #e1dfd8; padding: 4px 10px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: #5b5a6b;">Delivered</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="width: 400px; background: #ffffff; color: #14162b; box-shadow: 0 24px 60px -20px rgba(0,0,0,.5); display: flex; flex-direction: column;">
+        <div style="padding: 24px; border-bottom: 1px solid #e1dfd8; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-family: 'Playfair Display', serif; font-size: 20px;">Your Bag (2)</span>
+          <span style="color: #5b5a6b;">✕</span>
+        </div>
+        <div style="padding: 24px; display: grid; gap: 20px; flex: 1;">
+          <div style="display: flex; gap: 16px;">
+            <div style="width: 72px; height: 72px; background: #f6f4ef; overflow: hidden;"><img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200&auto=format&fit=crop&q=60" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div style="flex: 1;">
+              <div style="font-family: 'Playfair Display', serif; font-size: 15px;">KRS Cascade Pearl Necklace</div>
+              <div style="font-size: 13px; color: #5b5a6b;">Jewelry</div>
+              <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;"><span style="border: 1px solid #e1dfd8; padding: 2px 8px; font-size: 13px;">− 1 +</span><span style="font-size: 15px;">$4,200</span></div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 16px;">
+            <div style="width: 72px; height: 72px; background: #f6f4ef; overflow: hidden;"><img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=200&auto=format&fit=crop&q=60" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div style="flex: 1;">
+              <div style="font-family: 'Playfair Display', serif; font-size: 15px;">KRS Aurora Diamond Studs</div>
+              <div style="font-size: 13px; color: #5b5a6b;">Jewelry</div>
+              <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;"><span style="border: 1px solid #e1dfd8; padding: 2px 8px; font-size: 13px;">− 1 +</span><span style="font-size: 15px;">$2,400</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding: 24px; border-top: 1px solid #e1dfd8;">
+          <div style="display: flex; justify-content: space-between; font-size: 15px;"><span style="color: #5b5a6b;">Subtotal</span><span>$6,600</span></div>
+          <div style="margin-top: 16px; height: 44px; background: #9c7a3c; color: #fff; display: grid; place-items: center; font-size: 12px; letter-spacing: .15em; text-transform: uppercase;">Checkout</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ 5. ADMIN ══════════════════════════ -->
+  <div data-screen-label="Recreation — Admin" style="width: 1280px;">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; opacity: .75; margin-bottom: 10px;">05 · Admin summary — src/app/admin + admin-sidebar.tsx</div>
+    <div style="background: #f6f4ef; color: #14162b; box-shadow: 0 24px 60px -20px rgba(0,0,0,.5); display: flex; min-height: 620px;">
+      <aside style="width: 240px; padding: 12px; display: flex; flex-direction: column; gap: 4px;">
+        <div style="display: flex; gap: 8px; align-items: center; padding: 8px;">
+          <div style="width: 32px; height: 32px; background: #9c7a3c; color: #fff; display: grid; place-items: center; border-radius: 6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="6"></circle><path d="M12 10v2l1 1M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"></path></svg></div>
+          <div style="line-height: 1.2;"><div style="font-size: 14px; font-weight: 600;">KRS Admin</div><div style="font-size: 12px; color: #5b5a6b;">Dashboard</div></div>
+        </div>
+        <div style="font-size: 12px; color: #5b5a6b; padding: 12px 8px 4px;">Manage</div>
+        <sc-for list="{{ adminNav }}" as="n" hint-placeholder-count="9">
+          <div style="display: flex; align-items: center; gap: 8px; padding: 8px; font-size: 14px; border-radius: 6px;">
+            <span style="width: 16px; height: 16px; border: 1px solid #b9b6ac; display: block; border-radius: 3px;"></span>{{ n }}
+          </div>
+        </sc-for>
+      </aside>
+      <div style="flex: 1; background: #fff; margin: 8px 8px 8px 0; border: 1px solid #e1dfd8; padding: 32px;">
+        <h1 style="margin: 0 0 24px; font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 400;">Summary</h1>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+          <div style="border: 1px solid #e1dfd8; padding: 20px;"><div style="font-size: 13px; color: #5b5a6b;">Revenue</div><div style="font-size: 26px; margin-top: 6px;">$284,910</div></div>
+          <div style="border: 1px solid #e1dfd8; padding: 20px;"><div style="font-size: 13px; color: #5b5a6b;">Orders</div><div style="font-size: 26px; margin-top: 6px;">61</div></div>
+          <div style="border: 1px solid #e1dfd8; padding: 20px;"><div style="font-size: 13px; color: #5b5a6b;">Products</div><div style="font-size: 26px; margin-top: 6px;">96</div></div>
+          <div style="border: 1px solid #e1dfd8; padding: 20px;"><div style="font-size: 13px; color: #5b5a6b;">Open inquiries</div><div style="font-size: 26px; margin-top: 6px;">7</div></div>
+        </div>
+        <div style="margin-top: 32px; border: 1px solid #e1dfd8;">
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 12px 16px; border-bottom: 1px solid #e1dfd8; font-size: 13px; color: #5b5a6b;">
+            <span>Product</span><span>Ref</span><span>Price</span><span>Stock</span>
+          </div>
+          <sc-for list="{{ adminRows }}" as="r" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 12px 16px; border-bottom: 1px solid #f0eee8; font-size: 14px;">
+              <span>{{ r.name }}</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5b5a6b;">{{ r.ref }}</span><span>{{ r.price }}</span><span style="color: #5b5a6b;">{{ r.stock }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const U = (id, w) => `https://images.unsplash.com/${id}?w=${w||900}&auto=format&fit=crop&q=75`;
+
+class Component extends DCLogic {
+  renderVals() {
+    const featured = [
+      { name: "Nautilus 5711/1A-010", meta: "Watches · Ref. 5711/1A-010", price: "$34,000", image: U("photo-1508962914676-134849a727f0") },
+      { name: "KRS Cascade Pearl Necklace", meta: "Jewelry · Ref. KRS-J210", price: "$4,200", image: U("photo-1515562141207-7a88fb7ce338") },
+      { name: "KRS Ember Gemstone Ring", meta: "Jewelry · Ref. KRS-J144", price: "$3,850", image: U("photo-1611955167811-4711904bb9f8") },
+      { name: "KRS Nocturne Sapphire Pendant", meta: "Jewelry · Ref. KRS-J077", price: "$5,400", image: U("photo-1599643478518-a784e5dc4c8f") },
+    ];
+    const collection = [
+      ...featured,
+      { name: "KRS Halo Diamond Pendant", meta: "Jewelry · Ref. KRS-J098", price: "$2,650", image: U("photo-1719862056514-0cdacd9142b5") },
+      { name: "KRS Aria Eternity Band", meta: "Jewelry · Ref. KRS-J056", price: "$3,100", image: U("photo-1589674781759-c21c37956a44") },
+      { name: "KRS Aurora Diamond Studs", meta: "Jewelry · Ref. KRS-J033", price: "$2,400", image: U("photo-1599643478518-a784e5dc4c8f") },
+      { name: "KRS Serene Tennis Bracelet", meta: "Jewelry · Ref. KRS-J245", price: "$5,200", image: U("photo-1524592094714-0f0654e20314") },
+      { name: "Speedmaster Moonwatch Professional", meta: "Watches · Ref. 310.30.42", price: "$7,400", image: U("photo-1533139502658-0198f920d8e8") },
+    ];
+    return {
+      featured,
+      collection,
+      facetTypes: ["Bracelet", "Cartier", "Earrings", "Necklace", "Omega", "Pendant", "Ring", "Rolex", "Tudor"],
+      adminNav: ["Summary", "Homepage", "Categories", "Products", "Inquiries", "Reviews", "Stock Alerts", "Testimonials", "Settings"],
+      adminRows: [
+        { name: "Nautilus 5711/1A-010", ref: "5711/1A-010", price: "$34,000", stock: "In stock" },
+        { name: "KRS Cascade Pearl Necklace", ref: "KRS-J210", price: "$4,200", stock: "In stock" },
+        { name: "KRS Ember Gemstone Ring", ref: "KRS-J144", price: "$3,850", stock: "In stock" },
+        { name: "KRS Nocturne Sapphire Pendant", ref: "KRS-J077", price: "$5,400", stock: "Out of stock" },
+        { name: "Submariner Date 126610LN", ref: "126610LN", price: "$14,800", stock: "In stock" },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

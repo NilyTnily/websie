@@ -34,7 +34,10 @@ export default async function EditProductPage({
         categories={categories}
         defaultValues={{
           ...product,
-          images: product.images.map((image) => image.url),
+          media: product.images.map((image) => ({
+            mediaType: image.mediaType,
+            url: image.url,
+          })),
         }}
         subcategoriesByCategory={groupByCategory(subcategories)}
         submitLabel="Save Changes"

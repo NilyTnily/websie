@@ -38,11 +38,13 @@ export function useWishlist(): WishlistContextType {
 }
 
 export function WishlistProvider({ children }: React.PropsWithChildren) {
-  const [itemIds, setItemIds] = React.useState<string[]>(
-    loadWishlistFromStorage,
-  );
+  const [itemIds, setItemIds] = React.useState<string[]>([]);
 
   const saveTimeout = React.useRef<null | ReturnType<typeof setTimeout>>(null);
+
+  React.useEffect(() => {
+    setItemIds(loadWishlistFromStorage());
+  }, []);
 
   React.useEffect(() => {
     if (saveTimeout.current) clearTimeout(saveTimeout.current);

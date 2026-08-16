@@ -1,11 +1,15 @@
 "use client";
 
-import { Facebook, Instagram } from "lucide-react";
+import { ArrowRight, Facebook, Instagram } from "lucide-react";
 import Link from "next/link";
+import { useActionState } from "react";
 
+import { type NewsletterFormState, newsletterSignupAction } from "~/app/actions/newsletter";
 import { cn } from "~/lib/cn";
 import { useSiteSettings } from "~/lib/hooks/use-site-settings";
 import { Button } from "~/ui/primitives/button";
+
+const INITIAL_NEWSLETTER_STATE: NewsletterFormState = {};
 
 export function Footer({ className }: { className?: string }) {
   const settings = useSiteSettings();
@@ -24,12 +28,12 @@ export function Footer({ className }: { className?: string }) {
         <div
           className={`
             grid grid-cols-1 gap-8
-            md:grid-cols-4
+            md:grid-cols-[1.4fr_1fr_1fr_1.2fr]
           `}
         >
           <div className="space-y-4">
             <Link className="flex items-center gap-2" href="/">
-              <span className="font-display text-xl tracking-wide">
+              <span className="font-display krs-brand-mark text-xl">
                 {settings.name}
               </span>
             </Link>
@@ -105,7 +109,7 @@ export function Footer({ className }: { className?: string }) {
             )}
           </div>
           <div>
-            <h3 className={`krs-ref mb-4 text-xs text-krs-navy-foreground/50`}>
+            <h3 className={`krs-meta mb-4 text-xs text-krs-navy-foreground/50`}>
               Collections
             </h3>
             <ul className="space-y-2 text-sm">
@@ -145,7 +149,7 @@ export function Footer({ className }: { className?: string }) {
             </ul>
           </div>
           <div>
-            <h3 className={`krs-ref mb-4 text-xs text-krs-navy-foreground/50`}>
+            <h3 className={`krs-meta mb-4 text-xs text-krs-navy-foreground/50`}>
               The House
             </h3>
             <ul className="space-y-2 text-sm">
@@ -185,26 +189,13 @@ export function Footer({ className }: { className?: string }) {
             </ul>
           </div>
           <div>
-            <h3 className={`krs-ref mb-4 text-xs text-krs-navy-foreground/50`}>
-              Care
+            <h3 className={`krs-meta mb-4 text-xs text-krs-navy-foreground/50`}>
+              The Dossier
             </h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <span className="text-krs-navy-foreground/80">
-                  Resizing &amp; restringing — complimentary
-                </span>
-              </li>
-              <li>
-                <span className="text-krs-navy-foreground/80">
-                  Movement service — in-house
-                </span>
-              </li>
-              <li>
-                <span className="text-krs-navy-foreground/80">
-                  Shipping — insured, signature required
-                </span>
-              </li>
-            </ul>
+            <p className="mb-4 text-sm text-krs-navy-foreground/70">
+              New pieces and house notes, twice a month at most.
+            </p>
+            <NewsletterForm />
           </div>
         </div>
         <div className="mt-12 border-t border-krs-navy-border pt-8">
@@ -234,6 +225,55 @@ export function Footer({ className }: { className?: string }) {
         </div>
       </div>
     </footer>
+  );
+}
+
+function NewsletterForm() {
+  const [state, formAction, isPending] = useActionState(
+    newsletterSignupAction,
+    INITIAL_NEWSLETTER_STATE,
+  );
+
+  if (state.success) {
+    return (
+      <p className="text-sm text-krs-champagne">
+        You&apos;re on the list.
+      </p>
+    );
+  }
+
+  return (
+    <form action={formAction}>
+      <div className="flex items-center border-b border-krs-navy-border">
+        <input
+          aria-label="Email address"
+          className={`
+            h-11 flex-1 bg-transparent text-sm text-krs-navy-foreground
+            outline-none
+            placeholder:text-krs-navy-foreground/50
+          `}
+          disabled={isPending}
+          name="email"
+          placeholder="Your email"
+          required
+          type="email"
+        />
+        <button
+          aria-label="Subscribe"
+          className={`
+            shrink-0 p-2 text-krs-champagne transition-colors
+            hover:text-krs-champagne-light
+          `}
+          disabled={isPending}
+          type="submit"
+        >
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
+      {state.error && (
+        <p className="mt-2 text-xs text-krs-alert-on-dark">{state.error}</p>
+      )}
+    </form>
   );
 }
 

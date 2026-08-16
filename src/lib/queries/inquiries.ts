@@ -2,7 +2,7 @@ import "server-only";
 import { createId } from "@paralleldrive/cuid2";
 import { and, desc, eq, sql } from "drizzle-orm";
 
-import type { Inquiry, InquiryItem } from "~/db/schema";
+import type { Inquiry, InquiryDeliveryAddress, InquiryItem } from "~/db/schema";
 
 import { db } from "~/db";
 import { inquiryTable, userTable } from "~/db/schema";
@@ -22,9 +22,20 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
 export interface CreateInquiryInput {
   customerContact: string;
   customerName: string;
+  deliveryAddress?: InquiryDeliveryAddress;
+  deliveryCost?: number;
+  deliveryMethod?: Inquiry["deliveryMethod"];
+  engravingText?: string;
   items: InquiryItem[];
   note?: string;
+  presentationCost?: number;
+  presentationOption?: Inquiry["presentationOption"];
   userId?: string;
+}
+
+export interface DeliveredPiece extends InquiryItem {
+  acquiredAt: Date;
+  inquiryId: string;
 }
 
 export interface InquiryStats {
@@ -53,9 +64,15 @@ export async function createInquiry(
     .values({
       customerContact: input.customerContact,
       customerName: input.customerName,
+      deliveryAddress: input.deliveryAddress,
+      deliveryCost: input.deliveryCost,
+      deliveryMethod: input.deliveryMethod,
+      engravingText: input.engravingText || null,
       id: createId(),
       items: input.items,
       note: input.note || null,
+      presentationCost: input.presentationCost,
+      presentationOption: input.presentationOption,
       subtotal,
       userId: input.userId,
     })
@@ -96,6 +113,31 @@ export async function createInquiry(
   }
 
   return inquiry;
+}
+
+/** Flattens every item across a user's delivered inquiries into "pieces they own" — the Vault's "My pieces" tab. Jsonb array elements aren't cheaply joinable in SQL here, and per-user inquiry counts are small, so flattening in application code is the simplest correct approach. */
+export async function getDeliveredItemsForUser(
+  userId: string,
+): Promise<DeliveredPiece[]> {
+  try {
+    const delivered = await db.query.inquiryTable.findMany({
+      orderBy: [desc(inquiryTable.updatedAt)],
+      where: and(
+        eq(inquiryTable.userId, userId),
+        eq(inquiryTable.deliveryStatus, "delivered"),
+      ),
+    });
+    return delivered.flatMap((inquiry) =>
+      inquiry.items.map((item) => ({
+        ...item,
+        acquiredAt: inquiry.updatedAt,
+        inquiryId: inquiry.id,
+      })),
+    );
+  } catch (error) {
+    console.error("Failed to fetch delivered items:", error);
+    return [];
+  }
 }
 
 export async function getInquiries(): Promise<Inquiry[]> {

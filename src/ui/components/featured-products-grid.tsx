@@ -1,10 +1,5 @@
-"use client";
-
-import * as React from "react";
-
 import type { ProductWithRelations } from "~/db/schema";
 
-import { useCart } from "~/lib/hooks/use-cart";
 import { ProductCard } from "~/ui/components/product-card";
 
 interface FeaturedProductsGridProps {
@@ -12,27 +7,6 @@ interface FeaturedProductsGridProps {
 }
 
 export function FeaturedProductsGrid({ products }: FeaturedProductsGridProps) {
-  const { addItem } = useCart();
-
-  const handleAddToCart = React.useCallback(
-    (productId: string) => {
-      const product = products.find((p) => p.id === productId);
-      if (product) {
-        addItem(
-          {
-            category: product.category.name,
-            id: product.id,
-            image: product.image,
-            name: product.name,
-            price: product.price,
-          },
-          1,
-        );
-      }
-    },
-    [addItem, products],
-  );
-
   return (
     <div
       className={`
@@ -44,9 +18,8 @@ export function FeaturedProductsGrid({ products }: FeaturedProductsGridProps) {
       {products.map((product) => (
         <ProductCard
           key={product.id}
-          onAddToCart={handleAddToCart}
           product={{
-            category: product.category.name,
+            house: product.subcategory?.name ?? product.category.name,
             id: product.id,
             image: product.image,
             inStock: product.inStock,

@@ -1,5 +1,5 @@
 import "server-only";
-import { desc, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 import type { Inquiry } from "~/db/schema";
 
@@ -7,10 +7,12 @@ import { db } from "~/db";
 import {
   categoryTable,
   inquiryTable,
+  productReviewTable,
   productTable,
   userTable,
 } from "~/db/schema";
 import { requireAdmin } from "~/lib/admin";
+import { formatOrderNumber } from "~/lib/order-number";
 
 export interface DashboardStats {
   approvedValue: number;
@@ -44,6 +46,44 @@ const EMPTY_STATS: DashboardStats = {
   totalRequestedValue: 0,
   totalUsers: 0,
 };
+
+export interface InquiriesAging {
+  count: number;
+  oldestDays: number;
+}
+
+export interface QueueItem {
+  href: string;
+  meta: string;
+  tag: string;
+  tagColor: string;
+  title: string;
+}
+
+export interface RevenueDelta {
+  currentValue: number;
+  /** null when the prior 30-day window had zero revenue — a percent change against zero is meaningless. */
+  percentChange: null | number;
+}
+
+export async function getAwaitingDispatchCount(): Promise<number> {
+  await requireAdmin();
+  try {
+    const [row] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(inquiryTable)
+      .where(
+        and(
+          eq(inquiryTable.status, "approved"),
+          sql`${inquiryTable.deliveryStatus} in ('placed', 'confirmed', 'processing')`,
+        ),
+      );
+    return row?.count ?? 0;
+  } catch (error) {
+    console.error("Failed to fetch awaiting-dispatch count:", error);
+    return 0;
+  }
+}
 
 export async function getDashboardStats(): Promise<DashboardStats> {
   await requireAdmin();
@@ -116,5 +156,119 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   } catch (error) {
     console.error("Failed to fetch dashboard stats:", error);
     return EMPTY_STATS;
+  }
+}
+
+export async function getInquiriesAging(): Promise<InquiriesAging> {
+  await requireAdmin();
+  try {
+    const [row] = await db
+      .select({
+        count: sql<number>`count(*)::int`,
+        oldestDays: sql<number>`coalesce(extract(day from now() - min(${inquiryTable.createdAt})), 0)::int`,
+      })
+      .from(inquiryTable)
+      .where(eq(inquiryTable.status, "pending"));
+    return { count: row?.count ?? 0, oldestDays: row?.oldestDays ?? 0 };
+  } catch (error) {
+    console.error("Failed to fetch aging inquiries:", error);
+    return { count: 0, oldestDays: 0 };
+  }
+}
+
+export async function getRevenueDelta(): Promise<RevenueDelta> {
+  await requireAdmin();
+  try {
+    const [row] = await db
+      .select({
+        current: sql<number>`coalesce(sum(${inquiryTable.subtotal}) filter (where ${inquiryTable.status} = 'approved' and ${inquiryTable.createdAt} >= now() - interval '30 days'), 0)::int`,
+        prior: sql<number>`coalesce(sum(${inquiryTable.subtotal}) filter (where ${inquiryTable.status} = 'approved' and ${inquiryTable.createdAt} >= now() - interval '60 days' and ${inquiryTable.createdAt} < now() - interval '30 days'), 0)::int`,
+      })
+      .from(inquiryTable);
+
+    const current = row?.current ?? 0;
+    const prior = row?.prior ?? 0;
+    return {
+      currentValue: current,
+      percentChange:
+        prior > 0 ? Math.round(((current - prior) / prior) * 100) : null,
+    };
+  } catch (error) {
+    console.error("Failed to fetch revenue delta:", error);
+    return { currentValue: 0, percentChange: null };
+  }
+}
+
+const QUEUE_TAG_COLOR = {
+  aging: "var(--color-krs-champagne)",
+  restock: "var(--color-krs-champagne)",
+  review: "rgba(245,242,235,.5)",
+};
+
+/** Real, derivable "needs attention" items only — no fabricated bench/certificate rows without a system to back them. */
+export async function getNeedsYouFirstQueue(): Promise<QueueItem[]> {
+  await requireAdmin();
+  try {
+    const [agingInquiries, pendingReviews, restockProducts] =
+      await Promise.all([
+        db.query.inquiryTable.findMany({
+          limit: 3,
+          orderBy: [inquiryTable.createdAt],
+          where: eq(inquiryTable.status, "pending"),
+        }),
+        db.query.productReviewTable.findMany({
+          limit: 3,
+          orderBy: [desc(productReviewTable.createdAt)],
+          where: eq(productReviewTable.approved, false),
+        }),
+        db.query.productTable.findMany({
+          limit: 2,
+          where: and(
+            eq(productTable.featured, true),
+            eq(productTable.inStock, false),
+          ),
+        }),
+      ]);
+
+    const now = Date.now();
+    const items: QueueItem[] = [];
+
+    for (const inquiry of agingInquiries) {
+      const days = Math.floor(
+        (now - inquiry.createdAt.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      items.push({
+        href: `/admin/inquiries/${inquiry.id}`,
+        meta: `${inquiry.customerName} · ${days} day${days === 1 ? "" : "s"} without reply`,
+        tag: "Aging",
+        tagColor: QUEUE_TAG_COLOR.aging,
+        title: `Inquiry ${formatOrderNumber(inquiry.orderNumber)}`,
+      });
+    }
+
+    for (const review of pendingReviews) {
+      items.push({
+        href: `/admin/reviews`,
+        meta: `${review.rating} stars · ${review.customerName}`,
+        tag: "Review",
+        tagColor: QUEUE_TAG_COLOR.review,
+        title: "Review awaiting approval",
+      });
+    }
+
+    for (const product of restockProducts) {
+      items.push({
+        href: `/admin/products/${product.id}`,
+        meta: "Featured piece, currently out of stock",
+        tag: "Restock",
+        tagColor: QUEUE_TAG_COLOR.restock,
+        title: product.name,
+      });
+    }
+
+    return items;
+  } catch (error) {
+    console.error("Failed to fetch needs-you-first queue:", error);
+    return [];
   }
 }

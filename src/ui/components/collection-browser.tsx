@@ -1,15 +1,22 @@
 "use client";
 
-import { SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
+import {
+  parseAsArrayOf,
+  parseAsInteger,
+  parseAsString,
+  parseAsStringLiteral,
+  useQueryStates,
+} from "nuqs";
 import * as React from "react";
 
 import type { CategoryWithCount, ProductWithRelations } from "~/db/schema";
 
 import { cn } from "~/lib/cn";
-import { useCart } from "~/lib/hooks/use-cart";
 import { ProductCard } from "~/ui/components/product-card";
 import { Button } from "~/ui/primitives/button";
 import { Checkbox } from "~/ui/primitives/checkbox";
+import { Input } from "~/ui/primitives/input";
 import {
   Sheet,
   SheetClose,
@@ -19,13 +26,14 @@ import {
 } from "~/ui/primitives/sheet";
 import { Slider } from "~/ui/primitives/slider";
 
-interface FacetConfig {
-  getValue: (product: ProductWithRelations) => string | undefined;
-  key: string;
-  label: string;
-}
-
 type SortOption = "featured" | "name-asc" | "price-asc" | "price-desc";
+
+const SORT_VALUES: SortOption[] = [
+  "featured",
+  "price-asc",
+  "price-desc",
+  "name-asc",
+];
 
 const SORT_OPTIONS: { label: string; value: SortOption }[] = [
   { label: "Featured", value: "featured" },
@@ -34,46 +42,46 @@ const SORT_OPTIONS: { label: string; value: SortOption }[] = [
   { label: "Name: A to Z", value: "name-asc" },
 ];
 
-// Every facet is admin-driven and category-agnostic: a facet group only renders
-// when at least one product in the current scope actually has that attribute
-// set, so adding a new category (or a new attribute value) never needs a code
-// change here — it just shows up.
-const ATTRIBUTE_FACETS: FacetConfig[] = [
-  { getValue: (p) => p.subcategory?.name, key: "subcategory", label: "Type" },
+interface PriceBand {
+  key: string;
+  label: string;
+  max: number;
+  min: number;
+}
+
+const PRICE_BANDS: PriceBand[] = [
+  { key: "under-5k", label: "Under $5,000", max: 5_000, min: 0 },
+  { key: "5k-25k", label: "$5,000 – $25,000", max: 25_000, min: 5_000 },
   {
-    getValue: (p) => p.movement ?? undefined,
-    key: "movement",
-    label: "Movement",
+    key: "25k-100k",
+    label: "$25,000 – $100,000",
+    max: 100_000,
+    min: 25_000,
   },
   {
-    getValue: (p) => p.caseMaterial ?? undefined,
-    key: "caseMaterial",
-    label: "Case Material",
-  },
-  {
-    getValue: (p) => p.strapMaterial ?? undefined,
-    key: "strapMaterial",
-    label: "Strap Material",
-  },
-  {
-    getValue: (p) =>
-      p.waterResistanceM ? `${p.waterResistanceM}m` : undefined,
-    key: "waterResistance",
-    label: "Water Resistance",
-  },
-  { getValue: (p) => p.metal ?? undefined, key: "metal", label: "Metal" },
-  {
-    getValue: (p) => p.gemstone ?? undefined,
-    key: "gemstone",
-    label: "Gemstone",
+    key: "100k-plus",
+    label: "$100,000 and above",
+    max: Number.POSITIVE_INFINITY,
+    min: 100_000,
   },
 ];
+
+const PAGE_SIZE = 24;
+const HOUSES_SHOWN_COLLAPSED = 6;
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
   currency: "USD",
   maximumFractionDigits: 0,
   style: "currency",
 });
+
+const collectionSearchParams = {
+  house: parseAsArrayOf(parseAsString).withDefault([]),
+  page: parseAsInteger.withDefault(1),
+  price: parseAsString.withDefault(""),
+  search: parseAsString.withDefault(""),
+  sort: parseAsStringLiteral(SORT_VALUES).withDefault("featured"),
+};
 
 interface CollectionBrowserProps {
   categories: CategoryWithCount[];
@@ -90,16 +98,17 @@ export function CollectionBrowser({
   lockedCategoryId,
   products,
 }: CollectionBrowserProps) {
-  const { addItem } = useCart();
+  const [
+    { house: selectedHouses, page, price: priceBandKey, search: searchQuery, sort: sortBy },
+    setQuery,
+  ] = useQueryStates(collectionSearchParams);
 
   const [selectedCategoryId, setSelectedCategoryId] = React.useState<
     null | string
   >(() => lockedCategoryId ?? initialCategoryId ?? null);
-  const [inStockOnly, setInStockOnly] = React.useState(false);
-  const [sortBy, setSortBy] = React.useState<SortOption>("featured");
-  const [facetSelections, setFacetSelections] = React.useState<
-    Record<string, string[]>
-  >({});
+  const [caseSizeRange, setCaseSizeRange] = React.useState<
+    [number, number] | null
+  >(null);
 
   const resolvedCategoryId = lockedCategoryId ?? selectedCategoryId;
 
@@ -111,25 +120,14 @@ export function CollectionBrowser({
     [products, resolvedCategoryId],
   );
 
-  React.useEffect(() => {
-    void resolvedCategoryId;
-    setFacetSelections({});
-  }, [resolvedCategoryId]);
-
-  const priceBounds = React.useMemo<[number, number]>(() => {
-    if (categoryScopedProducts.length === 0) return [0, 0];
-    const prices = categoryScopedProducts.map((p) => p.price);
-    return [Math.min(...prices), Math.max(...prices)];
-  }, [categoryScopedProducts]);
-
-  const [priceRange, setPriceRange] = React.useState<[number, number]>(
-    () => priceBounds,
+  const houseOptions = React.useMemo(
+    () => uniqueHouses(categoryScopedProducts),
+    [categoryScopedProducts],
   );
-  const [minPriceBound, maxPriceBound] = priceBounds;
-
-  React.useEffect(() => {
-    setPriceRange([minPriceBound, maxPriceBound]);
-  }, [minPriceBound, maxPriceBound]);
+  const [showAllHouses, setShowAllHouses] = React.useState(false);
+  const visibleHouseOptions = showAllHouses
+    ? houseOptions
+    : houseOptions.slice(0, HOUSES_SHOWN_COLLAPSED);
 
   const caseSizeBounds = React.useMemo<[number, number] | null>(() => {
     const sizes = categoryScopedProducts
@@ -139,9 +137,6 @@ export function CollectionBrowser({
     return [Math.min(...sizes), Math.max(...sizes)];
   }, [categoryScopedProducts]);
 
-  const [caseSizeRange, setCaseSizeRange] = React.useState<
-    [number, number] | null
-  >(() => caseSizeBounds);
   const minCaseSizeBound = caseSizeBounds?.[0] ?? null;
   const maxCaseSizeBound = caseSizeBounds?.[1] ?? null;
 
@@ -153,20 +148,32 @@ export function CollectionBrowser({
     );
   }, [minCaseSizeBound, maxCaseSizeBound]);
 
-  const toggleFacetValue = (key: string, value: string) => {
-    setFacetSelections((prev) => {
-      const current = prev[key] ?? [];
-      const next = current.includes(value)
-        ? current.filter((v) => v !== value)
-        : [...current, value];
-      return { ...prev, [key]: next };
-    });
+  const toggleHouse = (house: string) => {
+    const next = selectedHouses.includes(house)
+      ? selectedHouses.filter((h) => h !== house)
+      : [...selectedHouses, house];
+    void setQuery({ house: next, page: 1 });
   };
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const activePriceBand = PRICE_BANDS.find((b) => b.key === priceBandKey);
 
   const filteredProducts = React.useMemo(() => {
     const list = categoryScopedProducts.filter((p) => {
-      if (p.price < priceRange[0] || p.price > priceRange[1]) return false;
-      if (inStockOnly && !p.inStock) return false;
+      if (
+        normalizedQuery &&
+        !p.name.toLowerCase().includes(normalizedQuery) &&
+        !p.ref.toLowerCase().includes(normalizedQuery) &&
+        !p.description.toLowerCase().includes(normalizedQuery)
+      ) {
+        return false;
+      }
+      if (
+        activePriceBand &&
+        (p.price < activePriceBand.min || p.price >= activePriceBand.max)
+      ) {
+        return false;
+      }
       if (
         caseSizeRange &&
         p.caseSizeMm !== null &&
@@ -174,12 +181,11 @@ export function CollectionBrowser({
       ) {
         return false;
       }
-      return ATTRIBUTE_FACETS.every((facet) => {
-        const selected = facetSelections[facet.key];
-        if (!selected || selected.length === 0) return true;
-        const value = facet.getValue(p);
-        return value !== undefined && selected.includes(value);
-      });
+      if (selectedHouses.length > 0) {
+        const house = p.subcategory?.name;
+        if (!house || !selectedHouses.includes(house)) return false;
+      }
+      return true;
     });
 
     const sorted = [...list];
@@ -191,71 +197,58 @@ export function CollectionBrowser({
     return sorted;
   }, [
     categoryScopedProducts,
-    priceRange,
-    inStockOnly,
+    normalizedQuery,
+    activePriceBand,
     caseSizeRange,
-    facetSelections,
+    selectedHouses,
     sortBy,
   ]);
 
-  const handleAddToCart = React.useCallback(
-    (productId: string) => {
-      const product = products.find((p) => p.id === productId);
-      if (product) {
-        addItem(
-          {
-            category: product.category.name,
-            id: product.id,
-            image: product.image,
-            name: product.name,
-            price: product.price,
-          },
-          1,
-        );
-      }
-    },
-    [addItem, products],
+  // Any filter change invalidates the current page — jump back to the top of
+  // the results rather than possibly landing on a now-empty page.
+  React.useEffect(() => {
+    void setQuery({ page: 1 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resolvedCategoryId, normalizedQuery, priceBandKey, selectedHouses.join(",")]);
+
+  const pageCount = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+  const currentPage = Math.min(Math.max(1, page), pageCount);
+  const pagedProducts = filteredProducts.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
   );
 
-  const isPriceFiltered =
-    priceRange[0] !== priceBounds[0] || priceRange[1] !== priceBounds[1];
   const isCaseSizeFiltered =
     !!caseSizeBounds &&
     !!caseSizeRange &&
     (caseSizeRange[0] !== caseSizeBounds[0] ||
       caseSizeRange[1] !== caseSizeBounds[1]);
-  const hasFacetSelections = Object.values(facetSelections).some(
-    (v) => v.length > 0,
-  );
+
   const hasActiveFilters =
     (!lockedCategoryId && selectedCategoryId !== null) ||
-    inStockOnly ||
-    isPriceFiltered ||
+    normalizedQuery.length > 0 ||
+    !!activePriceBand ||
     isCaseSizeFiltered ||
-    hasFacetSelections;
+    selectedHouses.length > 0;
 
   const resetFilters = () => {
     if (!lockedCategoryId) setSelectedCategoryId(null);
-    setInStockOnly(false);
-    setPriceRange(priceBounds);
     if (caseSizeBounds) setCaseSizeRange(caseSizeBounds);
-    setFacetSelections({});
+    void setQuery({ house: [], page: 1, price: "", search: "" });
   };
 
   const filterPanel = (
     <div className="space-y-8">
       {!lockedCategoryId && (
         <div>
-          <h3 className="krs-ref text-[11px] text-muted-foreground">
-            Category
-          </h3>
+          <h3 className="krs-eyebrow text-krs-tobacco">Category</h3>
           <ul className="mt-3 space-y-2">
             <li>
               <button
                 className={cn(
                   "text-sm transition-colors",
                   selectedCategoryId === null
-                    ? "font-medium text-primary"
+                    ? "font-medium text-foreground"
                     : `
                       text-muted-foreground
                       hover:text-foreground
@@ -271,9 +264,12 @@ export function CollectionBrowser({
               <li key={category.id}>
                 <button
                   className={cn(
-                    "text-sm transition-colors",
+                    `
+                      flex w-full items-center justify-between text-sm
+                      transition-colors
+                    `,
                     selectedCategoryId === category.id
-                      ? "font-medium text-primary"
+                      ? "font-medium text-foreground"
                       : `
                         text-muted-foreground
                         hover:text-foreground
@@ -282,7 +278,10 @@ export function CollectionBrowser({
                   onClick={() => setSelectedCategoryId(category.id)}
                   type="button"
                 >
-                  {category.name}
+                  <span>{category.name}</span>
+                  <span className="text-muted-foreground">
+                    {category.productCount}
+                  </span>
                 </button>
               </li>
             ))}
@@ -290,47 +289,78 @@ export function CollectionBrowser({
         </div>
       )}
 
-      {ATTRIBUTE_FACETS.map((facet) => {
-        const options = uniqueValues(categoryScopedProducts, facet.getValue);
-        if (options.length === 0) return null;
-        const selected = facetSelections[facet.key] ?? [];
+      {houseOptions.length > 0 && (
+        <div>
+          <h3 className="krs-eyebrow text-krs-tobacco">House</h3>
+          <ul className="mt-3 space-y-2">
+            {visibleHouseOptions.map((house) => (
+              <li key={house}>
+                <label
+                  className={`
+                    flex cursor-pointer items-center gap-2 text-sm
+                    text-foreground
+                  `}
+                  htmlFor={`house-${house}`}
+                >
+                  <Checkbox
+                    checked={selectedHouses.includes(house)}
+                    id={`house-${house}`}
+                    onCheckedChange={() => toggleHouse(house)}
+                  />
+                  {house}
+                </label>
+              </li>
+            ))}
+          </ul>
+          {houseOptions.length > HOUSES_SHOWN_COLLAPSED && (
+            <button
+              className={`
+                krs-meta mt-3 text-krs-champagne
+                hover:text-krs-champagne-light
+              `}
+              onClick={() => setShowAllHouses((v) => !v)}
+              type="button"
+            >
+              {showAllHouses
+                ? "Show fewer"
+                : `+ ${houseOptions.length - HOUSES_SHOWN_COLLAPSED} more`}
+            </button>
+          )}
+        </div>
+      )}
 
-        return (
-          <div key={facet.key}>
-            <h3 className="krs-ref text-[11px] text-muted-foreground">
-              {facet.label}
-            </h3>
-            <ul className="mt-3 space-y-2">
-              {options.map((option) => (
-                <li key={option}>
-                  <label
-                    className={`
-                      flex cursor-pointer items-center gap-2 text-sm
-                      text-foreground
-                    `}
-                    htmlFor={`facet-${facet.key}-${option}`}
-                  >
-                    <Checkbox
-                      checked={selected.includes(option)}
-                      id={`facet-${facet.key}-${option}`}
-                      onCheckedChange={() =>
-                        toggleFacetValue(facet.key, option)
-                      }
-                    />
-                    {option}
-                  </label>
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-      })}
+      <div>
+        <h3 className="krs-eyebrow text-krs-tobacco">Price</h3>
+        <ul className="mt-3 space-y-2">
+          {PRICE_BANDS.map((band) => (
+            <li key={band.key}>
+              <label
+                className={`
+                  flex cursor-pointer items-center gap-2 text-sm
+                  text-foreground
+                `}
+                htmlFor={`price-${band.key}`}
+              >
+                <Checkbox
+                  checked={priceBandKey === band.key}
+                  id={`price-${band.key}`}
+                  onCheckedChange={() =>
+                    void setQuery({
+                      page: 1,
+                      price: priceBandKey === band.key ? "" : band.key,
+                    })
+                  }
+                />
+                {band.label}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {caseSizeBounds && caseSizeRange && (
         <div>
-          <h3 className="krs-ref text-[11px] text-muted-foreground">
-            Case Size
-          </h3>
+          <h3 className="krs-eyebrow text-krs-tobacco">Case Size</h3>
           <Slider
             className="mt-4"
             max={caseSizeBounds[1]}
@@ -343,7 +373,7 @@ export function CollectionBrowser({
           />
           <div
             className={`
-              krs-ref mt-3 flex items-center justify-between text-xs
+              krs-meta mt-3 flex items-center justify-between text-xs
               text-muted-foreground
             `}
           >
@@ -353,57 +383,50 @@ export function CollectionBrowser({
         </div>
       )}
 
-      <div>
-        <h3 className="krs-ref text-[11px] text-muted-foreground">Price</h3>
-        <Slider
-          className="mt-4"
-          max={priceBounds[1]}
-          min={priceBounds[0]}
-          onValueChange={(value) => setPriceRange(value as [number, number])}
-          step={50}
-          value={priceRange}
-        />
-        <div
-          className={`
-            krs-ref mt-3 flex items-center justify-between text-xs
-            text-muted-foreground
-          `}
-        >
-          <span>{CURRENCY_FORMATTER.format(priceRange[0])}</span>
-          <span>{CURRENCY_FORMATTER.format(priceRange[1])}</span>
-        </div>
-      </div>
-
-      <div>
-        <h3 className="krs-ref text-[11px] text-muted-foreground">
-          Availability
-        </h3>
-        <label
-          className={`
-            mt-3 flex cursor-pointer items-center gap-2 text-sm text-foreground
-          `}
-          htmlFor="in-stock-only"
-        >
-          <Checkbox
-            checked={inStockOnly}
-            id="in-stock-only"
-            onCheckedChange={(checked) => setInStockOnly(checked === true)}
-          />
-          In stock only
-        </label>
-      </div>
-
       {hasActiveFilters && (
         <Button
-          className="h-auto p-0 text-xs text-muted-foreground"
+          className="h-auto p-0 text-xs text-krs-champagne"
           onClick={resetFilters}
           variant="link"
         >
-          Clear filters
+          Clear all
         </Button>
       )}
     </div>
   );
+
+  const activeFilterChips: { key: string; label: string; onClear: () => void }[] = [];
+  if (!lockedCategoryId && selectedCategoryId) {
+    const category = categories.find((c) => c.id === selectedCategoryId);
+    if (category) {
+      activeFilterChips.push({
+        key: `category-${category.id}`,
+        label: category.name,
+        onClear: () => setSelectedCategoryId(null),
+      });
+    }
+  }
+  for (const house of selectedHouses) {
+    activeFilterChips.push({
+      key: `house-${house}`,
+      label: house,
+      onClear: () => toggleHouse(house),
+    });
+  }
+  if (activePriceBand) {
+    activeFilterChips.push({
+      key: `price-${activePriceBand.key}`,
+      label: activePriceBand.label,
+      onClear: () => void setQuery({ page: 1, price: "" }),
+    });
+  }
+  if (isCaseSizeFiltered && caseSizeRange) {
+    activeFilterChips.push({
+      key: "case-size",
+      label: `Case ${caseSizeRange[0]}–${caseSizeRange[1]}mm`,
+      onClear: () => caseSizeBounds && setCaseSizeRange(caseSizeBounds),
+    });
+  }
 
   return (
     <div
@@ -424,24 +447,49 @@ export function CollectionBrowser({
       <div className="min-w-0 flex-1">
         <div
           className={`
-            mb-6 flex items-center justify-between gap-4 border-b border-border
-            pb-4
+            mb-6 flex flex-col gap-4
+            sm:flex-row sm:items-center sm:justify-between
           `}
         >
-          <p className="text-sm text-muted-foreground">
-            {filteredProducts.length} piece
-            {filteredProducts.length === 1 ? "" : "s"}
-          </p>
+          <div className="relative max-w-[300px] flex-1">
+            <Search
+              className={`
+                pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5
+                -translate-y-1/2 text-muted-foreground
+              `}
+            />
+            <Input
+              aria-label="Search the collection"
+              className="h-[42px] rounded-none pl-9"
+              onChange={(e) => void setQuery({ page: 1, search: e.target.value })}
+              placeholder="Name, house or reference"
+              type="text"
+              value={searchQuery}
+            />
+            {searchQuery && (
+              <button
+                aria-label="Clear search"
+                className={`
+                  absolute top-1/2 right-3 -translate-y-1/2
+                  text-muted-foreground
+                  hover:text-foreground
+                `}
+                onClick={() => void setQuery({ page: 1, search: "" })}
+                type="button"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             <Sheet>
               <SheetTrigger asChild>
                 <Button
                   className={`
-                    gap-1.5
+                    h-[42px] gap-1.5 rounded-none
                     lg:hidden
                   `}
-                  size="sm"
                   variant="outline"
                 >
                   <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -458,7 +506,7 @@ export function CollectionBrowser({
                 <SheetTitle className="font-display text-lg">Filter</SheetTitle>
                 <div className="mt-6">{filterPanel}</div>
                 <SheetClose asChild>
-                  <Button className="mt-8 w-full">
+                  <Button className="mt-8 w-full rounded-none">
                     Show {filteredProducts.length} pieces
                   </Button>
                 </SheetClose>
@@ -468,35 +516,67 @@ export function CollectionBrowser({
             <select
               aria-label="Sort products"
               className={`
-                h-8 border border-input bg-transparent px-2 text-xs
+                h-[42px] border border-input bg-transparent px-3 text-xs
                 text-foreground
                 focus-visible:outline-none
               `}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              onChange={(e) =>
+                void setQuery({
+                  page: 1,
+                  sort: e.target.value as SortOption,
+                })
+              }
               value={sortBy}
             >
               {SORT_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  Sort · {option.label}
                 </option>
               ))}
             </select>
           </div>
         </div>
 
+        {activeFilterChips.length > 0 && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            {activeFilterChips.map((chip) => (
+              <button
+                className={`
+                  krs-meta flex items-center gap-2 border border-primary
+                  px-3 py-1.5 text-xs text-foreground
+                `}
+                key={chip.key}
+                onClick={chip.onClear}
+                type="button"
+              >
+                {chip.label}
+                <X className="h-3 w-3" />
+              </button>
+            ))}
+          </div>
+        )}
+
         <div
           className={`
-            grid grid-cols-1 gap-6
+            mb-6 flex items-center justify-between border-b border-border
+            pb-4
+          `}
+        >
+          <p className="text-sm text-muted-foreground">
+            {filteredProducts.length} piece
+            {filteredProducts.length === 1 ? "" : "s"}
+          </p>
+        </div>
+
+        <div
+          className={`
+            grid grid-cols-1 gap-x-7 gap-y-9
             sm:grid-cols-2
             xl:grid-cols-3
           `}
         >
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              onAddToCart={handleAddToCart}
-              product={toCardProduct(product)}
-            />
+          {pagedProducts.map((product) => (
+            <ProductCard key={product.id} product={toCardProduct(product)} />
           ))}
         </div>
 
@@ -505,10 +585,44 @@ export function CollectionBrowser({
             <p className="text-muted-foreground">
               Nothing matches these filters right now.
             </p>
-            <Button className="mt-4" onClick={resetFilters} variant="outline">
+            <Button
+              className="mt-4 rounded-none"
+              onClick={resetFilters}
+              variant="outline"
+            >
               Clear filters
             </Button>
           </div>
+        )}
+
+        {pageCount > 1 && (
+          <nav
+            aria-label="Pagination"
+            className="mt-10 flex items-center justify-center gap-2"
+          >
+            {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
+              <button
+                aria-current={n === currentPage ? "page" : undefined}
+                className={cn(
+                  `
+                    krs-meta flex h-[34px] w-[34px] items-center justify-center
+                    border border-border text-xs
+                  `,
+                  n === currentPage
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : `
+                      text-foreground
+                      hover:border-primary
+                    `,
+                )}
+                key={n}
+                onClick={() => void setQuery({ page: n })}
+                type="button"
+              >
+                {n}
+              </button>
+            ))}
+          </nav>
         )}
       </div>
     </div>
@@ -517,7 +631,7 @@ export function CollectionBrowser({
 
 function toCardProduct(product: ProductWithRelations) {
   return {
-    category: product.category.name,
+    house: product.subcategory?.name ?? product.category.name,
     id: product.id,
     image: product.image,
     inStock: product.inStock,
@@ -527,14 +641,11 @@ function toCardProduct(product: ProductWithRelations) {
   };
 }
 
-function uniqueValues(
-  products: ProductWithRelations[],
-  getValue: FacetConfig["getValue"],
-): string[] {
+function uniqueHouses(products: ProductWithRelations[]): string[] {
   const values = new Set<string>();
   for (const product of products) {
-    const value = getValue(product);
-    if (value) values.add(value);
+    const house = product.subcategory?.name;
+    if (house) values.add(house);
   }
   return [...values].sort();
 }

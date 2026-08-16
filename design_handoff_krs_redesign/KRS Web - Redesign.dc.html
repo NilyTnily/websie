@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  body { margin: 0; background: #1A120C; }
+  a { color: #C8A97E; text-decoration: none; }
+  a:hover { color: #E0C79C; }
+  @keyframes krs-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+</style>
+</helmet>
+
+<div style="font-family: Montserrat, sans-serif; background: #1A120C; padding: 56px 40px 120px; display: flex; flex-direction: column; gap: 72px; align-items: center;">
+
+  <div style="width: 1440px; color: #F5F2EB;">
+    <div style="font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #C8A97E;">Proposed direction · desktop</div>
+    <div style="font-family: Cinzel, serif; font-size: 40px; letter-spacing: .04em; margin-top: 12px;">KRS, rebuilt on the brand book</div>
+    <div style="font-size: 15px; line-height: 1.7; color: rgba(245,242,235,.65); max-width: 80ch; margin-top: 10px; text-wrap: pretty;">Mocha #2B1E17 · Tobacco #6B4B3E · Champagne #C8A97E · Ivory #F5F2EB · Onyx #0D0D0D, with Cinzel over Montserrat. Same name, same copy where it was already good. One editorial rhythm instead of five identical bands, the loupe promoted to the signature interaction, and a real checkout.</div>
+  </div>
+
+  <!-- ══════════════════ HOME ══════════════════ -->
+  <div data-screen-label="Redesign — Home" style="width: 1440px;">
+    <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.6); margin-bottom: 12px;">01 · Home</div>
+    <div style="background: #FBFAF7; color: #2B1E17; box-shadow: 0 30px 80px -24px rgba(0,0,0,.7); overflow: hidden;">
+
+      <!-- header over hero -->
+      <div style="position: relative;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; z-index: 5; color: #F5F2EB;">
+          <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 26px 56px;">
+            <nav style="display: flex; gap: 34px; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;">
+              <a href="#" style="color: #F5F2EB;">Watches</a>
+              <a href="#" style="color: rgba(245,242,235,.72);">Jewelry</a>
+              <a href="#" style="color: rgba(245,242,235,.72);">Bespoke</a>
+            </nav>
+            <a href="#" style="font-family: Cinzel, serif; font-size: 27px; letter-spacing: .34em; color: #F5F2EB; padding-left: .34em;">KRS</a>
+            <div style="display: flex; gap: 30px; justify-content: flex-end; align-items: center; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;">
+              <a href="#" style="color: rgba(245,242,235,.72);">The House</a>
+              <a href="#" style="color: rgba(245,242,235,.72);">Search</a>
+              <a href="#" style="color: rgba(245,242,235,.72);">Account</a>
+              <a href="#" style="color: #F5F2EB; display: inline-flex; align-items: center; gap: 8px;">Bag <span style="display: inline-grid; place-items: center; width: 18px; height: 18px; background: #C8A97E; color: #2B1E17; font-size: 10px; letter-spacing: 0;">2</span></a>
+            </div>
+          </div>
+          <div style="height: 1px; background: linear-gradient(to right, transparent, rgba(200,169,126,.45) 20%, rgba(200,169,126,.45) 80%, transparent);"></div>
+        </div>
+
+        <!-- hero -->
+        <div style="position: relative; height: 800px; background: #0D0D0D; overflow: hidden;">
+          <img src="https://images.unsplash.com/photo-1508962914676-134849a727f0?w=2000&auto=format&fit=crop&q=85" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .82;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(105deg, rgba(13,13,13,.86) 0%, rgba(13,13,13,.45) 46%, rgba(13,13,13,.15) 70%, rgba(43,30,23,.5) 100%);"></div>
+          <div style="position: absolute; inset: 0; display: flex; align-items: center; padding: 0 56px;">
+            <div style="max-width: 640px; color: #F5F2EB;">
+              <div style="font-size: 10px; letter-spacing: .38em; text-transform: uppercase; color: #C8A97E;">Fine watches &amp; jewelry</div>
+              <h1 style="font-family: Cinzel, serif; font-size: 82px; line-height: 1.06; font-weight: 400; letter-spacing: .01em; margin: 26px 0 0;">Precision<br>worn close.</h1>
+              <div style="width: 64px; height: 1px; background: #C8A97E; margin: 34px 0;"></div>
+              <p style="margin: 0; max-width: 46ch; font-size: 16px; font-weight: 300; line-height: 1.8; color: rgba(245,242,235,.82);">Automatic movements finished by hand, stones set one at a time, and a small archive of vintage pieces restored ourselves.</p>
+              <div style="display: flex; gap: 14px; margin-top: 40px;">
+                <a href="#" style="display: inline-flex; align-items: center; height: 52px; padding: 0 34px; background: #C8A97E; color: #2B1E17; font-size: 11px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase;">Explore the collection</a>
+                <a href="#" style="display: inline-flex; align-items: center; height: 52px; padding: 0 34px; border: 1px solid rgba(245,242,235,.45); color: #F5F2EB; font-size: 11px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase;">Book a viewing</a>
+              </div>
+            </div>
+          </div>
+          <div style="position: absolute; right: 56px; bottom: 56px; width: 268px; border: 1px solid rgba(200,169,126,.45); background: rgba(13,13,13,.55); backdrop-filter: blur(6px); padding: 20px; color: #F5F2EB;">
+            <div style="font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #C8A97E;">In frame</div>
+            <div style="font-family: Cinzel, serif; font-size: 17px; margin-top: 10px; letter-spacing: .03em;">Nautilus 5711/1A-010</div>
+            <div style="font-size: 12px; color: rgba(245,242,235,.6); margin-top: 6px; letter-spacing: .06em;">Patek Philippe · Steel 40mm · $34,000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- houses marquee -->
+      <div style="background: #2B1E17; color: rgba(245,242,235,.55); overflow: hidden; padding: 20px 0; border-bottom: 1px solid rgba(200,169,126,.18);">
+        <div style="display: flex; gap: 56px; width: max-content; animation: krs-marquee 46s linear infinite; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; white-space: nowrap;">
+          <sc-for list="{{ housesLoop }}" as="h" hint-placeholder-count="20"><span>{{ h }}</span></sc-for>
+        </div>
+      </div>
+
+      <!-- editorial: the current shelf -->
+      <div style="padding: 104px 56px 0;">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid rgba(43,30,23,.16); padding-bottom: 22px;">
+          <div>
+            <div style="font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #6B4B3E;">Currently on the shelf</div>
+            <h2 style="font-family: Cinzel, serif; font-size: 42px; font-weight: 400; letter-spacing: .03em; margin: 14px 0 0;">Nothing here is made twice</h2>
+          </div>
+          <a href="#" style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: #6B4B3E; padding-bottom: 6px;">All 96 pieces →</a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 32px; margin-top: 48px;">
+          <a href="#" style="color: inherit; display: block;">
+            <div style="position: relative; aspect-ratio: 3/4; overflow: hidden; background: #EFEAE0;">
+              <img src="https://images.unsplash.com/photo-1508962914676-134849a727f0?w=1200&auto=format&fit=crop&q=85" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+              <div style="position: absolute; top: 18px; left: 18px; background: rgba(43,30,23,.82); color: #F5F2EB; font-size: 9px; letter-spacing: .26em; text-transform: uppercase; padding: 7px 12px;">One of one</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 20px; border-top: 1px solid rgba(43,30,23,.16); padding-top: 16px;">
+              <div>
+                <div style="font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: #6B4B3E;">Patek Philippe · 5711/1A-010</div>
+                <div style="font-family: Cinzel, serif; font-size: 24px; margin-top: 8px; letter-spacing: .02em;">Nautilus</div>
+              </div>
+              <div style="font-family: Cinzel, serif; font-size: 20px;">$34,000</div>
+            </div>
+          </a>
+          <div style="display: grid; grid-template-rows: 1fr 1fr; gap: 32px;">
+            <sc-for list="{{ shelfA }}" as="p" hint-placeholder-count="2">
+              <a href="#" style="color: inherit; display: grid; grid-template-rows: 1fr auto;">
+                <div style="overflow: hidden; background: #EFEAE0;"><img src="{{ p.image }}" alt="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                <div style="border-top: 1px solid rgba(43,30,23,.16); padding-top: 14px; margin-top: 16px; display: flex; justify-content: space-between; align-items: baseline;">
+                  <div>
+                    <div style="font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: #6B4B3E;">{{ p.ref }}</div>
+                    <div style="font-family: Cinzel, serif; font-size: 17px; margin-top: 6px;">{{ p.name }}</div>
+                  </div>
+                  <div style="font-family: Cinzel, serif; font-size: 15px;">{{ p.price }}</div>
+                </div>
+              </a>
+            </sc-for>
+          </div>
+          <div style="display: grid; grid-template-rows: 1fr 1fr; gap: 32px;">
+            <sc-for list="{{ shelfB }}" as="p" hint-placeholder-count="2">
+              <a href="#" style="color: inherit; display: grid; grid-template-rows: 1fr auto;">
+                <div style="overflow: hidden; background: #EFEAE0;"><img src="{{ p.image }}" alt="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                <div style="border-top: 1px solid rgba(43,30,23,.16); padding-top: 14px; margin-top: 16px; display: flex; justify-content: space-between; align-items: baseline;">
+                  <div>
+                    <div style="font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: #6B4B3E;">{{ p.ref }}</div>
+                    <div style="font-family: Cinzel, serif; font-size: 17px; margin-top: 6px;">{{ p.name }}</div>
+                  </div>
+                  <div style="font-family: Cinzel, serif; font-size: 15px;">{{ p.price }}</div>
+                </div>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- UNDER THE LOUPE — signature interaction -->
+      <div style="margin-top: 112px; background: #0D0D0D; color: #F5F2EB; padding: 96px 56px;">
+        <div style="display: grid; grid-template-columns: 1.1fr .9fr; gap: 72px; align-items: center;">
+          <div ref="{{ loupeRef }}" onMouseMove="{{ onLoupeMove }}" onMouseLeave="{{ onLoupeLeave }}" style="position: relative; aspect-ratio: 4/3; overflow: hidden; cursor: crosshair; background: #171310;">
+            <img src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=1400&auto=format&fit=crop&q=85" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="{{ loupeStyle }}"></div>
+            <div style="position: absolute; left: 20px; bottom: 20px; font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: rgba(245,242,235,.6);">{{ loupeHint }}</div>
+          </div>
+          <div>
+            <div style="font-size: 10px; letter-spacing: .36em; text-transform: uppercase; color: #C8A97E;">Under the loupe</div>
+            <h2 style="font-family: Cinzel, serif; font-size: 44px; font-weight: 400; letter-spacing: .03em; margin: 22px 0 0; line-height: 1.2;">See it the way<br>we grade it</h2>
+            <p style="margin: 26px 0 0; max-width: 44ch; font-size: 16px; font-weight: 300; line-height: 1.85; color: rgba(245,242,235,.72);">Every listing carries a 10× loupe view of the dial, the hallmark and the setting. Not a marketing crop — the same magnification our watchmaker uses on the bench before a piece is allowed on the shelf.</p>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(200,169,126,.25); margin-top: 44px; border: 1px solid rgba(200,169,126,.25);">
+              <div style="background: #0D0D0D; padding: 22px 18px;"><div style="font-family: Cinzel, serif; font-size: 26px; color: #C8A97E;">10×</div><div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5); margin-top: 8px;">Magnification</div></div>
+              <div style="background: #0D0D0D; padding: 22px 18px;"><div style="font-family: Cinzel, serif; font-size: 26px; color: #C8A97E;">96</div><div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5); margin-top: 8px;">Pieces graded</div></div>
+              <div style="background: #0D0D0D; padding: 22px 18px;"><div style="font-family: Cinzel, serif; font-size: 26px; color: #C8A97E;">In-house</div><div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5); margin-top: 8px;">Every service</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- two houses, full bleed -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr;">
+        <a href="#" style="position: relative; height: 560px; overflow: hidden; display: block; color: #F5F2EB;">
+          <img src="https://images.unsplash.com/photo-1633451238042-85d93d267866?w=1400&auto=format&fit=crop&q=85" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(13,13,13,.8), rgba(13,13,13,.05) 60%);"></div>
+          <div style="position: absolute; left: 48px; bottom: 48px;">
+            <div style="font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #C8A97E;">17 houses</div>
+            <div style="font-family: Cinzel, serif; font-size: 40px; letter-spacing: .05em; margin-top: 12px;">Watches</div>
+            <div style="font-size: 14px; font-weight: 300; color: rgba(245,242,235,.75); margin-top: 8px;">Automatic and hand-wound movements, cased by hand.</div>
+          </div>
+        </a>
+        <a href="#" style="position: relative; height: 560px; overflow: hidden; display: block; color: #F5F2EB;">
+          <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1400&auto=format&fit=crop&q=85" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+          <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(13,13,13,.8), rgba(13,13,13,.05) 60%);"></div>
+          <div style="position: absolute; left: 48px; bottom: 48px;">
+            <div style="font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #C8A97E;">11 pieces</div>
+            <div style="font-family: Cinzel, serif; font-size: 40px; letter-spacing: .05em; margin-top: 12px;">Jewelry</div>
+            <div style="font-size: 14px; font-weight: 300; color: rgba(245,242,235,.75); margin-top: 8px;">Hand-set stones in 18k gold, one piece at a time.</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- the standard -->
+      <div style="padding: 104px 56px; background: #F5F2EB;">
+        <div style="display: grid; grid-template-columns: 340px 1fr; gap: 72px;">
+          <div>
+            <div style="font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #6B4B3E;">The KRS standard</div>
+            <h2 style="font-family: Cinzel, serif; font-size: 38px; font-weight: 400; letter-spacing: .03em; margin: 18px 0 0; line-height: 1.25;">Four promises,<br>no asterisks</h2>
+            <p style="font-size: 15px; font-weight: 300; line-height: 1.8; color: #6B4B3E; margin: 22px 0 0;">We are a small house on purpose — small enough that the person who services your movement is the same person who packed the box it arrived in.</p>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: rgba(43,30,23,.16); border: 1px solid rgba(43,30,23,.16);">
+            <sc-for list="{{ standard }}" as="s" hint-placeholder-count="4">
+              <div style="background: #F5F2EB; padding: 36px 32px;">
+                <div style="font-family: Cinzel, serif; font-size: 13px; color: #C8A97E; letter-spacing: .2em;">{{ s.n }}</div>
+                <div style="font-family: Cinzel, serif; font-size: 20px; margin-top: 16px; letter-spacing: .03em;">{{ s.title }}</div>
+                <div style="font-size: 14px; font-weight: 300; line-height: 1.75; color: #6B4B3E; margin-top: 12px;">{{ s.body }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- pull quote -->
+      <div style="padding: 112px 56px; background: #FBFAF7; text-align: center;">
+        <div style="max-width: 900px; margin: 0 auto;">
+          <div style="font-family: Cinzel, serif; font-size: 34px; line-height: 1.5; letter-spacing: .02em; color: #2B1E17;">“Bought the Nautilus sight-unseen on their dossier alone. The dossier was right.”</div>
+          <div style="font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: #6B4B3E; margin-top: 32px;">R. Halloran · from the client book</div>
+        </div>
+      </div>
+
+      <!-- account band -->
+      <div style="background: #2B1E17; color: #F5F2EB; padding: 88px 56px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 48px;">
+        <div>
+          <h2 style="font-family: Cinzel, serif; font-size: 36px; font-weight: 400; letter-spacing: .03em; margin: 0;">Open a client account</h2>
+          <p style="margin: 14px 0 0; max-width: 62ch; font-size: 15px; font-weight: 300; line-height: 1.8; color: rgba(245,242,235,.72);">Track orders, save pieces, and keep the certificate, service record and valuation for every piece you own in one vault.</p>
+        </div>
+        <a href="#" style="display: inline-flex; align-items: center; height: 52px; padding: 0 38px; background: #C8A97E; color: #2B1E17; font-size: 11px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; white-space: nowrap;">Create account</a>
+      </div>
+
+      <!-- footer -->
+      <div style="background: #0D0D0D; color: #F5F2EB; padding: 72px 56px 40px;">
+        <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 48px;">
+          <div>
+            <div style="font-family: Cinzel, serif; font-size: 24px; letter-spacing: .34em; padding-left: .34em;">KRS</div>
+            <p style="font-size: 14px; font-weight: 300; line-height: 1.8; color: rgba(245,242,235,.6); margin: 20px 0 0; max-width: 34ch;">Fine watches and jewelry, serviced in-house and shipped insured. Nothing on the shelf is made twice.</p>
+          </div>
+          <div>
+            <div style="font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #C8A97E;">Collections</div>
+            <div style="display: grid; gap: 12px; margin-top: 20px; font-size: 14px; font-weight: 300;">
+              <a href="#" style="color: rgba(245,242,235,.75);">All pieces</a>
+              <a href="#" style="color: rgba(245,242,235,.75);">Watches</a>
+              <a href="#" style="color: rgba(245,242,235,.75);">Jewelry</a>
+              <a href="#" style="color: rgba(245,242,235,.75);">Bespoke</a>
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #C8A97E;">The house</div>
+            <div style="display: grid; gap: 12px; margin-top: 20px; font-size: 14px; font-weight: 300;">
+              <a href="#" style="color: rgba(245,242,235,.75);">About us</a>
+              <a href="#" style="color: rgba(245,242,235,.75);">The KRS standard</a>
+              <a href="#" style="color: rgba(245,242,235,.75);">Care &amp; service</a>
+              <a href="#" style="color: rgba(245,242,235,.75);">Client account</a>
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #C8A97E;">The dossier</div>
+            <p style="font-size: 14px; font-weight: 300; line-height: 1.7; color: rgba(245,242,235,.6); margin: 20px 0 16px;">New arrivals and archive finds, once a month.</p>
+            <div style="display: flex; border-bottom: 1px solid rgba(245,242,235,.28); padding-bottom: 10px; justify-content: space-between; align-items: center;">
+              <span style="font-size: 14px; font-weight: 300; color: rgba(245,242,235,.45);">your@email.com</span>
+              <span style="font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: #C8A97E;">Join</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 56px; padding-top: 26px; border-top: 1px solid rgba(245,242,235,.14); display: flex; justify-content: space-between; font-size: 12px; font-weight: 300; color: rgba(245,242,235,.45);">
+          <span>© 2026 KRS. All rights reserved.</span>
+          <span style="display: flex; gap: 24px;"><a href="#" style="color: rgba(245,242,235,.45);">Privacy</a><a href="#" style="color: rgba(245,242,235,.45);">Terms</a><a href="#" style="color: rgba(245,242,235,.45);">Instagram</a></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════ COLLECTION ══════════════════ -->
+  <div data-screen-label="Redesign — Collection" style="width: 1440px;">
+    <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.6); margin-bottom: 12px;">02 · Collection — grouped by house, one search, banded price</div>
+    <div style="background: #FBFAF7; color: #2B1E17; box-shadow: 0 30px 80px -24px rgba(0,0,0,.7);">
+      <div style="background: #0D0D0D; color: #F5F2EB;">
+        <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 26px 56px;">
+          <nav style="display: flex; gap: 34px; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;">
+            <a href="#" style="color: #C8A97E;">Watches</a><a href="#" style="color: rgba(245,242,235,.72);">Jewelry</a><a href="#" style="color: rgba(245,242,235,.72);">Bespoke</a>
+          </nav>
+          <span style="font-family: Cinzel, serif; font-size: 27px; letter-spacing: .34em; padding-left: .34em;">KRS</span>
+          <div style="display: flex; gap: 30px; justify-content: flex-end; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;">
+            <a href="#" style="color: rgba(245,242,235,.72);">The House</a><a href="#" style="color: rgba(245,242,235,.72);">Account</a><a href="#" style="color: #F5F2EB;">Bag (2)</a>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 56px 56px 24px; border-bottom: 1px solid rgba(43,30,23,.14); display: flex; align-items: flex-end; justify-content: space-between;">
+        <div>
+          <div style="font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #6B4B3E;">96 pieces · 17 houses</div>
+          <h1 style="font-family: Cinzel, serif; font-size: 46px; font-weight: 400; letter-spacing: .03em; margin: 16px 0 0;">The Collection</h1>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 10px; border: 1px solid rgba(43,30,23,.2); height: 42px; padding: 0 16px; width: 300px; color: #8a7a6d;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+            <span style="font-size: 13px; font-weight: 300;">Name, house or reference</span>
+          </div>
+          <div style="height: 42px; border: 1px solid rgba(43,30,23,.2); display: flex; align-items: center; padding: 0 16px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase;">Sort · Featured</div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 48px; padding: 40px 56px 80px;">
+        <aside style="width: 232px; flex-shrink: 0; display: grid; gap: 28px; align-content: start;">
+          <div>
+            <div style="font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6B4B3E; padding-bottom: 12px; border-bottom: 1px solid rgba(43,30,23,.16);">Category</div>
+            <div style="display: grid; gap: 10px; margin-top: 14px; font-size: 14px; font-weight: 300;">
+              <span style="color: #2B1E17; font-weight: 500; display: flex; justify-content: space-between;">All pieces <span style="color:#6B4B3E; font-weight:300;">96</span></span>
+              <span style="color: #6B4B3E; display: flex; justify-content: space-between;">Watches <span>85</span></span>
+              <span style="color: #6B4B3E; display: flex; justify-content: space-between;">Jewelry <span>11</span></span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6B4B3E; padding-bottom: 12px; border-bottom: 1px solid rgba(43,30,23,.16);">House</div>
+            <div style="display: grid; gap: 10px; margin-top: 14px; font-size: 14px; font-weight: 300; color: #6B4B3E;">
+              <sc-for list="{{ housesShort }}" as="h" hint-placeholder-count="6"><span style="display: flex; align-items: center; gap: 10px;"><span style="width: 13px; height: 13px; border: 1px solid rgba(43,30,23,.35);"></span>{{ h }}</span></sc-for>
+              <span style="color: #C8A97E; font-size: 12px; letter-spacing: .1em; margin-top: 4px;">+ 11 more</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6B4B3E; padding-bottom: 12px; border-bottom: 1px solid rgba(43,30,23,.16);">Price</div>
+            <div style="display: grid; gap: 10px; margin-top: 14px; font-size: 14px; font-weight: 300; color: #6B4B3E;">
+              <span style="display: flex; align-items: center; gap: 10px;"><span style="width: 13px; height: 13px; border: 1px solid rgba(43,30,23,.35);"></span>Under $5,000</span>
+              <span style="display: flex; align-items: center; gap: 10px;"><span style="width: 13px; height: 13px; border: 1px solid rgba(43,30,23,.35); background: #C8A97E;"></span>$5,000 – $25,000</span>
+              <span style="display: flex; align-items: center; gap: 10px;"><span style="width: 13px; height: 13px; border: 1px solid rgba(43,30,23,.35);"></span>$25,000 – $100,000</span>
+              <span style="display: flex; align-items: center; gap: 10px;"><span style="width: 13px; height: 13px; border: 1px solid rgba(43,30,23,.35);"></span>$100,000 and above</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 10px; letter-spacing: .26em; text-transform: uppercase; color: #6B4B3E; padding-bottom: 12px; border-bottom: 1px solid rgba(43,30,23,.16);">Case size</div>
+            <div style="margin-top: 18px; height: 2px; background: rgba(43,30,23,.18); position: relative;">
+              <span style="position: absolute; left: 12%; right: 24%; top: -1px; height: 4px; background: #6B4B3E;"></span>
+              <span style="position: absolute; left: 12%; top: -5px; width: 11px; height: 11px; background: #2B1E17; transform: translateX(-50%);"></span>
+              <span style="position: absolute; right: 24%; top: -5px; width: 11px; height: 11px; background: #2B1E17; transform: translateX(50%);"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 14px; font-size: 12px; color: #6B4B3E;"><span>37mm</span><span>42mm</span></div>
+          </div>
+          <div style="font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #C8A97E;">Clear all</div>
+        </aside>
+
+        <div style="flex: 1; min-width: 0;">
+          <div style="display: flex; gap: 10px; margin-bottom: 28px;">
+            <span style="border: 1px solid #2B1E17; padding: 7px 14px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase;">$5,000 – $25,000 ✕</span>
+            <span style="border: 1px solid rgba(43,30,23,.2); padding: 7px 14px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #6B4B3E;">37–42mm ✕</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px 28px;">
+            <sc-for list="{{ grid }}" as="p" hint-placeholder-count="9">
+              <a href="#" style="color: inherit; display: block;">
+                <div style="position: relative; aspect-ratio: 4/5; overflow: hidden; background: #EFEAE0;">
+                  <img src="{{ p.image }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                  <div style="position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border: 1px solid rgba(245,242,235,.6); display: grid; place-items: center;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F5F2EB" stroke-width="1.6"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+                  </div>
+                </div>
+                <div style="border-top: 1px solid rgba(43,30,23,.16); margin-top: 16px; padding-top: 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px;">
+                  <div style="min-width: 0;">
+                    <div style="font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: #6B4B3E;">{{ p.house }}</div>
+                    <div style="font-family: Cinzel, serif; font-size: 17px; margin-top: 7px; letter-spacing: .02em;">{{ p.name }}</div>
+                    <div style="font-size: 11px; color: #8a7a6d; margin-top: 5px; letter-spacing: .1em;">{{ p.ref }}</div>
+                  </div>
+                  <div style="font-family: Cinzel, serif; font-size: 16px; white-space: nowrap;">{{ p.price }}</div>
+                </div>
+              </a>
+            </sc-for>
+          </div>
+          <div style="display: flex; justify-content: center; gap: 8px; margin-top: 56px; align-items: center; font-size: 12px; letter-spacing: .14em;">
+            <span style="width: 34px; height: 34px; display: grid; place-items: center; background: #2B1E17; color: #F5F2EB;">1</span>
+            <span style="width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid rgba(43,30,23,.18);">2</span>
+            <span style="width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid rgba(43,30,23,.18);">3</span>
+            <span style="width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid rgba(43,30,23,.18);">→</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ PRODUCT ══════════════════ -->
+  <div data-screen-label="Redesign — Product detail" style="width: 1440px;">
+    <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.6); margin-bottom: 12px;">03 · Product detail — sticky buy rail, loupe, dossier</div>
+    <div style="background: #FBFAF7; color: #2B1E17; box-shadow: 0 30px 80px -24px rgba(0,0,0,.7);">
+      <div style="background: #0D0D0D; color: #F5F2EB;">
+        <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 26px 56px;">
+          <nav style="display: flex; gap: 34px; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;">
+            <a href="#" style="color: #C8A97E;">Watches</a><a href="#" style="color: rgba(245,242,235,.72);">Jewelry</a><a href="#" style="color: rgba(245,242,235,.72);">Bespoke</a>
+          </nav>
+          <span style="font-family: Cinzel, serif; font-size: 27px; letter-spacing: .34em; padding-left: .34em;">KRS</span>
+          <div style="display: flex; gap: 30px; justify-content: flex-end; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;">
+            <a href="#" style="color: rgba(245,242,235,.72);">The House</a><a href="#" style="color: rgba(245,242,235,.72);">Account</a><a href="#" style="color: #F5F2EB;">Bag (2)</a>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 22px 56px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #8a7a6d; border-bottom: 1px solid rgba(43,30,23,.12);">Home &nbsp;·&nbsp; Watches &nbsp;·&nbsp; Patek Philippe &nbsp;·&nbsp; <span style="color: #2B1E17;">Nautilus 5711/1A-010</span></div>
+
+      <div style="display: grid; grid-template-columns: 1fr 468px;">
+        <div style="display: grid; gap: 4px; padding: 4px 4px 4px 0;">
+          <div style="aspect-ratio: 1; background: #EFEAE0; overflow: hidden;"><img src="https://images.unsplash.com/photo-1508962914676-134849a727f0?w=1400&auto=format&fit=crop&q=85" alt="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+            <div style="aspect-ratio: 1; background: #EFEAE0; overflow: hidden;"><img src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=900&auto=format&fit=crop&q=85" alt="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+            <div style="aspect-ratio: 1; background: #EFEAE0; overflow: hidden;"><img src="https://images.unsplash.com/photo-1533139502658-0198f920d8e8?w=900&auto=format&fit=crop&q=85" alt="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+          </div>
+        </div>
+
+        <div style="padding: 56px 56px 56px 48px; align-self: start; position: sticky; top: 0;">
+          <div style="font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #6B4B3E;">Patek Philippe</div>
+          <h1 style="font-family: Cinzel, serif; font-size: 38px; font-weight: 400; letter-spacing: .03em; margin: 14px 0 0; line-height: 1.2;">Nautilus 5711/1A-010</h1>
+          <div style="font-size: 12px; letter-spacing: .16em; color: #8a7a6d; margin-top: 10px;">REF. 5711/1A-010 · STEEL 40MM · ONE ON THE SHELF</div>
+          <div style="font-family: Cinzel, serif; font-size: 44px; margin-top: 30px; letter-spacing: .02em;">$34,000</div>
+          <p style="font-size: 15px; font-weight: 300; line-height: 1.85; color: #6B4B3E; margin: 22px 0 0;">The original luxury sports watch, with a porthole-inspired case and the horizontally embossed blue dial that made the Nautilus an icon. Calibre 26-330 SC, finished entirely by hand.</p>
+
+          <div style="display: flex; gap: 12px; margin-top: 34px;">
+            <a href="#" style="flex: 1; height: 54px; background: #2B1E17; color: #F5F2EB; display: grid; place-items: center; font-size: 11px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase;">Add to bag</a>
+            <a href="#" style="width: 54px; height: 54px; border: 1px solid rgba(43,30,23,.25); display: grid; place-items: center;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6B4B3E" stroke-width="1.5"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></a>
+          </div>
+          <a href="#" style="display: grid; place-items: center; height: 54px; border: 1px solid rgba(43,30,23,.25); margin-top: 12px; color: #2B1E17; font-size: 11px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase;">Book a private viewing</a>
+
+          <div style="border: 1px solid rgba(43,30,23,.16); margin-top: 32px;">
+            <sc-for list="{{ assurances }}" as="a" hint-placeholder-count="3">
+              <div style="display: flex; gap: 14px; padding: 16px 18px; border-bottom: 1px solid rgba(43,30,23,.1);">
+                <span style="color: #C8A97E; font-size: 13px;">✦</span>
+                <div>
+                  <div style="font-size: 13px; letter-spacing: .04em;">{{ a.title }}</div>
+                  <div style="font-size: 12px; font-weight: 300; color: #8a7a6d; margin-top: 4px;">{{ a.body }}</div>
+                </div>
+              </div>
+            </sc-for>
+            <div style="display: flex; gap: 14px; padding: 16px 18px; align-items: center;">
+              <span style="color: #C8A97E; font-size: 13px;">✦</span>
+              <div style="font-size: 13px;">Ships in 2 business days · Insured, signature required</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 88px 56px; background: #F5F2EB;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 72px;">
+          <div>
+            <div style="font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #6B4B3E;">The dossier</div>
+            <h2 style="font-family: Cinzel, serif; font-size: 28px; font-weight: 400; letter-spacing: .03em; margin: 16px 0 24px;">Details</h2>
+            <div style="display: grid; gap: 14px;">
+              <sc-for list="{{ details }}" as="d" hint-placeholder-count="5">
+                <div style="display: flex; gap: 14px; font-size: 15px; font-weight: 300; line-height: 1.6; color: #6B4B3E;"><span style="color: #C8A97E;">—</span>{{ d }}</div>
+              </sc-for>
+            </div>
+          </div>
+          <div>
+            <div style="font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #6B4B3E;">Verified on the bench</div>
+            <h2 style="font-family: Cinzel, serif; font-size: 28px; font-weight: 400; letter-spacing: .03em; margin: 16px 0 24px;">Specification</h2>
+            <div>
+              <sc-for list="{{ specs }}" as="s" hint-placeholder-count="6">
+                <div style="display: flex; justify-content: space-between; gap: 24px; padding: 13px 0; border-bottom: 1px solid rgba(43,30,23,.14); font-size: 14px;">
+                  <span style="color: #2B1E17; letter-spacing: .04em;">{{ s.k }}</span>
+                  <span style="color: #6B4B3E; font-weight: 300; text-align: right;">{{ s.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ CHECKOUT ══════════════════ -->
+  <div data-screen-label="Redesign — Checkout" style="width: 1440px;">
+    <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.6); margin-bottom: 12px;">04 · Checkout — the flow that doesn't exist today</div>
+    <div style="background: #FBFAF7; color: #2B1E17; box-shadow: 0 30px 80px -24px rgba(0,0,0,.7); display: grid; grid-template-columns: 1fr 512px; min-height: 900px;">
+      <div style="padding: 48px 64px 72px;">
+        <div style="font-family: Cinzel, serif; font-size: 24px; letter-spacing: .34em; padding-left: .34em;">KRS</div>
+        <div style="display: flex; gap: 32px; margin-top: 40px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; border-bottom: 1px solid rgba(43,30,23,.14); padding-bottom: 16px;">
+          <span style="color: #2B1E17; border-bottom: 1px solid #C8A97E; padding-bottom: 16px; margin-bottom: -17px;">1 · Delivery</span>
+          <span style="color: #a3958a;">2 · Presentation</span>
+          <span style="color: #a3958a;">3 · Payment</span>
+        </div>
+
+        <h2 style="font-family: Cinzel, serif; font-size: 26px; font-weight: 400; letter-spacing: .03em; margin: 44px 0 24px;">Where should it go?</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+          <div style="grid-column: span 2;"><div style="font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: #6B4B3E; margin-bottom: 8px;">Full name</div><div style="height: 46px; border: 1px solid rgba(43,30,23,.22); display: flex; align-items: center; padding: 0 14px; font-size: 14px;">Rowan Halloran</div></div>
+          <div style="grid-column: span 2;"><div style="font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: #6B4B3E; margin-bottom: 8px;">Street address</div><div style="height: 46px; border: 1px solid rgba(43,30,23,.22); display: flex; align-items: center; padding: 0 14px; font-size: 14px;">18 Marylebone High Street</div></div>
+          <div><div style="font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: #6B4B3E; margin-bottom: 8px;">City</div><div style="height: 46px; border: 1px solid rgba(43,30,23,.22); display: flex; align-items: center; padding: 0 14px; font-size: 14px;">London</div></div>
+          <div><div style="font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: #6B4B3E; margin-bottom: 8px;">Postcode</div><div style="height: 46px; border: 1px solid rgba(43,30,23,.22); display: flex; align-items: center; padding: 0 14px; font-size: 14px;">W1U 4QF</div></div>
+        </div>
+
+        <h2 style="font-family: Cinzel, serif; font-size: 26px; font-weight: 400; letter-spacing: .03em; margin: 48px 0 20px;">How it travels</h2>
+        <div style="display: grid; gap: 12px;">
+          <div style="border: 1px solid #2B1E17; padding: 20px 22px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 15px; letter-spacing: .04em;">Insured courier — signature required</div>
+              <div style="font-size: 13px; font-weight: 300; color: #6B4B3E; margin-top: 5px;">Arrives Tue 18 Aug · fully insured to declared value · tracked to the door</div>
+            </div>
+            <div style="font-family: Cinzel, serif; font-size: 16px;">Included</div>
+          </div>
+          <div style="border: 1px solid rgba(43,30,23,.18); padding: 20px 22px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 15px; letter-spacing: .04em;">Hand delivery by a KRS associate</div>
+              <div style="font-size: 13px; font-weight: 300; color: #6B4B3E; margin-top: 5px;">Within Greater London · fitting and strap sizing on arrival</div>
+            </div>
+            <div style="font-family: Cinzel, serif; font-size: 16px;">$180</div>
+          </div>
+          <div style="border: 1px solid rgba(43,30,23,.18); padding: 20px 22px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 15px; letter-spacing: .04em;">Collect from the salon</div>
+              <div style="font-size: 13px; font-weight: 300; color: #6B4B3E; margin-top: 5px;">Ready today · appointment held for 7 days</div>
+            </div>
+            <div style="font-family: Cinzel, serif; font-size: 16px;">Free</div>
+          </div>
+        </div>
+
+        <h2 style="font-family: Cinzel, serif; font-size: 26px; font-weight: 400; letter-spacing: .03em; margin: 48px 0 20px;">Presentation</h2>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+          <div style="border: 1px solid #2B1E17; padding: 18px;"><div style="font-size: 14px;">House case</div><div style="font-size: 12px; font-weight: 300; color: #6B4B3E; margin-top: 6px;">Mocha lacquer, ivory silk lining</div><div style="font-family: Cinzel, serif; margin-top: 12px;">Included</div></div>
+          <div style="border: 1px solid rgba(43,30,23,.18); padding: 18px;"><div style="font-size: 14px;">Gift presentation</div><div style="font-size: 12px; font-weight: 300; color: #6B4B3E; margin-top: 6px;">Ribbon, envelope, handwritten note</div><div style="font-family: Cinzel, serif; margin-top: 12px;">$40</div></div>
+          <div style="border: 1px solid rgba(43,30,23,.18); padding: 18px;"><div style="font-size: 14px;">Engraving</div><div style="font-size: 12px; font-weight: 300; color: #6B4B3E; margin-top: 6px;">Caseback, up to 20 characters</div><div style="font-family: Cinzel, serif; margin-top: 12px;">$120</div></div>
+        </div>
+      </div>
+
+      <aside style="background: #2B1E17; color: #F5F2EB; padding: 48px 48px 64px;">
+        <div style="font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #C8A97E;">Your order</div>
+        <div style="display: grid; gap: 24px; margin-top: 32px;">
+          <div style="display: flex; gap: 18px;">
+            <div style="width: 88px; height: 110px; overflow: hidden; background: #3a2a20;"><img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&auto=format&fit=crop&q=75" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div style="flex: 1;">
+              <div style="font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55);">KRS · J210</div>
+              <div style="font-family: Cinzel, serif; font-size: 17px; margin-top: 8px;">Cascade Pearl Necklace</div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 14px;">
+                <span style="font-size: 12px; color: rgba(245,242,235,.55);">Qty 1</span>
+                <span style="font-family: Cinzel, serif; font-size: 17px;">$4,200</span>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 18px;">
+            <div style="width: 88px; height: 110px; overflow: hidden; background: #3a2a20;"><img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=300&auto=format&fit=crop&q=75" alt="" style="width:100%;height:100%;object-fit:cover;"></div>
+            <div style="flex: 1;">
+              <div style="font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.55);">KRS · J033</div>
+              <div style="font-family: Cinzel, serif; font-size: 17px; margin-top: 8px;">Aurora Diamond Studs</div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 14px;">
+                <span style="font-size: 12px; color: rgba(245,242,235,.55);">Qty 1</span>
+                <span style="font-family: Cinzel, serif; font-size: 17px;">$2,400</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 36px; padding-top: 24px; border-top: 1px solid rgba(200,169,126,.3); display: grid; gap: 12px; font-size: 14px; font-weight: 300;">
+          <div style="display: flex; justify-content: space-between;"><span style="color: rgba(245,242,235,.7);">Subtotal</span><span>$6,600</span></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: rgba(245,242,235,.7);">Insured delivery</span><span>Included</span></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: rgba(245,242,235,.7);">Duties &amp; taxes</span><span>Prepaid</span></div>
+        </div>
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(200,169,126,.3); display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: #C8A97E;">Total</span>
+          <span style="font-family: Cinzel, serif; font-size: 34px;">$6,600</span>
+        </div>
+
+        <a href="#" style="display: grid; place-items: center; height: 56px; background: #C8A97E; color: #2B1E17; margin-top: 32px; font-size: 11px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase;">Continue to payment</a>
+        <div style="font-size: 12px; font-weight: 300; line-height: 1.7; color: rgba(245,242,235,.55); margin-top: 20px;">Every order leaves the salon sealed, insured to full declared value and signature-required. Certificates and the service record are added to your vault the moment it ships.</div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ══════════════════ ABOUT ══════════════════ -->
+  <div data-screen-label="Redesign — About" style="width: 1440px;">
+    <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.6); margin-bottom: 12px;">05 · The House — image slots below are drop targets for your own workshop photography</div>
+    <div style="background: #FBFAF7; color: #2B1E17; box-shadow: 0 30px 80px -24px rgba(0,0,0,.7);">
+      <div style="position: relative; height: 620px; background: #0D0D0D; overflow: hidden;">
+        <image-slot id="krs-about-hero" shape="rect" placeholder="Drop the workshop hero — bench, hands, movement" style="position:absolute; inset:0;"></image-slot>
+        <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(13,13,13,.85), rgba(13,13,13,.1) 65%); pointer-events: none;"></div>
+        <div style="position: absolute; left: 56px; bottom: 64px; color: #F5F2EB; pointer-events: none;">
+          <div style="font-size: 10px; letter-spacing: .36em; text-transform: uppercase; color: #C8A97E;">The house</div>
+          <h1 style="font-family: Cinzel, serif; font-size: 66px; font-weight: 400; letter-spacing: .03em; margin: 20px 0 0; line-height: 1.1;">Small on purpose</h1>
+        </div>
+      </div>
+
+      <div style="padding: 96px 56px; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 88px; align-items: start;">
+        <div>
+          <p style="font-family: Cinzel, serif; font-size: 26px; line-height: 1.6; letter-spacing: .02em; margin: 0;">KRS is a house of fine timepieces and jewelry — automatic movements, hand-set stones, and a small archive of restored vintage pieces.</p>
+          <p style="font-size: 16px; font-weight: 300; line-height: 1.9; color: #6B4B3E; margin: 32px 0 0;">Every timepiece is cased and finished by hand, every stone is set one at a time, and every vintage piece in the archive has been sourced, authenticated, and restored under our own roof before it ever reaches the shelf. We are a small house on purpose — small enough that the person who services your movement or restrings your pearls is the same person who packed the box it arrived in.</p>
+        </div>
+        <div style="display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px;">
+          <div style="min-width: 0; height: 400px; position: relative; overflow: hidden;"><image-slot id="krs-about-1" shape="rect" placeholder="Bench detail" style="position:absolute; inset:0;"></image-slot></div>
+          <div style="min-width: 0; height: 400px; position: relative; overflow: hidden; margin-top: 48px;"><image-slot id="krs-about-2" shape="rect" placeholder="Stone setting" style="position:absolute; inset:0;"></image-slot></div>
+        </div>
+      </div>
+
+      <div style="background: #2B1E17; color: #F5F2EB; padding: 88px 56px;">
+        <div style="font-size: 10px; letter-spacing: .36em; text-transform: uppercase; color: #C8A97E;">The KRS standard</div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(200,169,126,.25); margin-top: 40px; border: 1px solid rgba(200,169,126,.25);">
+          <sc-for list="{{ standard }}" as="s" hint-placeholder-count="4">
+            <div style="background: #2B1E17; padding: 36px 30px;">
+              <div style="font-family: Cinzel, serif; font-size: 13px; color: #C8A97E; letter-spacing: .2em;">{{ s.n }}</div>
+              <div style="font-family: Cinzel, serif; font-size: 20px; margin-top: 18px; letter-spacing: .03em;">{{ s.title }}</div>
+              <div style="font-size: 14px; font-weight: 300; line-height: 1.75; color: rgba(245,242,235,.68); margin-top: 12px;">{{ s.body }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ THE VAULT ══════════════════ -->
+  <div data-screen-label="Redesign — Account vault" style="width: 1440px;">
+    <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.6); margin-bottom: 12px;">06 · Account — the vault: orders, certificates, service history, valuation</div>
+    <div style="background: #FBFAF7; color: #2B1E17; box-shadow: 0 30px 80px -24px rgba(0,0,0,.7);">
+      <div style="background: #0D0D0D; color: #F5F2EB; padding: 26px 56px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;">
+        <nav style="display: flex; gap: 34px; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;">
+          <a href="#" style="color: rgba(245,242,235,.72);">Watches</a><a href="#" style="color: rgba(245,242,235,.72);">Jewelry</a><a href="#" style="color: rgba(245,242,235,.72);">Bespoke</a>
+        </nav>
+        <span style="font-family: Cinzel, serif; font-size: 27px; letter-spacing: .34em; padding-left: .34em;">KRS</span>
+        <div style="display: flex; gap: 30px; justify-content: flex-end; font-size: 11px; letter-spacing: .22em; text-transform: uppercase;">
+          <a href="#" style="color: rgba(245,242,235,.72);">The House</a><a href="#" style="color: #C8A97E;">Account</a><a href="#" style="color: #F5F2EB;">Bag (2)</a>
+        </div>
+      </div>
+
+      <div style="padding: 56px 56px 80px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid rgba(43,30,23,.14); padding-bottom: 26px;">
+          <div>
+            <div style="font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: #6B4B3E;">Client since 2021 · 4 pieces</div>
+            <h1 style="font-family: Cinzel, serif; font-size: 44px; font-weight: 400; letter-spacing: .03em; margin: 14px 0 0;">The Vault</h1>
+          </div>
+          <div style="display: flex; gap: 40px; text-align: right;">
+            <div><div style="font-family: Cinzel, serif; font-size: 26px;">$52,750</div><div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: #6B4B3E; margin-top: 6px;">Insured value</div></div>
+            <div><div style="font-family: Cinzel, serif; font-size: 26px;">1</div><div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: #6B4B3E; margin-top: 6px;">Service due</div></div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 30px; margin-top: 28px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase;">
+          <span style="border-bottom: 1px solid #C8A97E; padding-bottom: 10px;">My pieces</span>
+          <span style="color: #a3958a;">Orders</span>
+          <span style="color: #a3958a;">Certificates</span>
+          <span style="color: #a3958a;">Saved</span>
+          <span style="color: #a3958a;">Details</span>
+        </div>
+
+        <div style="display: grid; gap: 16px; margin-top: 36px;">
+          <sc-for list="{{ vault }}" as="v" hint-placeholder-count="3">
+            <div style="border: 1px solid rgba(43,30,23,.16); display: grid; grid-template-columns: 132px 1fr 220px 200px; align-items: stretch;">
+              <div style="background: #EFEAE0; overflow: hidden;"><img src="{{ v.image }}" alt="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+              <div style="padding: 24px 28px;">
+                <div style="font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: #6B4B3E;">{{ v.house }}</div>
+                <div style="font-family: Cinzel, serif; font-size: 21px; margin-top: 8px; letter-spacing: .02em;">{{ v.name }}</div>
+                <div style="font-size: 12px; color: #8a7a6d; margin-top: 8px; letter-spacing: .08em;">{{ v.ref }} · acquired {{ v.acquired }}</div>
+              </div>
+              <div style="padding: 24px 20px; border-left: 1px solid rgba(43,30,23,.1); display: grid; gap: 8px; align-content: center;">
+                <div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: #6B4B3E;">Service</div>
+                <div style="font-size: 14px; font-weight: 300; color: {{ v.serviceColor }};">{{ v.service }}</div>
+              </div>
+              <div style="padding: 24px 24px; border-left: 1px solid rgba(43,30,23,.1); display: grid; gap: 10px; align-content: center; justify-items: start;">
+                <div style="font-family: Cinzel, serif; font-size: 19px;">{{ v.value }}</div>
+                <div style="font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #C8A97E;">Certificate ↓</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px;">
+          <div style="border: 1px solid rgba(43,30,23,.16); padding: 32px;">
+            <div style="font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: #6B4B3E;">In transit</div>
+            <div style="font-family: Cinzel, serif; font-size: 22px; margin-top: 14px;">Order KRS-10428</div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 26px;">
+              <span style="height: 2px; flex: 1; background: #C8A97E;"></span><span style="height: 2px; flex: 1; background: #C8A97E;"></span><span style="height: 2px; flex: 1; background: #C8A97E;"></span><span style="height: 2px; flex: 1; background: rgba(43,30,23,.16);"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #6B4B3E;"><span>Placed</span><span>Sealed</span><span>Shipped</span><span>Delivered</span></div>
+            <div style="font-size: 13px; font-weight: 300; color: #6B4B3E; margin-top: 18px;">Cascade Pearl Necklace · arriving Tue 18 Aug · signature required</div>
+          </div>
+          <div style="border: 1px solid rgba(43,30,23,.16); padding: 32px; background: #F5F2EB;">
+            <div style="font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: #6B4B3E;">Bench notice</div>
+            <div style="font-family: Cinzel, serif; font-size: 22px; margin-top: 14px;">Speedmaster is due a service</div>
+            <div style="font-size: 14px; font-weight: 300; line-height: 1.8; color: #6B4B3E; margin-top: 14px;">Last full service March 2021. We recommend every five years for a hand-wound chronograph. Complimentary collection within Greater London.</div>
+            <a href="#" style="display: inline-flex; align-items: center; height: 44px; padding: 0 28px; background: #2B1E17; color: #F5F2EB; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; margin-top: 22px;">Book the bench</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ ADMIN ══════════════════ -->
+  <div data-screen-label="Redesign — Admin" style="width: 1440px;">
+    <div style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(245,242,235,.6); margin-bottom: 12px;">07 · Admin — a shop floor, not four counters</div>
+    <div style="background: #171310; color: #F5F2EB; box-shadow: 0 30px 80px -24px rgba(0,0,0,.7); display: flex; min-height: 820px;">
+      <aside style="width: 236px; background: #0D0D0D; padding: 28px 0; border-right: 1px solid rgba(200,169,126,.16);">
+        <div style="font-family: Cinzel, serif; font-size: 19px; letter-spacing: .3em; padding: 0 24px 4px;">KRS</div>
+        <div style="font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: #6B4B3E; padding: 0 24px 28px;">Salon desk</div>
+        <sc-for list="{{ adminNav }}" as="n" hint-placeholder-count="9">
+          <div style="padding: 11px 24px; font-size: 13px; font-weight: 300; letter-spacing: .06em; color: rgba(245,242,235,.62); border-left: 2px solid transparent;">{{ n }}</div>
+        </sc-for>
+      </aside>
+      <div style="flex: 1; padding: 40px 44px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid rgba(245,242,235,.12); padding-bottom: 22px;">
+          <div>
+            <div style="font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: #C8A97E;">Friday, 15 August 2026</div>
+            <h1 style="font-family: Cinzel, serif; font-size: 34px; font-weight: 400; letter-spacing: .03em; margin: 12px 0 0;">Today on the floor</h1>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <span style="border: 1px solid rgba(245,242,235,.22); padding: 10px 18px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase;">Add piece</span>
+            <span style="background: #C8A97E; color: #2B1E17; padding: 10px 18px; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;">Publish shelf</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(200,169,126,.2); border: 1px solid rgba(200,169,126,.2); margin-top: 32px;">
+          <div style="background: #171310; padding: 24px;"><div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5);">Revenue · 30 days</div><div style="font-family: Cinzel, serif; font-size: 30px; margin-top: 12px;">$284,910</div><div style="font-size: 12px; color: #C8A97E; margin-top: 6px;">+18% vs. prior</div></div>
+          <div style="background: #171310; padding: 24px;"><div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5);">Awaiting dispatch</div><div style="font-family: Cinzel, serif; font-size: 30px; margin-top: 12px;">6</div><div style="font-size: 12px; color: rgba(245,242,235,.5); margin-top: 6px;">2 need a certificate</div></div>
+          <div style="background: #171310; padding: 24px;"><div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5);">Inquiries aging</div><div style="font-family: Cinzel, serif; font-size: 30px; margin-top: 12px;">3</div><div style="font-size: 12px; color: #C8A97E; margin-top: 6px;">Oldest 4 days</div></div>
+          <div style="background: #171310; padding: 24px;"><div style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: rgba(245,242,235,.5);">On the bench</div><div style="font-family: Cinzel, serif; font-size: 30px; margin-top: 12px;">4</div><div style="font-size: 12px; color: rgba(245,242,235,.5); margin-top: 6px;">1 overdue</div></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px; margin-top: 28px;">
+          <div style="border: 1px solid rgba(245,242,235,.12);">
+            <div style="padding: 18px 22px; border-bottom: 1px solid rgba(245,242,235,.12); font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: #C8A97E;">Needs you first</div>
+            <sc-for list="{{ adminQueue }}" as="q" hint-placeholder-count="5">
+              <div style="display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 20px; padding: 16px 22px; border-bottom: 1px solid rgba(245,242,235,.07);">
+                <div>
+                  <div style="font-size: 14px; letter-spacing: .03em;">{{ q.title }}</div>
+                  <div style="font-size: 12px; font-weight: 300; color: rgba(245,242,235,.5); margin-top: 4px;">{{ q.meta }}</div>
+                </div>
+                <span style="font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: {{ q.tagColor }}; border: 1px solid currentColor; padding: 5px 10px;">{{ q.tag }}</span>
+                <span style="font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #C8A97E;">Open</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border: 1px solid rgba(245,242,235,.12); padding: 22px;">
+            <div style="font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: #C8A97E;">Moving fastest</div>
+            <div style="display: grid; gap: 18px; margin-top: 22px;">
+              <sc-for list="{{ adminMovers }}" as="m" hint-placeholder-count="4">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 13px;"><span>{{ m.name }}</span><span style="color: rgba(245,242,235,.55);">{{ m.views }}</span></div>
+                  <div style="height: 2px; background: rgba(245,242,235,.12); margin-top: 8px;"><div style="height: 2px; background: #C8A97E; width: {{ m.pct }};"></div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1520}}">
+const U = (id, w) => `https://images.unsplash.com/${id}?w=${w || 900}&auto=format&fit=crop&q=80`;
+
+class Component extends DCLogic {
+  state = { lx: 0, ly: 0, on: false };
+
+  onLoupeMove = (e) => {
+    const el = this.loupeEl;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    this.setState({ lx: e.clientX - r.left, ly: e.clientY - r.top, on: true, w: r.width, h: r.height });
+  };
+
+  onLoupeLeave = () => this.setState({ on: false });
+
+  renderVals() {
+    const { lx, ly, on, w = 1, h = 1 } = this.state;
+    const R = 96, Z = 2.6;
+    const loupeStyle = on
+      ? `position:absolute; left:${lx - R}px; top:${ly - R}px; width:${R * 2}px; height:${R * 2}px; border-radius:9999px; pointer-events:none; border:1px solid #C8A97E; box-shadow:0 0 0 1px rgba(200,169,126,.35), 0 18px 46px -10px rgba(0,0,0,.7); background-image:url('${U("photo-1523170335258-f5ed11844a49", 1400)}'); background-repeat:no-repeat; background-size:${w * Z}px ${h * Z}px; background-position:${-lx * Z + R}px ${-ly * Z + R}px;`
+      : "display:none;";
+
+    return {
+      loupeRef: (el) => { this.loupeEl = el; },
+      onLoupeMove: this.onLoupeMove,
+      onLoupeLeave: this.onLoupeLeave,
+      loupeStyle,
+      loupeHint: on ? "10× — dial, hallmark, setting" : "Move across the image",
+
+      housesLoop: [...Array(2)].flatMap(() => ["Patek Philippe", "Rolex", "Audemars Piguet", "Vacheron Constantin", "Cartier", "Omega", "Jaeger-LeCoultre", "Breguet", "Tudor", "Piaget", "IWC Schaffhausen", "Panerai", "Zenith", "Hublot", "Breitling", "Richard Mille", "Chopard L.U.C"]),
+      housesShort: ["Patek Philippe", "Rolex", "Audemars Piguet", "Cartier", "Omega", "Tudor"],
+
+      shelfA: [
+        { name: "Royal Oak 15500ST", ref: "Audemars Piguet", price: "$42,500", image: U("photo-1533139502658-0198f920d8e8", 800) },
+        { name: "Cascade Pearl Necklace", ref: "KRS · J210", price: "$4,200", image: U("photo-1515562141207-7a88fb7ce338", 800) },
+      ],
+      shelfB: [
+        { name: "Submariner Date", ref: "Rolex · 126610LN", price: "$14,800", image: U("photo-1524592094714-0f0654e20314", 800) },
+        { name: "Ember Gemstone Ring", ref: "KRS · J144", price: "$3,850", image: U("photo-1611955167811-4711904bb9f8", 800) },
+      ],
+
+      standard: [
+        { n: "01", title: "Serviced in-house", body: "Every movement is serviced by our own workshop, never shipped to a third party." },
+        { n: "02", title: "Hallmarked & authenticated", body: "Metal hallmarked, stones graded, vintage pieces shipped with a written provenance dossier." },
+        { n: "03", title: "Insured, signature only", body: "Every order travels insured to declared value, in a fitted presentation case." },
+        { n: "04", title: "Lifetime care", body: "Resizing, restringing and cleaning are free for the life of the piece." },
+      ],
+
+      grid: [
+        { house: "Patek Philippe", name: "Nautilus 5711/1A", ref: "REF. 5711/1A-010", price: "$34,000", image: U("photo-1508962914676-134849a727f0") },
+        { house: "Rolex", name: "Submariner Date", ref: "REF. 126610LN", price: "$14,800", image: U("photo-1524592094714-0f0654e20314") },
+        { house: "Omega", name: "Speedmaster Moonwatch", ref: "REF. 310.30.42", price: "$7,400", image: U("photo-1533139502658-0198f920d8e8") },
+        { house: "Audemars Piguet", name: "Royal Oak 15500ST", ref: "REF. 15500ST", price: "$42,500", image: U("photo-1582043568773-a7a2b57239f5") },
+        { house: "Cartier", name: "Santos de Cartier", ref: "REF. WSSA0009", price: "$9,150", image: U("photo-1605143185650-77944b152643") },
+        { house: "Tudor", name: "Black Bay Fifty-Eight", ref: "REF. M79030N", price: "$4,375", image: U("photo-1523170335258-f5ed11844a49") },
+        { house: "Jaeger-LeCoultre", name: "Reverso Tribute Moon", ref: "REF. Q3958420", price: "$16,300", image: U("photo-1547996160-81dfa63595aa") },
+        { house: "Panerai", name: "Luminor Marina", ref: "REF. PAM00111", price: "$6,900", image: U("photo-1614164185128-e4ec99c436d7") },
+        { house: "Zenith", name: "Chronomaster Original", ref: "REF. 03.3200.3600", price: "$9,800", image: U("photo-1622434641406-a158123450f9") },
+      ],
+
+      assurances: [
+        { title: "Hallmarked & authenticated", body: "Graded on our own bench, with a written provenance dossier." },
+        { title: "Lifetime care included", body: "Resizing, restringing and cleaning, free for the life of the piece." },
+        { title: "14-day return, no questions", body: "Returned insured at our cost if it isn't right." },
+      ],
+
+      details: [
+        "Calibre 26-330 SC self-winding movement",
+        "Horizontally embossed deep blue dial",
+        "Steel bracelet with fold-over clasp",
+        "Sapphire crystal, scratch-resistant",
+        "Water resistant to 120m",
+      ],
+      specs: [
+        { k: "Case", v: "40mm, steel" },
+        { k: "Movement", v: "Calibre 26-330 SC, self-winding, 45h reserve" },
+        { k: "Crystal", v: "Scratch-resistant sapphire, antireflective" },
+        { k: "Strap", v: "Steel bracelet, fold-over clasp" },
+        { k: "Water resistance", v: "120m / 12 ATM" },
+        { k: "Warranty", v: "5-year international movement warranty" },
+      ],
+
+      vault: [
+        { house: "Patek Philippe", name: "Nautilus 5711/1A-010", ref: "REF. 5711/1A-010", acquired: "Mar 2023", service: "Next due Mar 2028", serviceColor: "#6B4B3E", value: "$34,000", image: U("photo-1508962914676-134849a727f0", 400) },
+        { house: "Omega", name: "Speedmaster Moonwatch", ref: "REF. 310.30.42", acquired: "Nov 2021", service: "Overdue — 5 yrs", serviceColor: "#8C2A2A", value: "$7,400", image: U("photo-1533139502658-0198f920d8e8", 400) },
+        { house: "KRS", name: "Ember Gemstone Ring", ref: "REF. KRS-J144", acquired: "Jun 2026", service: "Cleaned Jun 2026", serviceColor: "#6B4B3E", value: "$3,850", image: U("photo-1611955167811-4711904bb9f8", 400) },
+      ],
+
+      adminNav: ["Today", "Shelf", "Orders", "Inquiries", "The bench", "Clients", "Homepage", "Reviews", "Settings"],
+      adminQueue: [
+        { title: "Cascade Pearl Necklace — certificate missing", meta: "Order KRS-10428 · ships tomorrow", tag: "Blocking", tagColor: "#D98C6A" },
+        { title: "Inquiry — Royal Oak 15500ST", meta: "M. Devereux · 4 days without reply", tag: "Aging", tagColor: "#C8A97E" },
+        { title: "Speedmaster '57 — 2 left, 340 views this week", meta: "Consider raising or restocking", tag: "Stock", tagColor: "#C8A97E" },
+        { title: "Bench — Reverso Tribute Moon", meta: "Client collection booked Mon", tag: "Bench", tagColor: "rgba(245,242,235,.5)" },
+        { title: "Review awaiting approval", meta: "5 stars · Ember Gemstone Ring", tag: "Review", tagColor: "rgba(245,242,235,.5)" },
+      ],
+      adminMovers: [
+        { name: "Nautilus 5711/1A", views: "612", pct: "100%" },
+        { name: "Submariner Date", views: "488", pct: "80%" },
+        { name: "Black Bay Fifty-Eight", views: "351", pct: "57%" },
+        { name: "Cascade Pearl Necklace", views: "204", pct: "33%" },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

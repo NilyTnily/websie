@@ -12,4 +12,5 @@ next-env.d.ts
 .exe
 .dll
 .env
+Credentials
 .claude/

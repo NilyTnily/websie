@@ -31,12 +31,7 @@ export default async function OrderDetailPage({
   if (!order) notFound();
 
   return (
-    <div
-      className={`
-        container space-y-10 p-4
-        md:p-8
-      `}
-    >
+    <div className="space-y-10">
       <nav aria-label="Breadcrumb" className="text-sm">
         <Link
           className={`
@@ -67,13 +62,13 @@ export default async function OrderDetailPage({
             Placed {DATE_FORMATTER.format(order.createdAt)}
           </p>
         </div>
-        <span className="krs-ref text-xs text-primary">
+        <span className="krs-meta text-xs text-primary">
           {DELIVERY_STATUS_LABEL[order.deliveryStatus]}
         </span>
       </div>
 
       <section className="border border-border p-6">
-        <h2 className="krs-ref text-xs text-muted-foreground">
+        <h2 className="krs-meta text-xs text-muted-foreground">
           Delivery Status
         </h2>
         <div className="mt-6">
@@ -86,7 +81,7 @@ export default async function OrderDetailPage({
       </section>
 
       <section>
-        <h2 className="krs-ref text-xs text-muted-foreground">Your Bag</h2>
+        <h2 className="krs-meta text-xs text-muted-foreground">Your Bag</h2>
         <ul
           className={`
             mt-4 divide-y divide-border border-t border-b border-border
@@ -115,7 +110,7 @@ export default async function OrderDetailPage({
                   Qty {item.quantity}
                 </p>
               </div>
-              <p className="krs-ref text-sm text-foreground">
+              <p className="krs-meta text-sm text-foreground">
                 {CURRENCY_FORMATTER.format(item.price * item.quantity)}
               </p>
             </li>
@@ -125,7 +120,7 @@ export default async function OrderDetailPage({
           <span className="text-sm font-semibold text-foreground">
             Subtotal
           </span>
-          <span className="krs-ref text-sm font-semibold text-foreground">
+          <span className="krs-meta text-sm font-semibold text-foreground">
             {CURRENCY_FORMATTER.format(order.subtotal)}
           </span>
         </div>
@@ -133,7 +128,7 @@ export default async function OrderDetailPage({
 
       {order.note && (
         <section>
-          <h2 className="krs-ref text-xs text-muted-foreground">Your Note</h2>
+          <h2 className="krs-meta text-xs text-muted-foreground">Your Note</h2>
           <p className="mt-3 text-sm text-muted-foreground">{order.note}</p>
         </section>
       )}

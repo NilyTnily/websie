@@ -32,8 +32,8 @@ interface ProductFormDefaultValues {
   features: string[];
   gemstone: null | string;
   image: string;
-  images: string[];
   inStock: boolean;
+  media: { mediaType: "360" | "image" | "video"; url: string }[];
   metal: null | string;
   movement: null | string;
   name: string;
@@ -216,7 +216,7 @@ export function ProductForm({
         />
       </div>
 
-      <ProductGalleryEditor defaultImages={defaultValues?.images ?? []} />
+      <ProductGalleryEditor defaultMedia={defaultValues?.media ?? []} />
 
       <div className="space-y-4 border-t pt-6">
         <div className="space-y-1.5">

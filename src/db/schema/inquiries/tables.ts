@@ -9,6 +9,13 @@ import {
 
 import { userTable } from "../users/tables";
 
+export interface InquiryDeliveryAddress {
+  city: string;
+  name: string;
+  postcode: string;
+  street: string;
+}
+
 export interface InquiryItem {
   id: string;
   image: string;
@@ -16,6 +23,18 @@ export interface InquiryItem {
   price: number;
   quantity: number;
 }
+
+export const deliveryMethodEnum = pgEnum("delivery_method", [
+  "courier",
+  "hand_delivery",
+  "collect",
+]);
+
+export const presentationOptionEnum = pgEnum("presentation_option", [
+  "house_case",
+  "gift",
+  "engraving",
+]);
 
 export const inquiryStatusEnum = pgEnum("inquiry_status", [
   "pending",
@@ -46,9 +65,15 @@ export const inquiryTable = pgTable("inquiry", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   customerContact: text("customer_contact").notNull(),
   customerName: text("customer_name").notNull(),
+  // Checkout-only fields — null on lightweight drawer inquiries, populated
+  // when the full /checkout flow is used.
+  deliveryAddress: jsonb("delivery_address").$type<InquiryDeliveryAddress>(),
+  deliveryCost: integer("delivery_cost"),
+  deliveryMethod: deliveryMethodEnum("delivery_method"),
   deliveryStatus: deliveryStatusEnum("delivery_status")
     .default("pending_review")
     .notNull(),
+  engravingText: text("engraving_text"),
   id: text("id").primaryKey(),
   items: jsonb("items").$type<InquiryItem[]>().notNull(),
   note: text("note"),
@@ -56,6 +81,8 @@ export const inquiryTable = pgTable("inquiry", {
   // identity column, so it's guaranteed unique and sequential without any
   // application-level counter logic to get wrong.
   orderNumber: integer("order_number").notNull().generatedAlwaysAsIdentity(),
+  presentationCost: integer("presentation_cost"),
+  presentationOption: presentationOptionEnum("presentation_option"),
   status: inquiryStatusEnum("status").default("pending").notNull(),
   subtotal: integer("subtotal").notNull(),
   trackingUrl: text("tracking_url"),

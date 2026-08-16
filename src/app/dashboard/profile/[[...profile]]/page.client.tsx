@@ -120,14 +120,9 @@ export function ProfilePageClient({
   };
 
   return (
-    <div
-      className={`
-        container space-y-6 p-4
-        md:p-8
-      `}
-    >
+    <div className="space-y-6">
       <div className="space-y-0.5">
-        <h2 className="font-display text-2xl text-foreground">Profile</h2>
+        <h2 className="font-display text-2xl text-foreground">Details</h2>
         <p className="text-muted-foreground">
           Your account, and everything you&apos;ve requested from KRS.
         </p>
@@ -171,6 +166,15 @@ export function ProfilePageClient({
                   </p>
                 </div>
               )}
+              <Link
+                className={`
+                  inline-flex items-center gap-1 text-sm text-primary
+                  hover:underline
+                `}
+                href="/dashboard/uploads"
+              >
+                Manage uploads <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             </CardContent>
           </Card>
 
