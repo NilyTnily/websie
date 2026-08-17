@@ -39,7 +39,7 @@ const DEFAULT_SETTINGS: HomepageSettings = {
   ctaTitle: "Open a client account",
   featuredCtaHref: "/products",
   featuredCtaText: "View all",
-  featuredTitle: "From the Current Shelf",
+  featuredTitle: "Currently on the shelf",
   heroCtaHref: "/products",
   heroCtaText: "Discover",
   heroSubtitle:

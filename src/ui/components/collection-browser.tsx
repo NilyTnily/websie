@@ -69,12 +69,6 @@ const PRICE_BANDS: PriceBand[] = [
 const PAGE_SIZE = 24;
 const HOUSES_SHOWN_COLLAPSED = 6;
 
-const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
-  currency: "USD",
-  maximumFractionDigits: 0,
-  style: "currency",
-});
-
 const collectionSearchParams = {
   house: parseAsArrayOf(parseAsString).withDefault([]),
   page: parseAsInteger.withDefault(1),
@@ -208,7 +202,6 @@ export function CollectionBrowser({
   // the results rather than possibly landing on a now-empty page.
   React.useEffect(() => {
     void setQuery({ page: 1 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolvedCategoryId, normalizedQuery, priceBandKey, selectedHouses.join(",")]);
 
   const pageCount = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
@@ -336,8 +329,7 @@ export function CollectionBrowser({
             <li key={band.key}>
               <label
                 className={`
-                  flex cursor-pointer items-center gap-2 text-sm
-                  text-foreground
+                  flex cursor-pointer items-center gap-2 text-sm text-foreground
                 `}
                 htmlFor={`price-${band.key}`}
               >
@@ -437,7 +429,7 @@ export function CollectionBrowser({
     >
       <aside
         className={`
-          hidden w-56 shrink-0
+          hidden w-[232px] shrink-0
           lg:block
         `}
       >
@@ -542,8 +534,8 @@ export function CollectionBrowser({
             {activeFilterChips.map((chip) => (
               <button
                 className={`
-                  krs-meta flex items-center gap-2 border border-primary
-                  px-3 py-1.5 text-xs text-foreground
+                  krs-meta flex items-center gap-2 border border-primary px-3
+                  py-1.5 text-xs text-foreground
                 `}
                 key={chip.key}
                 onClick={chip.onClear}
@@ -558,8 +550,7 @@ export function CollectionBrowser({
 
         <div
           className={`
-            mb-6 flex items-center justify-between border-b border-border
-            pb-4
+            mb-6 flex items-center justify-between border-b border-border pb-4
           `}
         >
           <p className="text-sm text-muted-foreground">

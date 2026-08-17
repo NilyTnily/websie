@@ -9,10 +9,18 @@ import {
 } from "~/lib/queries/catalog";
 import { getHomepageSettings } from "~/lib/queries/homepage";
 import { getTestimonials } from "~/lib/queries/testimonials";
+import { buildWhatsAppLink } from "~/lib/whatsapp";
 import { FeaturedShelfGrid } from "~/ui/components/featured-shelf-grid";
+import { HomeHeroVideo } from "~/ui/components/home-hero-video";
+import { HomeLoupeBand } from "~/ui/components/home-loupe-band";
 import { HouseMarquee } from "~/ui/components/house-marquee";
-import { LoupeImage } from "~/ui/components/loupe-image";
+import { LoupeStats } from "~/ui/components/loupe-stats";
+import { Reveal } from "~/ui/components/reveal";
+import { TestimonialShowcase } from "~/ui/components/testimonial-showcase";
+import { WorkshopTeaser } from "~/ui/components/workshop-teaser";
 import { Button } from "~/ui/primitives/button";
+
+const WATCHES_CATEGORY_SLUG = "timepieces";
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
   currency: "USD",
@@ -66,7 +74,9 @@ export default async function HomePage() {
   const heroVideoPoster = homepageSettings.heroVideoPoster ?? undefined;
   const heroVideoUrl = homepageSettings.heroVideoUrl ?? "/luxury-watch-cgi-animation.mp4";
   const inFramePiece = featuredProducts[0];
-  const pullQuote = testimonials[0];
+  const viewingLink = await buildWhatsAppLink("I'd like to book a viewing.");
+  const inFrameHouse = inFramePiece?.subcategory?.name;
+  const inFrameMaterial = inFramePiece?.caseMaterial ?? inFramePiece?.metal;
 
   return (
     <main className="flex min-h-screen flex-col">
@@ -78,17 +88,9 @@ export default async function HomePage() {
             min-h-[480px] w-full
           `}
         >
-          <video
-            aria-label="Close-up of a Swiss mechanical watch movement, gears and jewels turning"
-            autoPlay
-            className={`
-              absolute inset-0 h-full w-full object-cover opacity-[.82]
-            `}
-            loop
-            muted
-            playsInline
+          <HomeHeroVideo
+            className="absolute inset-0 h-full w-full"
             poster={heroVideoPoster}
-            preload="auto"
             src={heroVideoUrl}
           />
         </div>
@@ -107,9 +109,12 @@ export default async function HomePage() {
         >
           <div className="mx-auto max-w-7xl">
             <div className="max-w-[640px]">
+              <p className="krs-eyebrow text-krs-champagne">
+                Fine watches &amp; jewelry
+              </p>
               <h1
                 className={`
-                  font-display text-4xl leading-[1.06] font-normal
+                  mt-6 font-display text-4xl leading-[1.06] font-normal
                   text-krs-ivory
                   sm:text-6xl
                   lg:text-[82px]
@@ -126,18 +131,34 @@ export default async function HomePage() {
               >
                 {homepageSettings.heroSubtitle}
               </p>
-              <Link href={homepageSettings.heroCtaHref}>
-                <Button
-                  className={`
-                    mt-8 h-[52px] rounded-none bg-krs-champagne px-[34px]
-                    text-xs font-semibold tracking-[0.22em] text-krs-mocha
-                    uppercase
-                    hover:bg-krs-champagne-light
-                  `}
-                >
-                  {homepageSettings.heroCtaText}
-                </Button>
-              </Link>
+              <div className="mt-8 flex flex-wrap gap-3.5">
+                <Link href={homepageSettings.heroCtaHref}>
+                  <Button
+                    className={`
+                      h-[52px] rounded-none bg-krs-champagne px-[34px] text-xs
+                      font-semibold tracking-[0.22em] text-krs-mocha uppercase
+                      hover:bg-krs-champagne-light
+                    `}
+                  >
+                    {homepageSettings.heroCtaText}
+                  </Button>
+                </Link>
+                {viewingLink && (
+                  <a
+                    className={`
+                      flex h-[52px] items-center border border-krs-ivory/45
+                      px-[34px] text-xs font-medium tracking-[0.22em]
+                      text-krs-ivory uppercase
+                      hover:border-krs-champagne hover:text-krs-champagne
+                    `}
+                    href={viewingLink}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    Book a viewing
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 
@@ -155,8 +176,16 @@ export default async function HomePage() {
               <p className="mt-2 font-display text-base text-krs-ivory">
                 {inFramePiece.name}
               </p>
-              <p className="krs-meta mt-1 text-krs-ivory/60">
-                {CURRENCY_FORMATTER.format(inFramePiece.price)}
+              <p className="krs-meta mt-1.5 text-krs-ivory/60">
+                {[
+                  inFrameHouse,
+                  inFrameMaterial && inFramePiece.caseSizeMm
+                    ? `${inFrameMaterial} ${inFramePiece.caseSizeMm}mm`
+                    : inFrameMaterial,
+                  CURRENCY_FORMATTER.format(inFramePiece.price),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </p>
             </Link>
           )}
@@ -168,7 +197,7 @@ export default async function HomePage() {
 
       {/* ------------------------------ Current shelf ----------------------------- */}
       <section className="py-20">
-        <div
+        <Reveal
           className={`
             container mx-auto max-w-7xl px-4
             sm:px-6
@@ -204,12 +233,12 @@ export default async function HomePage() {
             </Link>
           </div>
           <FeaturedShelfGrid products={featuredProducts} />
-        </div>
+        </Reveal>
       </section>
 
       {/* ---------------------------- Under the loupe ----------------------------- */}
-      <section className="bg-krs-onyx-raised py-20">
-        <div
+      <section className="bg-krs-onyx py-24">
+        <Reveal
           className={`
             container mx-auto grid max-w-7xl grid-cols-1 gap-14 px-4
             sm:px-6
@@ -217,100 +246,98 @@ export default async function HomePage() {
           `}
         >
           {inFramePiece && (
-            <div className="relative aspect-[4/3] overflow-hidden">
-              <LoupeImage
-                alt={inFramePiece.name}
-                className="h-full w-full"
-                lensSize={200}
-                sizes="(max-width: 1024px) 100vw, 55vw"
-                src={inFramePiece.image}
-                zoom={2.7}
-              />
-            </div>
+            <HomeLoupeBand
+              alt={inFramePiece.name}
+              src={inFramePiece.image}
+            />
           )}
           <div className="flex flex-col justify-center">
-            <p className="krs-eyebrow text-krs-champagne">The signature</p>
-            <h2 className={`
-              mt-3 font-display text-3xl text-krs-ivory
-              sm:text-4xl
-            `}>
-              Under the loupe
+            <p className="krs-eyebrow text-krs-champagne">Under the loupe</p>
+            <h2
+              className={`
+                mt-3 font-display text-3xl leading-[1.2] text-krs-ivory
+                sm:text-4xl
+              `}
+            >
+              See it the way we grade it
             </h2>
             <p className="mt-4 max-w-md text-krs-ivory/70">
-              Move across any photograph in the collection and the lens
-              follows — the same detail you'd see leaning over the bench.
+              Every listing carries a 10× loupe view of the dial, the
+              hallmark and the setting. Not a marketing crop — the same
+              magnification our watchmaker uses on the bench before a piece
+              is allowed on the shelf.
             </p>
-            <div
-              className={`mt-8 grid grid-cols-3 gap-px bg-krs-champagne/25`}
-            >
-              {[
-                { label: "Zoom", value: "10×" },
-                { label: "Pieces", value: String(productCount) },
-                { label: "Service", value: "In-house" },
-              ].map((stat) => (
-                <div className="bg-krs-onyx-raised px-4 py-6" key={stat.label}>
-                  <p className="font-display text-2xl text-krs-ivory">
-                    {stat.value}
-                  </p>
-                  <p className="krs-meta mt-2 text-krs-ivory/50">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </div>
+            <LoupeStats productCount={productCount} />
           </div>
-        </div>
+        </Reveal>
       </section>
 
+      {/* ------------------------------ Workshop teaser ---------------------------- */}
+      <Reveal>
+        <WorkshopTeaser />
+      </Reveal>
+
       {/* -------------------------------- Two houses ------------------------------ */}
+      <Reveal>
       <section
         className={`
           grid grid-cols-1
           sm:grid-cols-2
         `}
       >
-        {categories.map((category) => (
-          <Link
-            className={`
-              group relative block h-[420px] overflow-hidden
-              sm:h-[560px]
-            `}
-            href={categoryHref(category.slug)}
-            key={category.id}
-          >
-            <img
-              alt=""
+        {categories.map((category) => {
+          const isWatches = category.slug === WATCHES_CATEGORY_SLUG;
+          return (
+            <Link
               className={`
-                h-full w-full object-cover transition duration-500
-                group-hover:scale-105
+                group relative block h-[420px] overflow-hidden
+                sm:h-[560px]
               `}
-              loading="lazy"
-              src={category.image}
-            />
-            <div
-              className={`
-                pointer-events-none absolute inset-0 bg-gradient-to-t
-                from-black/75 via-black/10 to-transparent
-              `}
-            />
-            <div className="absolute inset-x-0 bottom-0 p-10">
-              <p className="krs-eyebrow text-krs-champagne">
-                {category.productCount} pieces
-              </p>
-              <h3 className="mt-3 font-display text-3xl text-krs-ivory">
-                {category.name}
-              </h3>
-              <p className="mt-2 max-w-xs text-sm text-krs-ivory/70">
-                {category.description}
-              </p>
-            </div>
-          </Link>
-        ))}
+              href={categoryHref(category.slug)}
+              key={category.id}
+            >
+              <img
+                alt=""
+                className={`
+                  h-full w-full object-cover transition duration-500
+                  group-hover:scale-105
+                `}
+                loading="lazy"
+                src={category.image}
+              />
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(to top, rgba(13,13,13,.8), rgba(13,13,13,.05) 60%)",
+                }}
+              />
+              <div className="absolute inset-x-0 bottom-0 p-12">
+                <p className="krs-eyebrow text-krs-champagne">
+                  {isWatches
+                    ? `${houses.length} houses`
+                    : `${category.productCount} pieces`}
+                </p>
+                <h3 className={`
+                  mt-3 font-display text-[40px] tracking-[0.05em] text-krs-ivory
+                `}>
+                  {category.name}
+                </h3>
+                <p className={`
+                  mt-2 max-w-xs text-sm font-light text-krs-ivory/75
+                `}>
+                  {category.description}
+                </p>
+              </div>
+            </Link>
+          );
+        })}
       </section>
+      </Reveal>
 
       {/* ------------------------------ KRS standard ------------------------------ */}
       <section className="bg-background py-20">
-        <div
+        <Reveal
           className={`
             container mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4
             sm:px-6
@@ -318,14 +345,14 @@ export default async function HomePage() {
           `}
         >
           <div>
-            <p className="krs-eyebrow text-krs-tobacco">The standard</p>
+            <p className="krs-eyebrow text-krs-tobacco">The KRS standard</p>
             <h2 className="mt-3 font-display text-3xl text-foreground">
               Four promises, no asterisks
             </h2>
             <p className="mt-4 max-w-sm text-muted-foreground">
-              Every piece that leaves the salon carries the same set of
-              commitments, whether it's a $2,000 strap or a six-figure
-              complication.
+              We are a small house on purpose — small enough that the
+              person who services your movement is the same person who
+              packed the box it arrived in.
             </p>
           </div>
           <div className={`
@@ -344,34 +371,17 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
-      {/* -------------------------------- Pull quote ------------------------------- */}
-      {pullQuote && (
-        <section className="bg-krs-ivory-bright py-24">
-          <div
-            className={`
-              container mx-auto max-w-3xl px-6 text-center
-              sm:px-10
-            `}
-          >
-            <p className={`
-              font-display text-2xl leading-[1.5] text-foreground
-              sm:text-[34px]
-            `}>
-              “{pullQuote.quote}”
-            </p>
-            <p className="krs-eyebrow mt-8 text-krs-champagne">
-              {pullQuote.customerName}
-            </p>
-          </div>
-        </section>
-      )}
+      {/* -------------------------------- Testimonials ------------------------------- */}
+      <Reveal>
+        <TestimonialShowcase testimonials={testimonials} />
+      </Reveal>
 
       {/* --------------------------------- Account --------------------------------- */}
       <section className="bg-krs-mocha py-16">
-        <div
+        <Reveal
           className={`
             container mx-auto flex max-w-7xl flex-col items-start gap-6 px-4
             sm:px-6
@@ -415,7 +425,7 @@ export default async function HomePage() {
               </Button>
             </Link>
           </div>
-        </div>
+        </Reveal>
       </section>
     </main>
   );

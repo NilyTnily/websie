@@ -1,4 +1,3 @@
-import { BadgeCheck, Gem, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 import { categoryHref } from "~/lib/catalog-links";
@@ -14,9 +13,18 @@ import { Separator } from "~/ui/primitives/separator";
 import { ProductPurchasePanel } from "./product-purchase-panel";
 
 const assurances = [
-  { icon: BadgeCheck, label: "Hallmarked & Authenticated" },
-  { icon: ShieldCheck, label: "Insured White-Glove Shipping" },
-  { icon: Gem, label: "Lifetime Care Included" },
+  {
+    body: "Graded on our own bench, with a written provenance dossier.",
+    title: "Hallmarked & authenticated",
+  },
+  {
+    body: "Resizing, restringing and cleaning, free for the life of the piece.",
+    title: "Lifetime care included",
+  },
+  {
+    body: "Returned insured at our cost if it isn't right.",
+    title: "14-day return, no questions",
+  },
 ];
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
@@ -78,24 +86,16 @@ export default async function ProductDetailPage({
             md:px-6
           `}
         >
-          <nav aria-label="Breadcrumb" className="mb-6 text-sm">
-            <ol
-              className={`
-                flex flex-wrap items-center gap-1.5 text-muted-foreground
-              `}
-            >
+          <nav aria-label="Breadcrumb" className={`
+            krs-meta mb-6 text-muted-foreground
+          `}>
+            <ol className="flex flex-wrap items-center gap-2">
               <li>
                 <Link className="hover:text-foreground" href="/">
                   Home
                 </Link>
               </li>
-              <li aria-hidden="true">/</li>
-              <li>
-                <Link className="hover:text-foreground" href="/products">
-                  Collections
-                </Link>
-              </li>
-              <li aria-hidden="true">/</li>
+              <li aria-hidden="true">·</li>
               <li>
                 <Link
                   className="hover:text-foreground"
@@ -104,7 +104,13 @@ export default async function ProductDetailPage({
                   {product.category.name}
                 </Link>
               </li>
-              <li aria-hidden="true">/</li>
+              {product.subcategory && (
+                <>
+                  <li aria-hidden="true">·</li>
+                  <li>{product.subcategory.name}</li>
+                </>
+              )}
+              <li aria-hidden="true">·</li>
               <li aria-current="page" className="text-foreground">
                 {product.name}
               </li>
@@ -184,14 +190,36 @@ export default async function ProductDetailPage({
                 </a>
               )}
 
-              <ul className="mt-8 space-y-4 border-t border-border pt-6">
-                {assurances.map(({ icon: Icon, label }) => (
-                  <li className="flex items-start gap-3 text-sm" key={label}>
-                    <Icon className="mt-0.5 h-4 w-4 shrink-0 text-krs-champagne" />
-                    <span className="text-muted-foreground">{label}</span>
-                  </li>
+              <div className="mt-8 border border-border">
+                {assurances.map(({ body, title }) => (
+                  <div
+                    className={`
+                      flex gap-3.5 border-b border-border px-[18px] py-4
+                    `}
+                    key={title}
+                  >
+                    <span className="text-[13px] text-krs-champagne">✦</span>
+                    <div>
+                      <div className={`
+                        text-[13px] tracking-[0.04em] text-foreground
+                      `}>
+                        {title}
+                      </div>
+                      <div className={`
+                        mt-1 text-xs font-light text-muted-foreground
+                      `}>
+                        {body}
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </ul>
+                <div className="flex items-center gap-3.5 px-[18px] py-4">
+                  <span className="text-[13px] text-krs-champagne">✦</span>
+                  <div className="text-[13px] text-foreground">
+                    Ships in 2 business days · Insured, signature required
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -205,18 +233,17 @@ export default async function ProductDetailPage({
             `}
           >
             <section>
-              <h2 className="font-display text-xl text-foreground">Details</h2>
-              <ul className="mt-4 space-y-2">
+              <p className="krs-eyebrow text-krs-tobacco">The dossier</p>
+              <h2 className="mt-3 font-display text-[28px] text-foreground">
+                Details
+              </h2>
+              <ul className="mt-6 space-y-3.5">
                 {product.features.map((feature) => (
                   <li
-                    className="flex items-start text-sm"
+                    className="flex items-start gap-3.5 text-sm"
                     key={`feature-${product.id}-${slugify(feature)}`}
                   >
-                    <span
-                      className={`
-                        mt-1.5 mr-2 h-1 w-1 shrink-0 rounded-full bg-primary
-                      `}
-                    />
+                    <span className="shrink-0 text-krs-champagne">—</span>
                     <span className="text-muted-foreground">{feature}</span>
                   </li>
                 ))}
@@ -224,10 +251,13 @@ export default async function ProductDetailPage({
             </section>
 
             <section>
-              <h2 className="font-display text-xl text-foreground">
+              <p className="krs-eyebrow text-krs-tobacco">
+                Verified on the bench
+              </p>
+              <h2 className="mt-3 font-display text-[28px] text-foreground">
                 Specification
               </h2>
-              <div className="mt-4 space-y-2">
+              <div className="mt-6 space-y-2">
                 {Object.entries(product.specs).map(([key, value]) => (
                   <div
                     className={`

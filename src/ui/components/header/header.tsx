@@ -1,7 +1,6 @@
 "use client";
 
-import { Menu, Search, User, X } from "lucide-react";
-import Image from "next/image";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -10,7 +9,6 @@ import { useCurrentUser } from "~/lib/auth-client";
 import { cn } from "~/lib/cn";
 import { useSiteSettings } from "~/lib/hooks/use-site-settings";
 import { Cart } from "~/ui/components/cart";
-import { Button } from "~/ui/primitives/button";
 import { Skeleton } from "~/ui/primitives/skeleton";
 
 import { NotificationsWidget } from "../notifications/notifications-widget";
@@ -29,7 +27,21 @@ export function Header(props: HeaderProps) {
   );
 }
 
-const CATALOG_PATHS = ["/products", "/watches", "/jewelry"];
+const mainNavigation = [
+  { href: "/watches", name: "Watches" },
+  { href: "/jewelry", name: "Jewelry" },
+];
+
+const dashboardNavigation = [
+  { href: "/dashboard/profile", name: "Profile" },
+  { href: "/dashboard/orders", name: "My Orders" },
+];
+
+const UTILITY_LINK = `
+  krs-label hidden text-krs-navy-foreground/72 transition-colors
+  hover:text-krs-champagne
+  md:inline
+`;
 
 function HeaderContent({ showAuth = true }: HeaderProps) {
   const pathname = usePathname();
@@ -37,6 +49,7 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
   const settings = useSiteSettings();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+  const isHome = pathname === "/";
 
   // Exposes the header's real, current height as a CSS variable so sections
   // like the hero can size themselves against "the rest of the viewport"
@@ -59,103 +72,125 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
     return () => observer.disconnect();
   }, []);
 
-  const mainNavigation = [
-    { href: "/", name: "Home" },
-    { href: "/products", name: "Catalog" },
-    { href: "/about", name: "About Us" },
-  ];
-
-  const dashboardNavigation = [
-    { href: "/dashboard/profile", name: "Profile" },
-    { href: "/dashboard/orders", name: "My Orders" },
-  ];
-
   const isDashboard =
     user &&
     (pathname.startsWith("/dashboard") || pathname.startsWith("/admin"));
-  const navigation = mainNavigation;
 
-  const isNavActive = (item: { href: string }) => {
-    if (item.href === "/") return pathname === "/";
-    if (item.href === "/products") return CATALOG_PATHS.includes(pathname);
-    return pathname === item.href || pathname?.startsWith(`${item.href}/`);
-  };
+  const isNavActive = (item: { href: string }) =>
+    pathname === item.href || pathname?.startsWith(`${item.href}/`);
 
-  const renderContent = () => (
+  return (
     <header
-      className={`
-        sticky top-0 z-40 w-full border-b border-krs-navy-border bg-krs-navy
-        text-krs-navy-foreground
-      `}
+      className={cn(
+        "z-40 w-full text-krs-navy-foreground",
+        isHome ? "absolute inset-x-0 top-0 bg-transparent" : `
+          sticky top-0 bg-krs-navy
+        `,
+      )}
       ref={headerRef}
     >
       <div
         className={`
-          container mx-auto max-w-7xl px-4
-          sm:px-6
-          lg:px-8
+          mx-auto max-w-7xl px-6 py-5
+          sm:px-14 sm:py-[26px]
         `}
       >
-        <div className="relative flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Button
-              className={`
-                text-krs-navy-foreground
-                hover:bg-white/10
-                md:hidden
-              `}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              size="icon"
-              variant="ghost"
-            >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
-          </div>
+        <div className="relative flex items-center justify-between">
+          <button
+            aria-label="Open menu"
+            className={`
+              text-krs-navy-foreground
+              md:hidden
+            `}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            type="button"
+          >
+            {mobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </button>
+
+          <nav
+            className={`
+              hidden gap-8
+              md:flex
+            `}
+          >
+            {mainNavigation.map((item) => (
+              <Link
+                className={cn(
+                  "krs-label transition-colors",
+                  isNavActive(item)
+                    ? "text-krs-champagne"
+                    : `
+                      text-krs-navy-foreground/72
+                      hover:text-krs-champagne
+                    `,
+                )}
+                href={item.href}
+                key={item.href}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
 
           <Link
-            className={`
-              absolute left-1/2 flex -translate-x-1/2 items-center gap-2
-              text-center
-            `}
+            className="absolute left-1/2 -translate-x-1/2"
             href="/"
           >
-            {settings.logoUrl ? (
-              <span className="relative block h-8 w-8">
-                <Image
-                  alt={settings.name}
-                  className="object-contain"
-                  fill
-                  sizes="32px"
-                  src={settings.logoUrl}
-                />
-              </span>
-            ) : null}
-            <span className="font-display krs-brand-mark text-2xl">
+            <span className={`
+              krs-brand-mark font-display text-xl
+              sm:text-[27px]
+            `}>
               {settings.name}
             </span>
           </Link>
 
-          <div className="flex items-center gap-1">
-            <Link href="/products">
-              <Button
-                aria-label="Search the collection"
-                className={`
-                  text-krs-navy-foreground
-                  hover:bg-white/10
-                `}
-                size="icon"
-                variant="ghost"
-              >
-                <Search className="h-4 w-4" />
-              </Button>
+          <div
+            className={`
+              flex items-center gap-5
+              sm:gap-[30px]
+            `}
+          >
+            <Link className={UTILITY_LINK} href="/about">
+              The House
             </Link>
+            {isHome && (
+              <Link className={UTILITY_LINK} href="/products">
+                Search
+              </Link>
+            )}
 
             {isPending ? (
-              <Skeleton className="h-9 w-9 rounded-full" />
+              <Skeleton className={`
+                hidden h-4 w-16 bg-white/10
+                md:block
+              `} />
+            ) : user ? (
+              <div className={`
+                hidden
+                md:block
+              `}>
+                <HeaderUserDropdown
+                  isDashboard={!!isDashboard}
+                  userEmail={user.email}
+                  userImage={user.image}
+                  userName={user.name}
+                />
+              </div>
+            ) : (
+              showAuth && (
+                <Link className={UTILITY_LINK} href="/auth/sign-in">
+                  Account
+                </Link>
+              )
+            )}
+
+            {isPending ? (
+              <Skeleton className="h-4 w-10 bg-white/10" />
             ) : (
               <Cart />
             )}
@@ -165,90 +200,22 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
             ) : (
               <NotificationsWidget />
             )}
-
-            {showAuth &&
-              (user ? (
-                <div
-                  className={`
-                    hidden
-                    md:block
-                  `}
-                >
-                  <HeaderUserDropdown
-                    isDashboard={!!isDashboard}
-                    userEmail={user.email}
-                    userImage={user.image}
-                    userName={user.name}
-                  />
-                </div>
-              ) : (
-                <Link
-                  className={`
-                    hidden
-                    md:block
-                  `}
-                  href="/auth/sign-in"
-                >
-                  <Button
-                    className={`
-                      text-krs-navy-foreground
-                      hover:bg-white/10
-                    `}
-                    size="icon"
-                    variant="ghost"
-                  >
-                    <User className="h-4 w-4" />
-                    <span className="sr-only">Account</span>
-                  </Button>
-                </Link>
-              ))}
           </div>
         </div>
       </div>
 
-      <div className="border-t border-krs-navy-border">
-        <nav
-          className={`
-            container mx-auto hidden max-w-7xl justify-center px-4 py-3
-            md:flex
-          `}
-        >
-          <ul
-            className={`
-              flex flex-wrap items-center justify-center gap-x-6 gap-y-2
-            `}
-          >
-            {isPending
-              ? Array.from({ length: navigation.length }).map((_, i) => (
-                  <li key={i}>
-                    <Skeleton className="h-4 w-20 bg-white/10" />
-                  </li>
-                ))
-              : navigation.map((item) => {
-                  const isActive = isNavActive(item);
-
-                  return (
-                    <li key={item.name}>
-                      <Link
-                        className={cn(
-                          `
-                            krs-ref text-[13px] transition-colors
-                            hover:text-primary
-                          `,
-                          isActive
-                            ? "text-primary"
-                            : "text-krs-navy-foreground/80",
-                        )}
-                        href={item.href}
-                      >
-                        {item.name}
-                      </Link>
-                    </li>
-                  );
-                })}
-          </ul>
-        </nav>
-      </div>
+      {isHome ? (
+        <div
+          aria-hidden="true"
+          className="h-px"
+          style={{
+            background:
+              "linear-gradient(to right, transparent, rgba(200,169,126,.45) 20%, rgba(200,169,126,.45) 80%, transparent)",
+          }}
+        />
+      ) : (
+        <div className="border-t border-krs-navy-border" />
+      )}
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
@@ -258,43 +225,47 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
             md:hidden
           `}
         >
-          <div className="space-y-1 border-b border-krs-navy-border px-4 py-3">
-            {isPending
-              ? Array.from({ length: navigation.length }).map((_, i) => (
-                  <div className="py-2" key={i}>
-                    <Skeleton className="h-6 w-32 bg-white/10" />
-                  </div>
-                ))
-              : navigation.map((item) => {
-                  const isActive = isNavActive(item);
+          <div className="space-y-1 border-b border-krs-navy-border px-6 py-4">
+            {mainNavigation.map((item) => {
+              const isActive = isNavActive(item);
 
-                  return (
-                    <Link
-                      className={cn(
-                        `krs-ref block px-3 py-2 text-[13px]`,
-                        isActive
-                          ? "text-primary"
-                          : `
-                            text-krs-navy-foreground/80
-                            hover:text-primary
-                          `,
-                      )}
-                      href={item.href}
-                      key={item.name}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {item.name}
-                    </Link>
-                  );
-                })}
+              return (
+                <Link
+                  className={cn(
+                    `krs-label block py-2`,
+                    isActive
+                      ? "text-krs-champagne"
+                      : `
+                        text-krs-navy-foreground/72
+                        hover:text-krs-champagne
+                      `,
+                  )}
+                  href={item.href}
+                  key={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
+            <Link
+              className={`
+                krs-label block py-2 text-krs-navy-foreground/72
+                hover:text-krs-champagne
+              `}
+              href="/about"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              The House
+            </Link>
           </div>
 
           {showAuth && !user && (
-            <div className="space-y-1 border-b border-krs-navy-border px-4 py-3">
+            <div className="space-y-1 border-b border-krs-navy-border px-6 py-4">
               <Link
                 className={`
-                  block px-3 py-2 text-sm text-krs-navy-foreground/80
-                  hover:text-primary
+                  block py-2 text-sm text-krs-navy-foreground/80
+                  hover:text-krs-champagne
                 `}
                 href="/auth/sign-in"
                 onClick={() => setMobileMenuOpen(false)}
@@ -303,9 +274,9 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
               </Link>
               <Link
                 className={`
-                  block border border-krs-navy-foreground/40 px-3 py-2
+                  mt-2 block border border-krs-navy-foreground/40 px-3 py-2
                   text-center text-sm text-krs-navy-foreground
-                  hover:border-primary hover:text-primary
+                  hover:border-krs-champagne hover:text-krs-champagne
                 `}
                 href="/auth/sign-up"
                 onClick={() => setMobileMenuOpen(false)}
@@ -316,12 +287,12 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
           )}
 
           {showAuth && user && (
-            <div className="space-y-1 px-4 py-3">
+            <div className="space-y-1 px-6 py-4">
               {dashboardNavigation.map((item) => (
                 <Link
                   className={`
-                    block px-3 py-2 text-sm text-krs-navy-foreground/80
-                    hover:text-primary
+                    block py-2 text-sm text-krs-navy-foreground/80
+                    hover:text-krs-champagne
                   `}
                   href={item.href}
                   key={item.href}
@@ -332,8 +303,8 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
               ))}
               <Link
                 className={`
-                  block px-3 py-2 text-sm text-krs-navy-foreground/80
-                  hover:text-primary
+                  block py-2 text-sm text-krs-navy-foreground/80
+                  hover:text-krs-champagne
                 `}
                 href="/auth/sign-out"
                 onClick={() => setMobileMenuOpen(false)}
@@ -346,6 +317,4 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
       )}
     </header>
   );
-
-  return renderContent();
 }

@@ -33,7 +33,7 @@ export function Footer({ className }: { className?: string }) {
         >
           <div className="space-y-4">
             <Link className="flex items-center gap-2" href="/">
-              <span className="font-display krs-brand-mark text-xl">
+              <span className="krs-brand-mark font-display text-xl">
                 {settings.name}
               </span>
             </Link>
@@ -193,7 +193,7 @@ export function Footer({ className }: { className?: string }) {
               The Dossier
             </h3>
             <p className="mb-4 text-sm text-krs-navy-foreground/70">
-              New pieces and house notes, twice a month at most.
+              New arrivals and archive finds, once a month.
             </p>
             <NewsletterForm />
           </div>
@@ -220,6 +220,16 @@ export function Footer({ className }: { className?: string }) {
               <Link className="hover:text-primary" href="/terms">
                 Terms
               </Link>
+              {settings.instagramUrl && (
+                <a
+                  className="hover:text-primary"
+                  href={settings.instagramUrl}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Instagram
+                </a>
+              )}
             </div>
           </div>
         </div>

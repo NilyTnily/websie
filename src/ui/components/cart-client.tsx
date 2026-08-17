@@ -10,7 +10,6 @@ import { cn } from "~/lib/cn";
 import { useCart } from "~/lib/hooks/use-cart";
 import { useMediaQuery } from "~/lib/hooks/use-media-query";
 import { InquiryForm } from "~/ui/components/inquiry-form";
-import { Badge } from "~/ui/primitives/badge";
 import { Button } from "~/ui/primitives/button";
 import {
   Drawer,
@@ -81,29 +80,26 @@ export function CartClient({ className }: CartProps) {
   };
 
   const CartTrigger = (
-    <Button
+    <button
       aria-label="Open cart"
       className={`
-        relative h-9 w-9 rounded-full border-transparent
-        text-krs-navy-foreground transition-colors
-        hover:bg-white/10 hover:text-primary
+        krs-label inline-flex items-center gap-2 text-krs-navy-foreground
+        hover:text-krs-champagne
       `}
-      size="icon"
-      variant="ghost"
+      type="button"
     >
-      <ShoppingCart className="h-4 w-4" />
+      Bag
       {isMounted && totalItems > 0 && (
-        <Badge
+        <span
           className={`
-            absolute -top-1 -right-1 h-[18px] w-[18px] rounded-none
-            border-transparent bg-krs-champagne p-0 text-[10px] text-krs-mocha
+            inline-grid h-[18px] w-[18px] place-items-center bg-krs-champagne
+            text-[10px] text-krs-mocha normal-case
           `}
-          variant="default"
         >
           {totalItems}
-        </Badge>
+        </span>
       )}
-    </Button>
+    </button>
   );
 
   const CartContent = (

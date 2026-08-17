@@ -68,7 +68,9 @@ function ShelfCard({
       <div className="krs-hairline mt-4" />
       <div className="mt-4 flex items-baseline justify-between gap-4">
         <div className="min-w-0">
-          <p className="krs-meta text-krs-tobacco">{house}</p>
+          <p className="krs-meta text-krs-tobacco">
+            {house} · {product.ref}
+          </p>
           <p className="mt-1 truncate font-display text-lg text-foreground">
             {product.name}
           </p>

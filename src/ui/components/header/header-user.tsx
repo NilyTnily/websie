@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { cn } from "~/lib/cn";
 import { Avatar, AvatarFallback, AvatarImage } from "~/ui/primitives/avatar";
-import { Button } from "~/ui/primitives/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,35 +27,17 @@ export function HeaderUserDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
+        <button
           aria-label={userName || "Account"}
           className={`
-            relative h-9 w-9 rounded-full border-transparent
-            text-krs-navy-foreground transition-colors
-            hover:bg-white/10 hover:text-primary
+            krs-label text-krs-navy-foreground
+            hover:text-krs-champagne
           `}
-          size="icon"
           title={userName || "Account"}
-          variant="ghost"
+          type="button"
         >
-          <Avatar className="h-7 w-7">
-            <AvatarImage
-              alt={userName || "User"}
-              src={userImage || undefined}
-            />
-            <AvatarFallback className="bg-primary/10 text-primary">
-              {userName ? (
-                userName
-                  .split(" ")
-                  .map((n: string) => n[0])
-                  .join("")
-                  .slice(0, 2)
-              ) : (
-                <UserIcon className="h-4 w-4" />
-              )}
-            </AvatarFallback>
-          </Avatar>
-        </Button>
+          Account
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <div className="flex items-center justify-start gap-2 p-2">

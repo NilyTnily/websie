@@ -125,20 +125,12 @@ export function SignInPageClient() {
                     value={email}
                   />
                 </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link
-                      className={`
-                        text-sm text-muted-foreground
-                        hover:underline
-                      `}
-                      href="/auth/forgot-password"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
+                <div className="grid grid-cols-2 items-center gap-x-2 gap-y-2">
+                  <Label className="col-start-1 row-start-1" htmlFor="password">
+                    Password
+                  </Label>
                   <Input
+                    className="col-span-2 row-start-2"
                     id="password"
                     onChange={(e) => {
                       setPassword(e.target.value);
@@ -147,6 +139,16 @@ export function SignInPageClient() {
                     type="password"
                     value={password}
                   />
+                  <Link
+                    className={`
+                      col-start-2 row-start-1 justify-self-end text-sm
+                      text-muted-foreground
+                      hover:underline
+                    `}
+                    href="/auth/forgot-password"
+                  >
+                    Forgot password?
+                  </Link>
                 </div>
                 {error && (
                   <div className="text-sm font-medium text-destructive">

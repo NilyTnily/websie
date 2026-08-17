@@ -34,7 +34,7 @@ export default async function ProductsPage({
             <p className="krs-eyebrow text-krs-tobacco">
               {products.length} pieces · {houseCount} houses
             </p>
-            <h1 className="mt-3 font-display text-4xl text-foreground">
+            <h1 className="mt-3 font-display text-[46px] text-foreground">
               The Collection
             </h1>
             <p className="mt-2 text-muted-foreground">
