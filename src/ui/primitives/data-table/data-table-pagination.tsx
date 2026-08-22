@@ -29,7 +29,7 @@ export function DataTablePagination<TData>({ table }: { table: Table<TData> }) {
             onChange={(e) => table.setPageSize(Number(e.target.value))}
             value={table.getState().pagination.pageSize}
           >
-            {[10, 20, 30, 40, 50].map((pageSize) => (
+            {[10, 20, 30, 40, 50, 100].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
                 {pageSize}
               </option>

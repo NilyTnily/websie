@@ -8,6 +8,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type PaginationState,
   type SortingState,
   useReactTable,
   type VisibilityState,
@@ -29,9 +30,13 @@ import { DataTableViewOptions } from "./data-table-view-options";
 
 const DEFAULT_SORTING: SortingState = [];
 
+const DEFAULT_PAGE_SIZE = 10;
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  /** Rows per page the table starts with. Defaults to 10. */
+  initialPageSize?: number;
   /** Sort the table starts with, e.g. `[{ id: "brand", desc: false }]`. Defaults to insertion order. */
   initialSorting?: SortingState;
 }
@@ -39,6 +44,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
+  initialPageSize = DEFAULT_PAGE_SIZE,
   initialSorting = DEFAULT_SORTING,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
@@ -48,6 +54,10 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: initialPageSize,
+  });
 
   const table = useReactTable({
     columns,
@@ -58,11 +68,13 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters, // Enable filtering
     onColumnVisibilityChange: setColumnVisibility, // Enable visibility toggle
+    onPaginationChange: setPagination,
     onRowSelectionChange: setRowSelection, // Enable row selection
     onSortingChange: setSorting, // Enable sorting
     state: {
       columnFilters,
       columnVisibility,
+      pagination,
       rowSelection,
       sorting,
     },

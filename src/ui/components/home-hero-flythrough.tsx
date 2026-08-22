@@ -105,8 +105,8 @@ const CONNECTOR_SCROLL_WEIGHT = 0.5;
 // aspect ratio it was eyeballed against — cover crops differently at every
 // other ratio, which is exactly what made cutouts sit further and further
 // off the tray on very wide, very narrow, or very large screens.
-const TABLE_VIDEO_WIDTH = 864;
-const TABLE_VIDEO_HEIGHT = 496;
+const TABLE_VIDEO_WIDTH = 1920;
+const TABLE_VIDEO_HEIGHT = 1080;
 const TABLE_VIDEO_OBJECT_POSITION_X = 0.5; // "center"
 const TABLE_VIDEO_OBJECT_POSITION_Y = 0.42; // "42%"
 

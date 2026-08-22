@@ -5,8 +5,6 @@ export * from "./catalog/relations";
 export * from "./catalog/tables";
 export * from "./catalog/types";
 
-export * from "./homepage/tables";
-export * from "./homepage/types";
 export * from "./inquiries/relations";
 
 export * from "./inquiries/tables";

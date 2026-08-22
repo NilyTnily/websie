@@ -275,40 +275,12 @@ export function ProductsPageClient({ products }: ProductsPageClientProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">Products</h2>
-          <p className="text-sm text-muted-foreground">
-            {products.length} product{products.length === 1 ? "" : "s"} in the
-            catalog.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={() => setAllVisibility(true)}
-            type="button"
-            variant="outline"
-          >
-            Select All
-          </Button>
-          <Button
-            onClick={() => setAllVisibility(false)}
-            type="button"
-            variant="outline"
-          >
-            Deselect All
-          </Button>
-          <Button
-            disabled={!isDirty || isSaving}
-            onClick={handleSaveVisibility}
-            type="button"
-          >
-            {isSaving ? "Saving…" : "Save Changes"}
-          </Button>
-          <Button asChild>
-            <Link href="/admin/products/new">New Product</Link>
-          </Button>
-        </div>
+      <div>
+        <h2 className="text-xl font-semibold">Products</h2>
+        <p className="text-sm text-muted-foreground">
+          {products.length} product{products.length === 1 ? "" : "s"} in the
+          catalog.
+        </p>
       </div>
 
       <TableOrderEditor products={onTable} />
@@ -327,9 +299,37 @@ export function ProductsPageClient({ products }: ProductsPageClientProps) {
         ]}
       />
 
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          onClick={() => setAllVisibility(true)}
+          type="button"
+          variant="outline"
+        >
+          Select All
+        </Button>
+        <Button
+          onClick={() => setAllVisibility(false)}
+          type="button"
+          variant="outline"
+        >
+          Deselect All
+        </Button>
+        <Button
+          disabled={!isDirty || isSaving}
+          onClick={handleSaveVisibility}
+          type="button"
+        >
+          {isSaving ? "Saving…" : "Save Changes"}
+        </Button>
+        <Button asChild>
+          <Link href="/admin/products/new">New Product</Link>
+        </Button>
+      </div>
+
       <DataTable
         columns={columns}
         data={products}
+        initialPageSize={100}
         initialSorting={[{ desc: false, id: "brand" }]}
       />
     </div>

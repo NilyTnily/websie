@@ -94,22 +94,13 @@ export function StoreDashboard({
         <div className="flex gap-3">
           <Link
             className={`
-              flex h-[42px] items-center border border-krs-ivory/22 px-5 text-xs
-              tracking-[0.18em] uppercase
-            `}
-            href="/admin/products/new"
-          >
-            Add piece
-          </Link>
-          <Link
-            className={`
               flex h-[42px] items-center bg-krs-champagne px-5 text-xs
               font-semibold tracking-[0.18em] text-krs-mocha uppercase
               hover:bg-krs-champagne-light
             `}
-            href="/admin/homepage"
+            href="/admin/products/new"
           >
-            Edit homepage
+            Add piece
           </Link>
         </div>
       </div>
