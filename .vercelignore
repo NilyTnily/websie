@@ -1,0 +1,15 @@
+.next
+node_modules
+scraped-data
+design_handoff_krs_redesign
+.tests
+.claude
+.cursor
+.vscode
+Credentials
+public/hero-flythrough-backup-v1
+*.log
+.env
+.env.local
+.git
+.github
