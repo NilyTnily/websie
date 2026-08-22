@@ -19,26 +19,8 @@ interface HeaderProps {
   showAuth?: boolean;
 }
 
-function HeaderFallback() {
-  return (
-    <header className="sticky top-0 z-40 w-full bg-krs-navy text-krs-navy-foreground">
-      <div className="mx-auto max-w-7xl px-6 py-5 sm:px-14 sm:py-[26px]">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-5 w-24 bg-white/10" />
-          <Skeleton className="h-6 w-16 bg-white/10" />
-        </div>
-      </div>
-      <div className="border-t border-krs-navy-border" />
-    </header>
-  );
-}
-
 export function Header(props: HeaderProps) {
-  return (
-    <Suspense fallback={<HeaderFallback />}>
-      <HeaderContent {...props} />
-    </Suspense>
-  );
+  return <HeaderContent {...props} />;
 }
 
 const mainNavigation = [
