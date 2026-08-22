@@ -30,13 +30,32 @@ export function HeaderUserDropdown({
         <button
           aria-label={userName || "Account"}
           className={`
-            krs-label text-krs-navy-foreground
-            hover:text-krs-champagne
+            relative flex h-9 w-9 items-center justify-center overflow-hidden
+            rounded-full border border-white/10 bg-white/5
+            text-krs-navy-foreground transition-colors
+            hover:bg-white/10 hover:text-primary
           `}
           title={userName || "Account"}
           type="button"
         >
-          Account
+          <Avatar className="h-8 w-8 border-0 bg-transparent">
+            <AvatarImage
+              alt={userName || "User"}
+              src={userImage || undefined}
+            />
+            <AvatarFallback className="bg-transparent">
+              {userName ? (
+                userName
+                  .split(" ")
+                  .map((n: string) => n[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase()
+              ) : (
+                <UserIcon className="h-4 w-4" />
+              )}
+            </AvatarFallback>
+          </Avatar>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 
-import { getAllProducts, getCategoriesWithCounts } from "~/lib/queries/catalog";
+import {
+  getCategoriesWithCounts,
+  getVisibleProducts,
+} from "~/lib/queries/catalog";
 import { CollectionBrowser } from "~/ui/components/collection-browser";
 
 interface ProductsPageProps {
@@ -14,7 +17,7 @@ export default async function ProductsPage({
     await Promise.all([
       searchParams,
       getCategoriesWithCounts(),
-      getAllProducts(),
+      getVisibleProducts(),
     ]);
   const initialCategoryId = categories.find((c) => c.slug === categorySlug)?.id;
   const houseCount = new Set(
@@ -23,22 +26,17 @@ export default async function ProductsPage({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <main className="flex-1 py-10">
-        <div
-          className={`
-            container px-4
-            md:px-6
-          `}
-        >
-          <div className="mb-8">
+      <main className="flex-1 py-8 sm:py-10">
+        <div className="mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 2xl:px-10">
+          <div className="mb-8 sm:mb-10">
             <p className="krs-eyebrow text-krs-tobacco">
               {products.length} pieces · {houseCount} houses
             </p>
-            <h1 className="mt-3 font-display text-[46px] text-foreground">
+            <h1 className="mt-3 font-display text-[34px] leading-none text-foreground sm:text-[46px]">
               The Collection
             </h1>
-            <p className="mt-2 text-muted-foreground">
-              Every piece currently on the shelf.
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+              Every piece currently on the shelf — watches and fine jewelry, together.
             </p>
           </div>
 

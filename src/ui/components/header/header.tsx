@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { Menu, UserIcon, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -81,12 +81,7 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
 
   return (
     <header
-      className={cn(
-        "z-40 w-full text-krs-navy-foreground",
-        isHome ? "absolute inset-x-0 top-0 bg-transparent" : `
-          sticky top-0 bg-krs-navy
-        `,
-      )}
+      className={`sticky top-0 z-40 w-full bg-krs-navy text-krs-navy-foreground`}
       ref={headerRef}
     >
       <div
@@ -137,14 +132,13 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
             ))}
           </nav>
 
-          <Link
-            className="absolute left-1/2 -translate-x-1/2"
-            href="/"
-          >
-            <span className={`
-              krs-brand-mark font-display text-xl
-              sm:text-[27px]
-            `}>
+          <Link className="absolute left-1/2 -translate-x-1/2" href="/">
+            <span
+              className={`
+                krs-brand-mark font-display text-xl
+                sm:text-[27px]
+              `}
+            >
               {settings.name}
             </span>
           </Link>
@@ -160,33 +154,8 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
             </Link>
             {isHome && (
               <Link className={UTILITY_LINK} href="/products">
-                Search
+                Browse
               </Link>
-            )}
-
-            {isPending ? (
-              <Skeleton className={`
-                hidden h-4 w-16 bg-white/10
-                md:block
-              `} />
-            ) : user ? (
-              <div className={`
-                hidden
-                md:block
-              `}>
-                <HeaderUserDropdown
-                  isDashboard={!!isDashboard}
-                  userEmail={user.email}
-                  userImage={user.image}
-                  userName={user.name}
-                />
-              </div>
-            ) : (
-              showAuth && (
-                <Link className={UTILITY_LINK} href="/auth/sign-in">
-                  Account
-                </Link>
-              )
             )}
 
             {isPending ? (
@@ -199,6 +168,33 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
               <Skeleton className="h-9 w-9 rounded-full" />
             ) : (
               <NotificationsWidget />
+            )}
+
+            {isPending ? (
+              <Skeleton className="h-9 w-9 rounded-full" />
+            ) : user ? (
+              <HeaderUserDropdown
+                isDashboard={!!isDashboard}
+                userEmail={user.email}
+                userImage={user.image}
+                userName={user.name}
+              />
+            ) : (
+              showAuth && (
+                <Link
+                  aria-label="Account"
+                  className={`
+                    flex h-9 w-9 items-center justify-center rounded-full
+                    border border-white/10 bg-white/5
+                    text-krs-navy-foreground transition-colors
+                    hover:bg-white/10 hover:text-primary
+                  `}
+                  href="/auth/sign-in"
+                  title="Sign in"
+                >
+                  <UserIcon className="h-4 w-4" />
+                </Link>
+              )
             )}
           </div>
         </div>

@@ -27,16 +27,21 @@ import {
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableViewOptions } from "./data-table-view-options";
 
+const DEFAULT_SORTING: SortingState = [];
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  /** Sort the table starts with, e.g. `[{ id: "brand", desc: false }]`. Defaults to insertion order. */
+  initialSorting?: SortingState;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  initialSorting = DEFAULT_SORTING,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );

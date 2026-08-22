@@ -46,7 +46,7 @@ const DEFAULT_SETTINGS: HomepageSettings = {
     "Automatic movements finished by hand, stones set one at a time, and a small archive of vintage pieces restored ourselves.",
   heroTitle: "Precision worn close.",
   heroVideoPoster: null,
-  heroVideoUrl: "/luxury-watch-cgi-animation.mp4",
+  heroVideoUrl: null,
   id: "default",
   testimonialsDescription: "Notes from the client book — unedited, on request.",
   testimonialsTitle: "From the Client Book",

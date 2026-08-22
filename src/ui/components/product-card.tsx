@@ -6,6 +6,7 @@ import Link from "next/link";
 import * as React from "react";
 
 import { cn } from "~/lib/cn";
+import { useSiteSettings } from "~/lib/hooks/use-site-settings";
 import { useWishlist } from "~/lib/hooks/use-wishlist";
 import { BLUR_DATA_URL } from "~/lib/image-placeholder";
 import { ImageFallback } from "~/ui/components/image-fallback";
@@ -37,6 +38,7 @@ export function ProductCard({
   product,
   ...props
 }: ProductCardProps) {
+  const { noMoneyMode } = useSiteSettings();
   const { isWishlisted, toggleWishlist } = useWishlist();
   const [isHovered, setIsHovered] = React.useState(false);
   const [isLoaded, setIsLoaded] = React.useState(false);
@@ -81,7 +83,7 @@ export function ProductCard({
                 onError={() => setHasError(true)}
                 onLoad={() => setIsLoaded(true)}
                 placeholder="blur"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1536px) 33vw, 25vw"
                 src={product.image}
               />
             )}
@@ -118,7 +120,9 @@ export function ProductCard({
               </h3>
             </div>
             <span className="krs-price shrink-0 pl-3 text-sm text-foreground">
-              {CURRENCY_FORMATTER.format(product.price)}
+              {noMoneyMode
+                ? "Contact Us"
+                : CURRENCY_FORMATTER.format(product.price)}
             </span>
           </div>
         </div>
@@ -128,11 +132,11 @@ export function ProductCard({
         aria-pressed={isInWishlist}
         className={cn(
           `
-            absolute top-2 right-2 z-10 h-[30px] w-[30px] rounded-none
-            border-krs-ivory/60 bg-background/80 backdrop-blur-sm
-            transition-opacity duration-300
+            absolute top-2 right-2 z-10 h-9 w-9 rounded-none border-krs-ivory/60
+            bg-background/80 backdrop-blur-sm transition-opacity duration-300
+            lg:h-[30px] lg:w-[30px]
           `,
-          !isHovered && !isInWishlist && "opacity-0",
+          !isHovered && !isInWishlist && "lg:opacity-0",
         )}
         onClick={handleToggleWishlist}
         size="icon"

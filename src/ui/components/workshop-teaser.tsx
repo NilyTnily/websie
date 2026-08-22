@@ -1,6 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-
-import { ImageFallback } from "~/ui/components/image-fallback";
 
 /** Homepage editorial teaser for the workshop story — a shorter pull of the About page's craftsmanship copy, not a duplicate of it, linking through for the full story. */
 export function WorkshopTeaser() {
@@ -15,7 +14,13 @@ export function WorkshopTeaser() {
       >
         <div className="relative">
           <div className="relative aspect-[4/5]">
-            <ImageFallback />
+            <Image
+              alt="A watchmaker servicing a movement at the bench"
+              className="object-cover"
+              fill
+              sizes="(max-width: 1024px) 70vw, 35vw"
+              src="https://images.unsplash.com/photo-1725960103635-0a6709f97126?q=80&w=1000&auto=format&fit=crop"
+            />
           </div>
           <div
             className={`
@@ -23,7 +28,13 @@ export function WorkshopTeaser() {
               sm:ml-auto
             `}
           >
-            <ImageFallback />
+            <Image
+              alt="A hand holding a jeweler's hand tool"
+              className="object-cover"
+              fill
+              sizes="(max-width: 1024px) 49vw, 25vw"
+              src="https://images.unsplash.com/photo-1628058494685-6c2f796ac24a?q=80&w=1000&auto=format&fit=crop"
+            />
           </div>
         </div>
         <div>

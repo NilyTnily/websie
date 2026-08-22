@@ -154,6 +154,23 @@ export function SettingsPageClient({ settings }: SettingsPageClientProps) {
           </p>
         </div>
 
+        <div className="space-y-1.5 border-t pt-6">
+          <label className="flex items-center gap-2 text-sm font-medium">
+            <input
+              defaultChecked={settings.noMoneyMode}
+              name="noMoneyMode"
+              type="checkbox"
+            />
+            No Money Mode
+          </label>
+          <p className="text-xs text-muted-foreground">
+            Hides every price on the public site — product cards, product
+            pages, and the bag show &quot;Contact Us&quot; instead, and the
+            bag&apos;s checkout step is replaced by the inquiry form. Prices
+            still show here in admin for your own reference.
+          </p>
+        </div>
+
         {state.error && (
           <p className="text-sm text-destructive">{state.error}</p>
         )}

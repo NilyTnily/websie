@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 // Singleton row (id is always "default") — one row holds the site's
 // editable identity so it doesn't need a migration every time branding
@@ -12,6 +12,9 @@ export const siteSettingsTable = pgTable("site_settings", {
   instagramUrl: text("instagram_url"),
   logoUrl: text("logo_url"),
   name: text("name").notNull(),
+  // When true, the public storefront hides prices everywhere and swaps
+  // buy/checkout CTAs for a "Contact Us" flow. Admin views are unaffected.
+  noMoneyMode: boolean("no_money_mode").default(false).notNull(),
   slogan: text("slogan").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   whatsappNumber: text("whatsapp_number"),

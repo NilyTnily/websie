@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import type { CartItem } from "~/ui/components/cart";
 
 import { submitInquiryAction } from "~/app/actions/inquiries";
+import { useSiteSettings } from "~/lib/hooks/use-site-settings";
 import { Button } from "~/ui/primitives/button";
 import { Input } from "~/ui/primitives/input";
 import { Label } from "~/ui/primitives/label";
@@ -25,6 +26,7 @@ interface InquiryFormProps {
 }
 
 export function InquiryForm({ items, onBack, onSuccess }: InquiryFormProps) {
+  const { noMoneyMode } = useSiteSettings();
   const [isPending, startTransition] = React.useTransition();
   const [error, setError] = React.useState<null | string>(null);
 
@@ -98,21 +100,27 @@ export function InquiryForm({ items, onBack, onSuccess }: InquiryFormProps) {
                     Qty {item.quantity}
                   </p>
                 </div>
-                <p className="krs-ref shrink-0 text-sm text-foreground">
-                  {CURRENCY_FORMATTER.format(item.price * item.quantity)}
-                </p>
+                {!noMoneyMode && (
+                  <p className="krs-ref shrink-0 text-sm text-foreground">
+                    {CURRENCY_FORMATTER.format(item.price * item.quantity)}
+                  </p>
+                )}
               </li>
             ))}
           </ul>
-          <div className="krs-hairline mt-4" />
-          <div className="mt-3 flex items-center justify-between">
-            <span className="text-sm font-semibold text-foreground">
-              Subtotal
-            </span>
-            <span className="krs-ref text-sm font-semibold text-foreground">
-              {CURRENCY_FORMATTER.format(subtotal)}
-            </span>
-          </div>
+          {!noMoneyMode && (
+            <>
+              <div className="krs-hairline mt-4" />
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-sm font-semibold text-foreground">
+                  Subtotal
+                </span>
+                <span className="krs-ref text-sm font-semibold text-foreground">
+                  {CURRENCY_FORMATTER.format(subtotal)}
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="space-y-4">

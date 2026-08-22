@@ -9,6 +9,7 @@ import * as React from "react";
 import { cn } from "~/lib/cn";
 import { useCart } from "~/lib/hooks/use-cart";
 import { useMediaQuery } from "~/lib/hooks/use-media-query";
+import { useSiteSettings } from "~/lib/hooks/use-site-settings";
 import { InquiryForm } from "~/ui/components/inquiry-form";
 import { Button } from "~/ui/primitives/button";
 import {
@@ -42,6 +43,7 @@ export function CartClient({ className }: CartProps) {
   const [isMounted, setIsMounted] = React.useState(false);
   const [step, setStep] = React.useState<"bag" | "inquiry">("bag");
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const { noMoneyMode } = useSiteSettings();
   const {
     clearCart,
     itemCount: totalItems,
@@ -258,11 +260,13 @@ export function CartClient({ className }: CartProps) {
                               <span className="sr-only">Increase quantity</span>
                             </button>
                           </div>
-                          <div className="krs-ref text-sm font-medium">
-                            {CURRENCY_FORMATTER.format(
-                              item.price * item.quantity,
-                            )}
-                          </div>
+                          {!noMoneyMode && (
+                            <div className="krs-ref text-sm font-medium">
+                              {CURRENCY_FORMATTER.format(
+                                item.price * item.quantity,
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -276,34 +280,50 @@ export function CartClient({ className }: CartProps) {
         {step === "bag" && cartItems.length > 0 && (
           <div className="border-t px-6 py-4">
             <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="krs-ref font-medium">
-                  {CURRENCY_FORMATTER.format(subtotal)}
-                </span>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <span className="text-base font-semibold">Total</span>
-                <span className="krs-ref text-base font-semibold">
-                  {CURRENCY_FORMATTER.format(subtotal)}
-                </span>
-              </div>
-              <Button asChild className="w-full rounded-none" size="lg">
-                <Link href="/checkout" onClick={() => setIsOpen(false)}>
-                  Checkout
-                </Link>
-              </Button>
-              <button
-                className={`
-                  block w-full text-center text-xs text-muted-foreground
-                  hover:text-primary
-                `}
-                onClick={() => setStep("inquiry")}
-                type="button"
-              >
-                Have a quick question instead? Send an inquiry →
-              </button>
+              {!noMoneyMode && (
+                <>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="krs-ref font-medium">
+                      {CURRENCY_FORMATTER.format(subtotal)}
+                    </span>
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-semibold">Total</span>
+                    <span className="krs-ref text-base font-semibold">
+                      {CURRENCY_FORMATTER.format(subtotal)}
+                    </span>
+                  </div>
+                </>
+              )}
+              {noMoneyMode ? (
+                <Button
+                  className="w-full rounded-none"
+                  onClick={() => setStep("inquiry")}
+                  size="lg"
+                >
+                  Contact Us
+                </Button>
+              ) : (
+                <>
+                  <Button asChild className="w-full rounded-none" size="lg">
+                    <Link href="/checkout" onClick={() => setIsOpen(false)}>
+                      Checkout
+                    </Link>
+                  </Button>
+                  <button
+                    className={`
+                      block w-full text-center text-xs text-muted-foreground
+                      hover:text-primary
+                    `}
+                    onClick={() => setStep("inquiry")}
+                    type="button"
+                  >
+                    Have a quick question instead? Send an inquiry →
+                  </button>
+                </>
+              )}
               <div className="flex items-center justify-between">
                 {isDesktop ? (
                   <SheetClose asChild>

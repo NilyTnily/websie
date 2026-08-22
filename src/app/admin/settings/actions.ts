@@ -28,6 +28,7 @@ export async function updateSiteSettingsAction(
     instagramUrl: optionalText(formData, "instagramUrl"),
     logoUrl: optionalText(formData, "logoUrl"),
     name,
+    noMoneyMode: formData.get("noMoneyMode") === "on",
     slogan,
     whatsappNumber: optionalText(formData, "whatsappNumber"),
   });

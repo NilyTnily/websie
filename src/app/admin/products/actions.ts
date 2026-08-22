@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import type {
+  MutationResult,
   ProductInput,
   ProductMediaInput,
 } from "~/lib/queries/catalog-admin";
@@ -10,6 +11,9 @@ import type {
 import {
   createProduct,
   deleteProduct,
+  setProductOnTable,
+  setProductsVisibility,
+  setTableOrder,
   updateProduct,
 } from "~/lib/queries/catalog-admin";
 
@@ -32,6 +36,25 @@ export async function createProductAction(
 export async function deleteProductAction(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   await deleteProduct(id);
+}
+
+export async function setProductOnTableAction(
+  id: string,
+  onTable: boolean,
+): Promise<MutationResult> {
+  return setProductOnTable(id, onTable);
+}
+
+export async function setProductsVisibilityAction(
+  changes: { id: string; visible: boolean }[],
+): Promise<MutationResult> {
+  return setProductsVisibility(changes);
+}
+
+export async function setTableOrderAction(
+  orderedIds: string[],
+): Promise<MutationResult> {
+  return setTableOrder(orderedIds);
 }
 
 export async function updateProductAction(

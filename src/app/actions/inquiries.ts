@@ -4,6 +4,7 @@ import type { InquiryItem } from "~/db/schema";
 
 import { getCurrentUser } from "~/lib/auth";
 import { createInquiry } from "~/lib/queries/inquiries";
+import { getSiteSettings } from "~/lib/queries/settings";
 import { checkRateLimit, getClientIp } from "~/lib/rate-limit";
 import { buildInquiryMessage, buildWhatsAppLink } from "~/lib/whatsapp";
 
@@ -52,7 +53,10 @@ export async function submitInquiryAction(
   }
 
   try {
-    const user = await getCurrentUser();
+    const [user, settings] = await Promise.all([
+      getCurrentUser(),
+      getSiteSettings(),
+    ]);
     const inquiry = await createInquiry({
       customerContact,
       customerName,
@@ -63,6 +67,7 @@ export async function submitInquiryAction(
     const message = buildInquiryMessage({
       customerContact,
       customerName,
+      hidePrices: settings.noMoneyMode,
       items: input.items,
       note,
       subtotal: inquiry.subtotal,

@@ -15,6 +15,7 @@ export interface UpdateSiteSettingsInput {
   instagramUrl: null | string;
   logoUrl: null | string;
   name: string;
+  noMoneyMode: boolean;
   slogan: string;
   whatsappNumber: null | string;
 }
@@ -27,6 +28,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   instagramUrl: SOCIAL_LINKS.instagram || null,
   logoUrl: null,
   name: SEO_CONFIG.name,
+  noMoneyMode: true,
   slogan: SEO_CONFIG.slogan,
   updatedAt: new Date(0),
   whatsappNumber: process.env.WHATSAPP_NUMBER || null,

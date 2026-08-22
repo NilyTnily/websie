@@ -1,6 +1,6 @@
 import "server-only";
 import { createId } from "@paralleldrive/cuid2";
-import { eq } from "drizzle-orm";
+import { count, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import type { NewProduct } from "~/db/schema";
@@ -15,6 +15,8 @@ import {
 import { requireAdmin } from "~/lib/admin";
 import { notifyPendingSubscribers } from "~/lib/queries/stock-notifications";
 import { slugify } from "~/lib/slugify";
+import { MAX_TABLE_PRODUCTS } from "~/lib/table-constants";
+import { generateTableCutout } from "~/lib/table-cutout";
 
 export interface CategoryInput {
   description: string;
@@ -167,6 +169,133 @@ export async function deleteSubcategory(id: string): Promise<MutationResult> {
   } catch (error) {
     console.error("Failed to delete subcategory:", error);
     return { error: "Could not delete the subcategory.", success: false };
+  }
+}
+
+// Flips a product's onTable flag, enforcing the MAX_TABLE_PRODUCTS cap and
+// generating its cutout (background-removed PNG, see table-cutout.ts) on
+// first enable — the admin only ever picks a product, never runs a separate
+// "generate" step. tableCutoutUrl is cached on the product row and reused on
+// later toggles, so turning a product on and off again doesn't regenerate it.
+export async function setProductOnTable(
+  id: string,
+  onTable: boolean,
+): Promise<MutationResult> {
+  await requireAdmin();
+  try {
+    const product = await db.query.productTable.findFirst({
+      columns: { image: true, onTable: true, tableCutoutUrl: true },
+      where: eq(productTable.id, id),
+    });
+    if (!product) {
+      return { error: "Product not found.", success: false };
+    }
+
+    if (onTable && !product.onTable) {
+      const [row] = await db
+        .select({ value: count() })
+        .from(productTable)
+        .where(eq(productTable.onTable, true));
+      if ((row?.value ?? 0) >= MAX_TABLE_PRODUCTS) {
+        return {
+          error: `Only ${MAX_TABLE_PRODUCTS} products can be on the table at once — turn one off first.`,
+          success: false,
+        };
+      }
+    }
+
+    let tableCutoutUrl = product.tableCutoutUrl;
+    // Auto-generates transparent cutout on first enable; also regenerates if
+    // the stored cutout is just the original image (fallback) so every
+    // watch on the table is always background-removed without manual steps.
+    if (onTable && (!tableCutoutUrl || tableCutoutUrl === product.image)) {
+      const cutout = await generateTableCutout(id, product.image);
+      if (!cutout.success) {
+        return { error: cutout.error, success: false };
+      }
+      tableCutoutUrl = cutout.data.url;
+    }
+
+    await db
+      .update(productTable)
+      .set({ onTable, tableCutoutUrl, updatedAt: new Date() })
+      .where(eq(productTable.id, id));
+
+    revalidateStorefront();
+    return { data: undefined, success: true };
+  } catch (error) {
+    return {
+      error: errorMessage(error, "Could not update the table selection."),
+      success: false,
+    };
+  }
+}
+
+// Bulk visibility save for the admin products table's Select All / Deselect
+// All + Save flow — one round trip for however many rows changed, rather
+// than a request per checkbox.
+export async function setProductsVisibility(
+  changes: { id: string; visible: boolean }[],
+): Promise<MutationResult> {
+  await requireAdmin();
+  if (changes.length === 0) return { data: undefined, success: true };
+  try {
+    const toShow = changes.filter((c) => c.visible).map((c) => c.id);
+    const toHide = changes.filter((c) => !c.visible).map((c) => c.id);
+
+    await db.transaction(async (tx) => {
+      if (toShow.length > 0) {
+        await tx
+          .update(productTable)
+          .set({ updatedAt: new Date(), visible: true })
+          .where(inArray(productTable.id, toShow));
+      }
+      if (toHide.length > 0) {
+        await tx
+          .update(productTable)
+          .set({ updatedAt: new Date(), visible: false })
+          .where(inArray(productTable.id, toHide));
+      }
+    });
+
+    revalidateStorefront();
+    return { data: undefined, success: true };
+  } catch (error) {
+    return {
+      error: errorMessage(error, "Could not update product visibility."),
+      success: false,
+    };
+  }
+}
+
+// Persists the admin's drag-and-drop arrangement of the up-to-6 onTable
+// products — orderedIds is the full list in its new display order, each
+// getting its array index as tableSortOrder (see getTableProducts, which
+// reads this back out).
+export async function setTableOrder(
+  orderedIds: string[],
+): Promise<MutationResult> {
+  await requireAdmin();
+  if (orderedIds.length === 0) return { data: undefined, success: true };
+  try {
+    await db.transaction(async (tx) => {
+      await Promise.all(
+        orderedIds.map((id, index) =>
+          tx
+            .update(productTable)
+            .set({ tableSortOrder: index, updatedAt: new Date() })
+            .where(eq(productTable.id, id)),
+        ),
+      );
+    });
+
+    revalidateStorefront();
+    return { data: undefined, success: true };
+  } catch (error) {
+    return {
+      error: errorMessage(error, "Could not save the table order."),
+      success: false,
+    };
   }
 }
 

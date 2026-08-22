@@ -13,6 +13,8 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
 interface InquiryMessageInput {
   customerContact: string;
   customerName: string;
+  /** Omits per-item and subtotal price lines — set when No Money Mode is on. */
+  hidePrices?: boolean;
   items: InquiryItem[];
   note?: string;
   subtotal: number;
@@ -22,16 +24,21 @@ export function buildInquiryMessage(input: InquiryMessageInput): string {
   const lines = [
     "New inquiry from the KRS website",
     "",
-    ...input.items.map(
-      (item) =>
-        `• ${item.name} x${item.quantity} — ${CURRENCY_FORMATTER.format(item.price * item.quantity)}`,
+    ...input.items.map((item) =>
+      input.hidePrices
+        ? `• ${item.name} x${item.quantity}`
+        : `• ${item.name} x${item.quantity} — ${CURRENCY_FORMATTER.format(item.price * item.quantity)}`,
     ),
-    "",
-    `Subtotal: ${CURRENCY_FORMATTER.format(input.subtotal)}`,
-    "",
-    `From: ${input.customerName}`,
-    `Contact: ${input.customerContact}`,
   ];
+
+  if (!input.hidePrices) {
+    lines.push(
+      "",
+      `Subtotal: ${CURRENCY_FORMATTER.format(input.subtotal)}`,
+    );
+  }
+
+  lines.push("", `From: ${input.customerName}`, `Contact: ${input.customerContact}`);
 
   if (input.note) {
     lines.push("", `Note: ${input.note}`);

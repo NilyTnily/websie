@@ -51,6 +51,11 @@ export const productTable = pgTable("product", {
   metal: text("metal"),
   movement: text("movement"),
   name: text("name").notNull(),
+  // "On the table" — up to 6 products featured with a background-removed
+  // cutout in the homepage hero's table scene (2 rows × 3, see
+  // setProductOnTable in catalog-admin.ts, which enforces the cap and
+  // auto-generates the cutout).
+  onTable: boolean("on_table").default(false).notNull(),
   price: integer("price").notNull(),
   ref: text("ref").notNull().unique(),
   specs: jsonb("specs").$type<Record<string, string>>().notNull(),
@@ -58,7 +63,20 @@ export const productTable = pgTable("product", {
   subcategoryId: text("subcategory_id").references(() => subcategoryTable.id, {
     onDelete: "set null",
   }),
+  // Background-removed PNG for the table-scene overlay, generated on demand
+  // the first time a product is set onTable — null until then. Kept separate
+  // from `image` so the original catalog/PDP photo is never touched.
+  tableCutoutUrl: text("table_cutout_url"),
+  // Display position (0-5) among the up-to-6 onTable products, set by the
+  // admin's drag-and-drop table arrangement (see setTableOrder in
+  // catalog-admin.ts). Null for products never explicitly ordered — they
+  // sort after any explicitly-ordered ones (see getTableProducts).
+  tableSortOrder: integer("table_sort_order"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  // Controls storefront visibility independent of inStock (which still shows
+  // the product with an "Out of Stock" overlay). Admin views always see
+  // every product regardless of this flag.
+  visible: boolean("visible").default(true).notNull(),
   waterResistanceM: integer("water_resistance_m"),
 });
 

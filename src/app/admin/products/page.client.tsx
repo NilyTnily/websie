@@ -2,21 +2,36 @@
 
 import type { ColumnDef, ColumnMeta } from "@tanstack/react-table";
 
-import { BadgeCheck, DollarSign, Layers, Star, Tag } from "lucide-react";
+import {
+  Award,
+  BadgeCheck,
+  DollarSign,
+  Eye,
+  Layers,
+  LayoutGrid,
+  Star,
+  Tag,
+} from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
+import { toast } from "sonner";
 
 import type { ProductWithRelations } from "~/db/schema";
 
 import { ConfirmSubmitButton } from "~/app/admin/confirm-submit-button";
 import { defineMeta, filterFn } from "~/lib/filters";
+import { MAX_TABLE_PRODUCTS } from "~/lib/table-constants";
 import { StatCardGrid } from "~/ui/components/admin/stat-card";
 import { Badge } from "~/ui/primitives/badge";
 import { Button } from "~/ui/primitives/button";
+import { Checkbox } from "~/ui/primitives/checkbox";
 import { DataTable } from "~/ui/primitives/data-table/data-table";
 import { DataTableColumnHeader } from "~/ui/primitives/data-table/data-table-column-header";
 
-import { deleteProductAction } from "./actions";
+import { deleteProductAction, setProductsVisibilityAction } from "./actions";
+import { TableOrderEditor } from "./table-order-editor";
+import { TableToggle } from "./table-toggle";
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
   currency: "USD",
@@ -29,8 +44,55 @@ interface ProductsPageClientProps {
 }
 
 export function ProductsPageClient({ products }: ProductsPageClientProps) {
+  const router = useRouter();
+  const [isSaving, startSaving] = useTransition();
+  // Draft visibility state — checkboxes only edit this locally; nothing is
+  // persisted until "Save Changes" is clicked (see setProductsVisibilityAction).
+  const [draft, setDraft] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(products.map((product) => [product.id, product.visible])),
+  );
+
   const inStock = products.filter((product) => product.inStock);
   const featured = products.filter((product) => product.featured);
+  const hidden = products.filter((product) => !product.visible);
+  // Sorted to match getTableProducts' own order (tableSortOrder ascending,
+  // nulls last, tiebreak by updatedAt) — TableOrderEditor needs to start
+  // from the homepage's actual current order, not creation order.
+  const onTable = products
+    .filter((product) => product.onTable)
+    .sort((a, b) => {
+      if (a.tableSortOrder !== null && b.tableSortOrder !== null) {
+        return a.tableSortOrder - b.tableSortOrder;
+      }
+      if (a.tableSortOrder !== null) return -1;
+      if (b.tableSortOrder !== null) return 1;
+      return a.updatedAt.getTime() - b.updatedAt.getTime();
+    });
+  const onTableAtCap = onTable.length >= MAX_TABLE_PRODUCTS;
+  const isDirty = products.some(
+    (product) => draft[product.id] !== product.visible,
+  );
+
+  const setAllVisibility = (visible: boolean) => {
+    setDraft(Object.fromEntries(products.map((product) => [product.id, visible])));
+  };
+
+  const handleSaveVisibility = () => {
+    const changes = products
+      .filter((product) => draft[product.id] !== product.visible)
+      .map((product) => ({ id: product.id, visible: !!draft[product.id] }));
+    if (changes.length === 0) return;
+
+    startSaving(async () => {
+      const result = await setProductsVisibilityAction(changes);
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Visibility saved.");
+      router.refresh();
+    });
+  };
 
   const columns = useMemo(
     (): ColumnDef<ProductWithRelations>[] => [
@@ -58,14 +120,10 @@ export function ProductsPageClient({ products }: ProductsPageClientProps) {
         }) as ColumnMeta<ProductWithRelations, unknown>,
       },
       {
-        accessorFn: (row) =>
-          row.subcategory
-            ? `${row.category.name} / ${row.subcategory.name}`
-            : row.category.name,
+        accessorFn: (row) => row.category.name,
         cell: ({ row }) => (
           <span className="text-muted-foreground">
             {row.original.category.name}
-            {row.original.subcategory && ` / ${row.original.subcategory.name}`}
           </span>
         ),
         filterFn: filterFn("text"),
@@ -73,12 +131,27 @@ export function ProductsPageClient({ products }: ProductsPageClientProps) {
           <DataTableColumnHeader column={column} title="Category" />
         ),
         id: "category",
+        meta: defineMeta((row: ProductWithRelations) => row.category.name, {
+          displayName: "Category",
+          icon: Layers,
+          type: "text",
+        }) as ColumnMeta<ProductWithRelations, unknown>,
+      },
+      {
+        accessorFn: (row) => row.subcategory?.name ?? "—",
+        cell: ({ row }) => (
+          <span className="text-muted-foreground">
+            {row.original.subcategory?.name ?? "—"}
+          </span>
+        ),
+        filterFn: filterFn("text"),
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Brand" />
+        ),
+        id: "brand",
         meta: defineMeta(
-          (row: ProductWithRelations) =>
-            row.subcategory
-              ? `${row.category.name} / ${row.subcategory.name}`
-              : row.category.name,
-          { displayName: "Category", icon: Layers, type: "text" },
+          (row: ProductWithRelations) => row.subcategory?.name ?? "—",
+          { displayName: "Brand", icon: Award, type: "text" },
         ) as ColumnMeta<ProductWithRelations, unknown>,
       },
       {
@@ -125,6 +198,49 @@ export function ProductsPageClient({ products }: ProductsPageClientProps) {
         }) as ColumnMeta<ProductWithRelations, unknown>,
       },
       {
+        accessorKey: "onTable",
+        cell: ({ row }) => (
+          <TableToggle
+            atCap={onTableAtCap}
+            onTable={row.original.onTable}
+            productId={row.original.id}
+          />
+        ),
+        filterFn: filterFn("option"),
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="On the Table" />
+        ),
+        meta: defineMeta((row: ProductWithRelations) => row.onTable, {
+          displayName: "On the Table",
+          icon: LayoutGrid,
+          type: "option",
+        }) as ColumnMeta<ProductWithRelations, unknown>,
+      },
+      {
+        accessorKey: "visible",
+        cell: ({ row }) => (
+          <Checkbox
+            aria-label={`Visible on the site: ${row.original.name}`}
+            checked={draft[row.original.id] ?? row.original.visible}
+            onCheckedChange={(checked) =>
+              setDraft((prev) => ({
+                ...prev,
+                [row.original.id]: checked === true,
+              }))
+            }
+          />
+        ),
+        filterFn: filterFn("option"),
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Visible" />
+        ),
+        meta: defineMeta((row: ProductWithRelations) => row.visible, {
+          displayName: "Visible",
+          icon: Eye,
+          type: "option",
+        }) as ColumnMeta<ProductWithRelations, unknown>,
+      },
+      {
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-3">
             <Link
@@ -154,7 +270,7 @@ export function ProductsPageClient({ products }: ProductsPageClientProps) {
         id: "actions",
       },
     ],
-    [],
+    [onTableAtCap, draft],
   );
 
   return (
@@ -167,10 +283,35 @@ export function ProductsPageClient({ products }: ProductsPageClientProps) {
             catalog.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/admin/products/new">New Product</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setAllVisibility(true)}
+            type="button"
+            variant="outline"
+          >
+            Select All
+          </Button>
+          <Button
+            onClick={() => setAllVisibility(false)}
+            type="button"
+            variant="outline"
+          >
+            Deselect All
+          </Button>
+          <Button
+            disabled={!isDirty || isSaving}
+            onClick={handleSaveVisibility}
+            type="button"
+          >
+            {isSaving ? "Saving…" : "Save Changes"}
+          </Button>
+          <Button asChild>
+            <Link href="/admin/products/new">New Product</Link>
+          </Button>
+        </div>
       </div>
+
+      <TableOrderEditor products={onTable} />
 
       <StatCardGrid
         stats={[
@@ -178,10 +319,19 @@ export function ProductsPageClient({ products }: ProductsPageClientProps) {
           { label: "In Stock", value: inStock.length },
           { label: "Out of Stock", value: products.length - inStock.length },
           { label: "Featured", value: featured.length },
+          { label: "Hidden", value: hidden.length },
+          {
+            label: "On the Table",
+            value: `${onTable.length}/${MAX_TABLE_PRODUCTS}`,
+          },
         ]}
       />
 
-      <DataTable columns={columns} data={products} />
+      <DataTable
+        columns={columns}
+        data={products}
+        initialSorting={[{ desc: false, id: "brand" }]}
+      />
     </div>
   );
 }

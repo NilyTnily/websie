@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
 import { BadgeCheck, Gem, ShieldCheck, Wrench } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { SEO_CONFIG } from "~/app";
-import { ImageFallback } from "~/ui/components/image-fallback";
 import { Button } from "~/ui/primitives/button";
 
 const standard = [
@@ -42,12 +42,18 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main className="flex min-h-screen flex-col">
-      {/* Hero — empty image slot pending real workshop photography. */}
       <section className={`
         relative h-[420px] overflow-hidden
         sm:h-[620px]
       `}>
-        <ImageFallback />
+        <Image
+          alt="A craftsman at the workbench, hand-finishing a watch case"
+          className="object-cover"
+          fill
+          priority
+          sizes="100vw"
+          src="https://images.unsplash.com/photo-1623304741393-54f6c11c0da6?q=80&w=2000&auto=format&fit=crop"
+        />
         <div
           className={`
             pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70
@@ -99,16 +105,27 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* Two empty image slots pending real workshop photography (bench, stone setting). */}
           <div className="relative">
             <div className="relative aspect-[3/4]">
-              <ImageFallback />
+              <Image
+                alt="A vintage pocket watch resting on the bench"
+                className="object-cover"
+                fill
+                sizes="(max-width: 1024px) 80vw, 40vw"
+                src="https://images.unsplash.com/photo-1731446451263-fc3881d4973d?q=80&w=1000&auto=format&fit=crop"
+              />
             </div>
             <div className={`
               relative mt-12 aspect-[3/4] max-w-[80%]
               sm:ml-auto
             `}>
-              <ImageFallback />
+              <Image
+                alt="A craftsperson hand-finishing a piece of jewelry"
+                className="object-cover"
+                fill
+                sizes="(max-width: 1024px) 64vw, 32vw"
+                src="https://images.unsplash.com/photo-1715374033196-0ff662284a7e?q=80&w=1000&auto=format&fit=crop"
+              />
             </div>
           </div>
         </div>

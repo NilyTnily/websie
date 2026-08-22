@@ -85,7 +85,10 @@ export async function getFeaturedProducts(): Promise<ProductWithRelations[]> {
   try {
     return await db.query.productTable.findMany({
       orderBy: [asc(productTable.createdAt)],
-      where: eq(productTable.featured, true),
+      where: and(
+        eq(productTable.featured, true),
+        eq(productTable.visible, true),
+      ),
       with: {
         category: true,
         images: {
@@ -144,7 +147,10 @@ export async function getProductsByCategorySlug(slug: string): Promise<null | {
     const [products, subcategories] = await Promise.all([
       db.query.productTable.findMany({
         orderBy: [asc(productTable.createdAt)],
-        where: eq(productTable.categoryId, category.id),
+        where: and(
+          eq(productTable.categoryId, category.id),
+          eq(productTable.visible, true),
+        ),
         with: {
           category: true,
           images: {
@@ -196,6 +202,7 @@ export async function getRelatedProducts(
       where: and(
         eq(productTable.categoryId, categoryId),
         ne(productTable.id, excludeId),
+        eq(productTable.visible, true),
       ),
       with: {
         category: true,
@@ -240,6 +247,57 @@ export async function getSubcategoriesWithCounts(): Promise<
       .filter((s) => s.productCount > 0);
   } catch (error) {
     console.error("Failed to fetch subcategories with counts:", error);
+    return [];
+  }
+}
+
+// The up-to-6 products an admin has flagged "on the table" (see
+// setProductOnTable in catalog-admin.ts) for the homepage hero's table
+// scene. `limit: 6` mirrors the cap the mutation enforces, in case the two
+// ever drift. Displayed as 2 rows × 3 per line.
+export async function getTableProducts(): Promise<ProductWithRelations[]> {
+  try {
+    return await db.query.productTable.findMany({
+      limit: 6,
+      // NULLS LAST is Postgres's default for ASC — explicitly-arranged
+      // products (see the admin drag-and-drop editor) come first in the
+      // order the admin set, and any never-arranged product falls in after
+      // them, oldest-updated first, rather than in arbitrary DB order.
+      orderBy: [asc(productTable.tableSortOrder), asc(productTable.updatedAt)],
+      where: and(
+        eq(productTable.onTable, true),
+        eq(productTable.visible, true),
+      ),
+      with: {
+        category: true,
+        images: {
+          orderBy: (image, { asc: ascImage }) => ascImage(image.sortOrder),
+        },
+        subcategory: true,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch table products:", error);
+    return [];
+  }
+}
+
+/** Same shape as getAllProducts, scoped to storefront-visible products — use this (not getAllProducts) for any public-facing "all products" listing. */
+export async function getVisibleProducts(): Promise<ProductWithRelations[]> {
+  try {
+    return await db.query.productTable.findMany({
+      orderBy: [asc(productTable.createdAt)],
+      where: eq(productTable.visible, true),
+      with: {
+        category: true,
+        images: {
+          orderBy: (image, { asc: ascImage }) => ascImage(image.sortOrder),
+        },
+        subcategory: true,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch visible products:", error);
     return [];
   }
 }

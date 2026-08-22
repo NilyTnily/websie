@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import { categoryHref } from "~/lib/catalog-links";
 import { getProductById, getRelatedProducts } from "~/lib/queries/catalog";
+import { getSiteSettings } from "~/lib/queries/settings";
 import { slugify } from "~/lib/slugify";
 import { buildWhatsAppLink } from "~/lib/whatsapp";
 import { FeaturedProductsGrid } from "~/ui/components/featured-products-grid";
@@ -41,7 +43,11 @@ export default async function ProductDetailPage({
   params,
 }: ProductDetailPageProps) {
   const { id } = await params;
-  const product = await getProductById(id);
+  const [product, settings] = await Promise.all([
+    getProductById(id),
+    getSiteSettings(),
+  ]);
+  if (product && !product.visible) notFound();
   const relatedProducts = product
     ? await getRelatedProducts(product.category.id, product.id)
     : [];
@@ -156,7 +162,9 @@ export default async function ProductDetailPage({
               </p>
 
               <p className="krs-price mt-6 text-[44px] text-foreground">
-                {CURRENCY_FORMATTER.format(product.price)}
+                {settings.noMoneyMode
+                  ? "Contact Us"
+                  : CURRENCY_FORMATTER.format(product.price)}
               </p>
 
               <p className="mt-6 text-muted-foreground">

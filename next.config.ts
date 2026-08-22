@@ -8,6 +8,7 @@ export default {
       { hostname: "**.githubassets.com", protocol: "https" },
       { hostname: "**.githubusercontent.com", protocol: "https" },
       { hostname: "**.googleusercontent.com", protocol: "https" },
+      { hostname: "**.thewatchpages.com", protocol: "https" },
       { hostname: "**.ufs.sh", protocol: "https" },
       { hostname: "**.unsplash.com", protocol: "https" },
       { hostname: "api.github.com", protocol: "https" },
