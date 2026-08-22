@@ -132,14 +132,14 @@ const TABLE_VIDEO_OBJECT_POSITION_Y = 0.42; // "42%"
 // the mobile cutout block below).
 // Layout: 2 rows × 3 per line = 6 total.
 const TABLE_CUTOUT_SLOTS = [
-  // Row 1 — back line, 3 watches (shared center Y) — moved +5% down per user
-  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.388 },
-  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.388 },
-  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.388 },
-  // Row 2 — front line, 3 watches (shared center Y) — moved +5% down per user
-  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.633 },
-  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.633 },
-  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.633 },
+  // Row 1 — back line — tightened gap 1% down
+  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.383 },
+  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.383 },
+  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.383 },
+  // Row 2 — front line — tightened gap 1% up (gap -0.02 total)
+  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.608 },
+  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.608 },
+  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.608 },
 ];
 
 /**
