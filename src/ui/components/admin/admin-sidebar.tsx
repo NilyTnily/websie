@@ -3,7 +3,6 @@
 import {
   BellRing,
   FolderTree,
-  Home,
   Inbox,
   LayoutDashboard,
   LogOut,
@@ -11,6 +10,7 @@ import {
   Quote,
   Settings,
   Star,
+  Users,
   Watch,
 } from "lucide-react";
 import Link from "next/link";
@@ -33,7 +33,7 @@ import {
 
 const ADMIN_NAV = [
   { href: "/admin/summary", icon: LayoutDashboard, name: "Summary" },
-  { href: "/admin/homepage", icon: Home, name: "Homepage" },
+  { href: "/admin/users", icon: Users, name: "Users" },
   { href: "/admin/categories", icon: FolderTree, name: "Categories" },
   { href: "/admin/products", icon: Package, name: "Products" },
   { href: "/admin/inquiries", icon: Inbox, name: "Inquiries" },
