@@ -1,5 +1,4 @@
 import "server-only";
-import { removeBackground } from "@imgly/background-removal-node";
 import { UTApi } from "uploadthing/server";
 
 import type { MutationResult } from "~/lib/queries/catalog-admin";
@@ -15,6 +14,12 @@ export async function generateTableCutout(
   sourceImageUrl: string,
 ): Promise<MutationResult<{ url: string }>> {
   try {
+    // Dynamic import so `sharp`/`onnxruntime-node` native bindings are not
+    // evaluated during `next build` page-data collection — they are only
+    // loaded at runtime when an admin actually triggers a cutout.
+    const { removeBackground } = await import(
+      "@imgly/background-removal-node"
+    );
     const blob = await removeBackground(sourceImageUrl);
     const buffer = Buffer.from(await blob.arrayBuffer());
     // Native File, not UploadThing's own UTFile helper — UTFile assigns
