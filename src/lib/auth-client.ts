@@ -4,8 +4,15 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 // Create and export the auth client
+// Fallback to current origin if env is empty (avoids "no response" host/port errors in prod)
+const getBaseURL = () => {
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (envUrl && envUrl.length > 0) return envUrl;
+  if (typeof window !== "undefined") return window.location.origin;
+  return undefined;
+};
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL,
+  baseURL: getBaseURL(),
   plugins: [
     twoFactorClient({
       onTwoFactorRedirect: () => {

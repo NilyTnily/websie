@@ -17,24 +17,59 @@ export function SignInPageClient() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const validateEmail = (value: string) => {
+    const v = value.trim();
+    if (!v) return "Email is required.";
+    // simple permissive check — allows all valid RFC emails without browser strictness
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Please enter a valid email address.";
+    return "";
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (emailError) setEmailError(validateEmail(value));
+  };
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmedEmail = email.trim().toLowerCase();
+    const vErr = validateEmail(trimmedEmail);
+    if (vErr) {
+      setEmailError(vErr);
+      return;
+    }
+    if (!password) {
+      setError("Password is required.");
+      return;
+    }
+    setEmailError("");
     setError("");
     setLoading(true);
 
     try {
       const { error: signInError } = await signIn.email({
-        email,
+        email: trimmedEmail,
         password,
       });
 
       if (signInError) {
-        setError(
-          signInError.message ||
-            `Sign-in failed (${signInError.status ?? "no response"}) — check that you're on the correct host/port`,
-        );
+        // map common better-auth messages to friendly UI
+        const raw = signInError.message || "";
+        const status = (signInError as { status?: number }).status;
+        if (raw.toLowerCase().includes("invalid email or password") || status === 401) {
+          setError("Invalid email or password.");
+        } else if (raw.toLowerCase().includes("too many") || status === 429) {
+          setError("Too many attempts. Please wait a minute and try again.");
+        } else if (raw.toLowerCase().includes("email") && raw.toLowerCase().includes("not verified")) {
+          setError("Please verify your email first.");
+        } else if (!raw || raw.includes("no response")) {
+          setError("Could not reach auth server. Please refresh and try again.");
+        } else {
+          setError(raw);
+        }
         return;
       }
 
@@ -107,6 +142,7 @@ export function SignInPageClient() {
             <CardContent className="pt-2">
               <form
                 className="space-y-4"
+                noValidate
                 onSubmit={(e) => {
                   e.preventDefault();
                   void handleEmailLogin(e);
@@ -116,14 +152,22 @@ export function SignInPageClient() {
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
+                    autoCapitalize="off"
+                    autoComplete="email"
+                    autoCorrect="off"
+                    inputMode="email"
+                    onBlur={() => setEmailError(validateEmail(email))}
                     onChange={(e) => {
-                      setEmail(e.target.value);
+                      handleEmailChange(e.target.value);
                     }}
                     placeholder="name@example.com"
-                    required
-                    type="email"
+                    spellCheck={false}
+                    type="text"
                     value={email}
                   />
+                  {emailError ? (
+                    <p className="text-sm text-destructive">{emailError}</p>
+                  ) : null}
                 </div>
                 <div className="grid grid-cols-2 items-center gap-x-2 gap-y-2">
                   <Label className="col-start-1 row-start-1" htmlFor="password">

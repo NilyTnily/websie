@@ -20,7 +20,19 @@ export function SignUpPageClient() {
     password: "",
   });
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; name?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
+
+  const validate = (data: typeof formData) => {
+    const errs: typeof fieldErrors = {};
+    const email = data.email.trim();
+    if (!email) errs.email = "Email is required.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "Please enter a valid email address.";
+    if (!data.name.trim()) errs.name = "Name is required.";
+    if (!data.password) errs.password = "Password is required.";
+    else if (data.password.length < 8) errs.password = "Password must be at least 8 characters.";
+    return errs;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -28,25 +40,43 @@ export function SignUpPageClient() {
       ...prev,
       [name]: value,
     }));
+    if (fieldErrors[name as keyof typeof fieldErrors]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const errs = validate(formData);
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
     setError("");
     setLoading(true);
 
+    const payload = {
+      email: formData.email.trim().toLowerCase(),
+      name: formData.name.trim(),
+      password: formData.password,
+    };
+
     void signUp
-      .email({
-        email: formData.email,
-        name: formData.name,
-        password: formData.password,
-      })
+      .email(payload)
       .then(({ error: signUpError }) => {
         if (signUpError) {
-          setError(
-            signUpError.message ||
-              `Registration failed (${signUpError.status ?? "no response"}) — check that you're on the correct host/port`,
-          );
+          const raw = signUpError.message || "";
+          const status = (signUpError as { status?: number }).status;
+          if (raw.toLowerCase().includes("already exists") || raw.toLowerCase().includes("already registered") || status === 409) {
+            setError("An account with this email already exists.");
+          } else if (raw.toLowerCase().includes("too many") || status === 429) {
+            setError("Too many attempts. Please wait a minute.");
+          } else if (!raw || raw.includes("no response")) {
+            setError("Could not reach server. Please refresh and try again.");
+          } else {
+            setError(raw);
+          }
           return;
         }
         router.push("/auth/sign-in?registered=true");
@@ -119,41 +149,48 @@ export function SignUpPageClient() {
 
           <Card className="border-none shadow-sm">
             <CardContent className="pt-2">
-              <form className="space-y-4" onSubmit={handleSubmit}>
+              <form className="space-y-4" noValidate onSubmit={handleSubmit}>
                 <div className="grid gap-2">
                   <Label htmlFor="name">Full Name</Label>
                   <Input
                     id="name"
+                    autoComplete="name"
                     name="name"
                     onChange={handleChange}
                     placeholder="John Doe"
-                    required
                     type="text"
                     value={formData.name}
                   />
+                  {fieldErrors.name ? <p className="text-sm text-destructive">{fieldErrors.name}</p> : null}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
+                    autoCapitalize="off"
+                    autoComplete="email"
+                    autoCorrect="off"
+                    inputMode="email"
                     name="email"
                     onChange={handleChange}
                     placeholder="name@example.com"
-                    required
-                    type="email"
+                    spellCheck={false}
+                    type="text"
                     value={formData.email}
                   />
+                  {fieldErrors.email ? <p className="text-sm text-destructive">{fieldErrors.email}</p> : null}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
+                    autoComplete="new-password"
                     name="password"
                     onChange={handleChange}
-                    required
                     type="password"
                     value={formData.password}
                   />
+                  {fieldErrors.password ? <p className="text-sm text-destructive">{fieldErrors.password}</p> : null}
                 </div>
                 {error && (
                   <div className="text-sm font-medium text-destructive">

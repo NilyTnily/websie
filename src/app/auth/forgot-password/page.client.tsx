@@ -13,22 +13,43 @@ import { Label } from "~/ui/primitives/label";
 export function ForgotPasswordPageClient() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
+  const validateEmail = (v: string) => {
+    const t = v.trim();
+    if (!t) return "Email is required.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) return "Please enter a valid email address.";
+    return "";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmed = email.trim().toLowerCase();
+    const vErr = validateEmail(trimmed);
+    if (vErr) {
+      setEmailError(vErr);
+      return;
+    }
+    setEmailError("");
     setError("");
     setLoading(true);
 
     try {
       const { error: resetError } = await authClient.forgetPassword({
-        email,
+        email: trimmed,
         redirectTo: "/auth/reset-password",
       });
 
       if (resetError) {
-        setError(resetError.message || "Could not send the reset email.");
+        const raw = resetError.message || "";
+        const status = (resetError as { status?: number }).status;
+        if (raw.toLowerCase().includes("too many") || status === 429) {
+          setError("Too many requests. Please wait a minute before retrying.");
+        } else {
+          setError(raw || "Could not send the reset email.");
+        }
         return;
       }
 
@@ -66,6 +87,7 @@ export function ForgotPasswordPageClient() {
             ) : (
               <form
                 className="space-y-4"
+                noValidate
                 onSubmit={(e) => {
                   void handleSubmit(e);
                 }}
@@ -74,12 +96,21 @@ export function ForgotPasswordPageClient() {
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
-                    onChange={(e) => setEmail(e.target.value)}
+                    autoCapitalize="off"
+                    autoComplete="email"
+                    autoCorrect="off"
+                    inputMode="email"
+                    onBlur={() => setEmailError(validateEmail(email))}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (emailError) setEmailError(validateEmail(e.target.value));
+                    }}
                     placeholder="name@example.com"
-                    required
-                    type="email"
+                    spellCheck={false}
+                    type="text"
                     value={email}
                   />
+                  {emailError ? <p className="text-sm text-destructive">{emailError}</p> : null}
                 </div>
                 {error && (
                   <div className="text-sm font-medium text-destructive">

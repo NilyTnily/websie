@@ -30,6 +30,10 @@ export function ResetPasswordPageClient() {
       setError("This reset link is missing its token.");
       return;
     }
+    if (!password || password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Passwords don't match.");
       return;
