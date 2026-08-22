@@ -1,5 +1,6 @@
 import "server-only";
 import { eq } from "drizzle-orm";
+import { cache } from "react";
 
 import type { SiteSettings } from "~/db/schema";
 
@@ -35,7 +36,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
 };
 
 /** Falls back to the hardcoded SEO_CONFIG/SOCIAL_LINKS defaults until an admin saves settings for the first time. */
-export async function getSiteSettings(): Promise<SiteSettings> {
+export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   try {
     const row = await db.query.siteSettingsTable.findFirst({
       where: eq(siteSettingsTable.id, "default"),
@@ -45,7 +46,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     console.error("Failed to fetch site settings:", error);
     return DEFAULT_SETTINGS;
   }
-}
+});
 
 export async function updateSiteSettings(
   input: UpdateSiteSettingsInput,

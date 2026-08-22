@@ -1,5 +1,6 @@
 {
-  "installCommand": "bun install",
   "buildCommand": "bun run build",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "installCommand": "bun install",
+  "regions": ["fra1"]
 }
