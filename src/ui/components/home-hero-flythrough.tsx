@@ -115,22 +115,31 @@ const TABLE_VIDEO_OBJECT_POSITION_Y = 0.42; // "42%"
 // TABLE_LANDING_FRACTION), expressed as fractions of the SOURCE VIDEO
 // FRAME (0..1 on each axis) rather than the viewport — that's the
 // coordinate system mapCutoutSlot projects onto the current viewport at
-// render time. Still a first pass, not pixel-measured against the live
-// video; nudge these if a cutout doesn't read as sitting inside the tray.
+// render time. Pixel-measured against the actual frame (guide render in
+// .tests/tray-guide.png): outer leather pad spans x 0.17→0.72,
+// y 0.135→0.805; the velvet recess floor spans x 0.30→0.675,
+// y 0.215→0.705. Columns divide the velvet floor into thirds, rows into
+// halves.
+//
+// IMPORTANT: every anchor below is the CENTER of that watch's IMAGE — not
+// its top or bottom edge. mapCutoutSlot positions each cutout by its
+// center (see the translate(-50%, -50%) on the anchor), so images with
+// slightly different natural sizes or aspect ratios still share each
+// row's exact horizontal axis instead of aligning on top/bottom edges.
 // Desktop framing only (the mobile clip's object-position and portrait
 // crop compose completely differently, so this map doesn't apply there —
 // mobile renders its own independent, viewport-centered grid instead, see
 // the mobile cutout block below).
 // Layout: 2 rows × 3 per line = 6 total.
 const TABLE_CUTOUT_SLOTS = [
-  // Row 1 — top line, 3 watches (aligned Y)
-  { wFrac: 0.09, xFrac: 0.31, yFrac: 0.23 },
-  { wFrac: 0.09, xFrac: 0.435, yFrac: 0.23 },
-  { wFrac: 0.09, xFrac: 0.56, yFrac: 0.23 },
-  // Row 2 — bottom line, 3 watches
-  { wFrac: 0.09, xFrac: 0.31, yFrac: 0.5 },
-  { wFrac: 0.09, xFrac: 0.435, yFrac: 0.5 },
-  { wFrac: 0.09, xFrac: 0.56, yFrac: 0.5 },
+  // Row 1 — back line, 3 watches (shared center Y) — moved +5% down per user
+  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.388 },
+  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.388 },
+  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.388 },
+  // Row 2 — front line, 3 watches (shared center Y) — moved +5% down per user
+  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.633 },
+  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.633 },
+  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.633 },
 ];
 
 /**
@@ -555,75 +564,68 @@ export function HomeHeroFlythrough({
           {tableCutouts.map((product, index) => {
             const slot = TABLE_CUTOUT_SLOTS[index];
             const isTopRow = index < 3;
-            const { leftPct, topPct, widthPct } = mapCutoutSlot(
+            const { centerX, centerY, widthPct } = mapCutoutSlot(
               slot,
               viewportSize.width,
               viewportSize.height,
             );
             return (
               <a
-                className={`
-                  group absolute flex flex-col items-center
-                  hover:z-10
-                `}
+                className="group absolute hover:z-10"
                 href={`/products/${product.id}`}
                 key={product.id}
                 style={{
-                  left: `${leftPct}%`,
-                  top: `${topPct}%`,
+                  left: `${centerX}%`,
+                  top: `${centerY}%`,
                   width: `${widthPct}%`,
+                  // Position by CENTER: the anchor's box is exactly the
+                  // image's box (the img below is block w-full and the
+                  // labels are out of flow), so this translation puts the
+                  // IMAGE's center precisely on the slot point — all six
+                  // watches share their row's horizontal axis through
+                  // their centers no matter each image's natural size or
+                  // aspect ratio.
+                  transform: "translate(-50%, -50%)",
                 }}
               >
-                {isTopRow ? (
-                  <>
-                    <p
-                      className={`
-                        mb-1.5 max-w-[160%] whitespace-normal break-words
-                        rounded bg-black/60 px-2 py-0.5 text-center font-display
-                        text-xs leading-tight text-krs-ivory opacity-0
-                        backdrop-blur-sm transition-opacity duration-200
-                        group-hover:opacity-100 group-hover:text-krs-champagne-light
-                      `}
-                    >
-                      {product.name}
-                    </p>
-                    <img
-                      alt={product.name}
-                      className={`
-                        w-full drop-shadow-[0_10px_18px_rgba(0,0,0,0.55)]
-                        transition-transform duration-300
-                        group-hover:scale-105
-                      `}
-                      decoding="async"
-                      loading="lazy"
-                      src={product.tableCutoutUrl ?? undefined}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <img
-                      alt={product.name}
-                      className={`
-                        w-full drop-shadow-[0_10px_18px_rgba(0,0,0,0.55)]
-                        transition-transform duration-300
-                        group-hover:scale-105
-                      `}
-                      decoding="async"
-                      loading="lazy"
-                      src={product.tableCutoutUrl ?? undefined}
-                    />
-                    <p
-                      className={`
-                        mt-1.5 max-w-[160%] whitespace-normal break-words
-                        rounded bg-black/60 px-2 py-0.5 text-center font-display
-                        text-xs leading-tight text-krs-ivory opacity-0
-                        backdrop-blur-sm transition-opacity duration-200
-                        group-hover:opacity-100 group-hover:text-krs-champagne-light
-                      `}
-                    >
-                      {product.name}
-                    </p>
-                  </>
+                {isTopRow && (
+                  <p
+                    className={`
+                      absolute bottom-full left-1/2 z-10 mb-1.5 max-w-[220%]
+                      -translate-x-1/2 whitespace-normal break-words rounded
+                      bg-black/60 px-2 py-0.5 text-center font-display text-xs
+                      leading-tight text-krs-ivory opacity-0 backdrop-blur-sm
+                      transition-opacity duration-200 group-hover:opacity-100
+                      group-hover:text-krs-champagne-light
+                    `}
+                  >
+                    {product.name}
+                  </p>
+                )}
+                <img
+                  alt={product.name}
+                  className={`
+                    block w-full drop-shadow-[0_10px_18px_rgba(0,0,0,0.55)]
+                    transition-transform duration-300
+                    group-hover:scale-105
+                  `}
+                  decoding="async"
+                  loading="lazy"
+                  src={product.tableCutoutUrl ?? undefined}
+                />
+                {!isTopRow && (
+                  <p
+                    className={`
+                      absolute left-1/2 top-full z-10 mt-1.5 max-w-[220%]
+                      -translate-x-1/2 whitespace-normal break-words rounded
+                      bg-black/60 px-2 py-0.5 text-center font-display text-xs
+                      leading-tight text-krs-ivory opacity-0 backdrop-blur-sm
+                      transition-opacity duration-200 group-hover:opacity-100
+                      group-hover:text-krs-champagne-light
+                    `}
+                  >
+                    {product.name}
+                  </p>
                 )}
               </a>
             );
@@ -713,12 +715,18 @@ function easeInOutCubic(x: number): number {
  * that spot regardless of the viewport's size or aspect ratio, instead of
  * drifting the way a flat viewport-percentage anchor does whenever the
  * cover crop changes.
+ *
+ * The returned centerX/centerY are the projected CENTER point of the
+ * slot — the caller centers each cutout image on exactly that point
+ * (translate(-50%, -50%)), which is what makes every watch in a row share
+ * one horizontal axis through its image center regardless of its natural
+ * size or aspect ratio.
  */
 function mapCutoutSlot(
   slot: { wFrac: number; xFrac: number; yFrac: number },
   viewportWidth: number,
   viewportHeight: number,
-): { leftPct: number; topPct: number; widthPct: number } {
+): { centerX: number; centerY: number; widthPct: number } {
   const videoAspect = TABLE_VIDEO_WIDTH / TABLE_VIDEO_HEIGHT;
   const viewportAspect = viewportWidth / viewportHeight;
   // cover scales the video up until it fully fills the viewport on
@@ -737,8 +745,8 @@ function mapCutoutSlot(
   const offsetY = (viewportHeight - renderedHeight) * TABLE_VIDEO_OBJECT_POSITION_Y;
 
   return {
-    leftPct: ((offsetX + slot.xFrac * renderedWidth) / viewportWidth) * 100,
-    topPct: ((offsetY + slot.yFrac * renderedHeight) / viewportHeight) * 100,
+    centerX: ((offsetX + slot.xFrac * renderedWidth) / viewportWidth) * 100,
+    centerY: ((offsetY + slot.yFrac * renderedHeight) / viewportHeight) * 100,
     widthPct: ((slot.wFrac * renderedWidth) / viewportWidth) * 100,
   };
 }
