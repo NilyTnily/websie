@@ -1,0 +1,20 @@
+{
+  "Rolex": {
+    "totalSeen": 240,
+    "alreadyHad": 239,
+    "newlyAdded": 0,
+    "pages": 3
+  },
+  "Patek Philippe": {
+    "totalSeen": 240,
+    "alreadyHad": 238,
+    "newlyAdded": 0,
+    "pages": 3
+  },
+  "Omega": {
+    "totalSeen": 560,
+    "alreadyHad": 515,
+    "newlyAdded": 44,
+    "pages": 7
+  }
+}
