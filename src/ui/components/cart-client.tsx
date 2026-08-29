@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Minus, Plus, ShoppingCart, X } from "lucide-react";
+import { Minus, Plus, ShoppingBag, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
@@ -90,7 +90,7 @@ export function CartClient({ className }: CartProps) {
       `}
       type="button"
     >
-      Bag
+      <ShoppingBag className="h-4 w-4" />
       {isMounted && totalItems > 0 && (
         <span
           className={`
@@ -140,7 +140,7 @@ export function CartClient({ className }: CartProps) {
                       rounded-full bg-muted
                     `}
                   >
-                    <ShoppingCart className="h-10 w-10 text-muted-foreground" />
+                    <ShoppingBag className="h-10 w-10 text-muted-foreground" />
                   </div>
                   <h3 className="mb-2 font-display text-lg">
                     Your bag is empty
@@ -358,7 +358,7 @@ export function CartClient({ className }: CartProps) {
           size="icon"
           variant="outline"
         >
-          <ShoppingCart className="h-4 w-4" />
+          <ShoppingBag className="h-4 w-4" />
         </Button>
       </div>
     );

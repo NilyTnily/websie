@@ -5,12 +5,13 @@ import { cache } from "react";
 
 import type {
   CategoryWithCount,
+  Model,
   ProductWithRelations,
   Subcategory,
 } from "~/db/schema";
 
 import { db } from "~/db";
-import { categoryTable, productTable, subcategoryTable } from "~/db/schema";
+import { categoryTable, productTable, subcategoryTable, watchModelTable } from "~/db/schema";
 
 async function fetchAllProducts(): Promise<ProductWithRelations[]> {
   try {
@@ -21,6 +22,7 @@ async function fetchAllProducts(): Promise<ProductWithRelations[]> {
         images: {
           orderBy: (image, { asc: ascImage }) => ascImage(image.sortOrder),
         },
+        model: true,
         subcategory: true,
       },
     });
@@ -44,6 +46,20 @@ async function fetchAllSubcategories() {
 }
 const cachedAllSubcategories = unstable_cache(fetchAllSubcategories, ["all-subcategories"], { revalidate: 60, tags: ["products"] });
 export const getAllSubcategories = cache(async () => cachedAllSubcategories());
+
+async function fetchAllModels() {
+  try {
+    return await db.query.watchModelTable.findMany({
+      orderBy: [asc(watchModelTable.sortOrder)],
+    });
+  } catch (error) {
+    console.error("Failed to fetch models:", error);
+    return [];
+  }
+}
+const cachedAllModels = unstable_cache(fetchAllModels, ["all-models"], { revalidate: 60, tags: ["products"] });
+export const getAllModels = cache(async (): Promise<Model[]> => cachedAllModels());
+
 
 async function fetchCategoriesWithCounts(): Promise<CategoryWithCount[]> {
   try {
@@ -106,6 +122,7 @@ async function fetchFeaturedProducts(): Promise<ProductWithRelations[]> {
         images: {
           orderBy: (image, { asc: ascImage }) => ascImage(image.sortOrder),
         },
+        model: true,
         subcategory: true,
       },
     });
@@ -127,7 +144,8 @@ async function fetchProductById(id: string): Promise<null | ProductWithRelations
           images: {
             orderBy: (image, { asc: ascImage }) => ascImage(image.sortOrder),
           },
-          subcategory: true,
+          model: true,
+        subcategory: true,
         },
       })) ?? null
     );
@@ -176,7 +194,8 @@ async function fetchProductsByCategorySlug(
           images: {
             orderBy: (image, { asc: ascImage }) => ascImage(image.sortOrder),
           },
-          subcategory: true,
+          model: true,
+        subcategory: true,
         },
       }),
       cachedSubcategories(category.id),
@@ -209,6 +228,7 @@ export async function getProductsByIds(
         images: {
           orderBy: (image, { asc: ascImage }) => ascImage(image.sortOrder),
         },
+        model: true,
         subcategory: true,
       },
     });
@@ -237,6 +257,7 @@ async function fetchRelatedProducts(
         images: {
           orderBy: (image, { asc: ascImage }) => ascImage(image.sortOrder),
         },
+        model: true,
         subcategory: true,
       },
     });
@@ -309,6 +330,7 @@ async function fetchTableProducts(): Promise<ProductWithRelations[]> {
         images: {
           orderBy: (image, { asc: ascImage }) => ascImage(image.sortOrder),
         },
+        model: true,
         subcategory: true,
       },
     });
@@ -333,6 +355,7 @@ async function fetchVisibleProducts(): Promise<ProductWithRelations[]> {
         images: {
           orderBy: (image, { asc: ascImage }) => ascImage(image.sortOrder),
         },
+        model: true,
         subcategory: true,
       },
     });
@@ -365,6 +388,8 @@ export type ProductListItem = {
   name: string;
   price: number;
   ref: string;
+  model: { name: string } | null;
+  modelId: string | null;
   strapMaterial: string | null;
   subcategory: { name: string } | null;
   waterResistanceM: number | null;
@@ -393,6 +418,7 @@ async function fetchVisibleProductsLite(): Promise<ProductListItem[]> {
         ref: true,
         specs: false,
         strapMaterial: true,
+        modelId: true,
         subcategoryId: true,
         tableCutoutUrl: false,
         tableSortOrder: false,
@@ -404,6 +430,7 @@ async function fetchVisibleProductsLite(): Promise<ProductListItem[]> {
       where: eq(productTable.visible, true),
       with: {
         category: { columns: { id: true, name: true, slug: true } },
+        model: { columns: { name: true } },
         subcategory: { columns: { name: true } },
       },
     });
@@ -444,7 +471,8 @@ async function fetchProductsByCategorySlugLite(
           ref: true,
           specs: false,
           strapMaterial: true,
-          subcategoryId: true,
+          modelId: true,
+        subcategoryId: true,
           tableCutoutUrl: false,
           tableSortOrder: false,
           updatedAt: false,
@@ -455,6 +483,7 @@ async function fetchProductsByCategorySlugLite(
         where: and(eq(productTable.categoryId, category.id), eq(productTable.visible, true)),
         with: {
           category: { columns: { id: true, name: true, slug: true } },
+          model: { columns: { name: true } },
           subcategory: { columns: { name: true } },
         },
       }),

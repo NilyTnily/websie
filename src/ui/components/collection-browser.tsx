@@ -89,6 +89,7 @@ const collectionSearchParams = {
   caseMat: parseAsArrayOf(parseAsString).withDefault([]),
   gem: parseAsArrayOf(parseAsString).withDefault([]),
   house: parseAsArrayOf(parseAsString).withDefault([]),
+  model: parseAsArrayOf(parseAsString).withDefault([]),
   inStock: parseAsString.withDefault(""),
   metal: parseAsArrayOf(parseAsString).withDefault([]),
   movement: parseAsArrayOf(parseAsString).withDefault([]),
@@ -120,6 +121,7 @@ export function CollectionBrowser({
       caseMat: selectedCaseMats,
       gem: selectedGems,
       house: selectedHouses,
+      model: selectedModels,
       inStock: inStockFilter,
       metal: selectedMetals,
       movement: selectedMovements,
@@ -194,6 +196,13 @@ export function CollectionBrowser({
     () => facetFrom(categoryScopedProducts, (p) => p.subcategory?.name ?? null),
     [categoryScopedProducts],
   );
+  const modelFacet = React.useMemo(() => {
+    if (selectedHouses.length !== 1) return [];
+    const brandProducts = categoryScopedProducts.filter(
+      (p) => p.subcategory?.name === selectedHouses[0],
+    );
+    return facetFrom(brandProducts, (p) => p.model?.name ?? null);
+  }, [categoryScopedProducts, selectedHouses]);
   const movementFacet = React.useMemo(
     () => facetFrom(categoryScopedProducts, (p) => p.movement),
     [categoryScopedProducts],
@@ -263,7 +272,15 @@ export function CollectionBrowser({
     void setQuery({ [key]: next, page: 1 } as unknown as Record<string, unknown>);
   };
 
-  const toggleHouse = (house: string) => toggleArray("house", house, selectedHouses);
+  const toggleHouse = (house: string) => {
+    const nextHouses = selectedHouses.includes(house)
+      ? selectedHouses.filter((v) => v !== house)
+      : [...selectedHouses, house];
+    // When brand selection changes, clear model filter to avoid cross-brand stale selection
+    const nextModel = nextHouses.length === 1 && nextHouses[0] === selectedHouses[0] ? selectedModels : [];
+    void setQuery({ house: nextHouses, model: nextModel, page: 1 } as unknown as Record<string, unknown>);
+  };
+  const toggleModel = (model: string) => toggleArray("model", model, selectedModels);
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const activePriceBands = noMoneyMode
@@ -296,6 +313,10 @@ export function CollectionBrowser({
       if (selectedHouses.length > 0) {
         const house = p.subcategory?.name;
         if (!house || !selectedHouses.includes(house)) return false;
+      }
+      if (selectedModels.length > 0) {
+        const m = p.model?.name;
+        if (!m || !selectedModels.includes(m)) return false;
       }
       if (selectedMovements.length > 0) {
         if (!p.movement || !selectedMovements.includes(p.movement)) return false;
@@ -340,6 +361,7 @@ export function CollectionBrowser({
     activePriceBands,
     caseSizeRange,
     selectedHouses,
+    selectedModels,
     selectedMovements,
     selectedCaseMats,
     selectedStraps,
@@ -356,6 +378,7 @@ export function CollectionBrowser({
     normalizedQuery,
     selectedPriceKeys.join(","),
     selectedHouses.join(","),
+    selectedModels.join(","),
     selectedMovements.join(","),
     selectedCaseMats.join(","),
     selectedStraps.join(","),
@@ -394,6 +417,7 @@ export function CollectionBrowser({
     activePriceBands.length > 0 ||
     isCaseSizeFiltered ||
     selectedHouses.length > 0 ||
+    selectedModels.length > 0 ||
     selectedMovements.length > 0 ||
     selectedCaseMats.length > 0 ||
     selectedStraps.length > 0 ||
@@ -409,6 +433,7 @@ export function CollectionBrowser({
       caseMat: [],
       gem: [],
       house: [],
+      model: [],
       inStock: "",
       metal: [],
       movement: [],
@@ -420,7 +445,7 @@ export function CollectionBrowser({
     });
   };
 
-  const houseLabel = isJewelryContext ? "Type" : isWatchesContext ? "Maison" : "House";
+  const houseLabel = isJewelryContext ? "Type" : isWatchesContext ? "Brand" : "House";
   const showWatchFacets = !isJewelryContext;
   const showJewelryFacets = !isWatchesContext;
 
@@ -499,6 +524,17 @@ export function CollectionBrowser({
           />
         )}
       </FilterSection>
+
+      {selectedHouses.length === 1 && modelFacet.length > 0 && (
+        <FilterSection count={modelFacet.length} title="Model">
+          <FacetList
+            idPrefix="model"
+            onToggle={toggleModel}
+            options={modelFacet}
+            selected={selectedModels}
+          />
+        </FilterSection>
+      )}
 
       <FilterSection defaultOpen title="Availability">
         <label
@@ -710,6 +746,7 @@ export function CollectionBrowser({
     if (cat) activeChips.push({ key: `cat-${cat.id}`, label: cat.name, onClear: () => setSelectedCategoryId(null) });
   }
   for (const h of selectedHouses) activeChips.push({ key: `house-${h}`, label: h, onClear: () => toggleHouse(h) });
+  for (const m of selectedModels) activeChips.push({ key: `model-${m}`, label: m, onClear: () => toggleModel(m) });
   for (const k of selectedPriceKeys) {
     const b = PRICE_BANDS.find((x) => x.key === k);
     if (b && !noMoneyMode) activeChips.push({ key: `price-${k}`, label: b.label, onClear: () => toggleArray("price", k, selectedPriceKeys) });
@@ -767,7 +804,7 @@ export function CollectionBrowser({
                 aria-label="Search the collection"
                 className="h-[42px] rounded-none pr-9 pl-9 text-sm"
                 onChange={(e) => void setQuery({ page: 1, search: e.target.value })}
-                placeholder="Name, house or reference"
+                placeholder="Name, brand or reference"
                 type="text"
                 value={searchQuery}
               />

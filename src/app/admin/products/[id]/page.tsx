@@ -1,13 +1,14 @@
 import { notFound } from "next/navigation";
 
 import {
+  getAllModels,
   getAllSubcategories,
   getCategoriesWithCounts,
   getProductById,
 } from "~/lib/queries/catalog";
 
 import { updateProductAction } from "../actions";
-import { groupByCategory } from "../group-by-category";
+import { groupByCategory, groupModelsBySubcategory } from "../group-by-category";
 import { ProductForm } from "../product-form";
 
 interface EditProductPageProps {
@@ -18,10 +19,11 @@ export default async function EditProductPage({
   params,
 }: EditProductPageProps) {
   const { id } = await params;
-  const [product, categories, subcategories] = await Promise.all([
+  const [product, categories, subcategories, models] = await Promise.all([
     getProductById(id),
     getCategoriesWithCounts(),
     getAllSubcategories(),
+    getAllModels(),
   ]);
 
   if (!product) notFound();
@@ -39,6 +41,7 @@ export default async function EditProductPage({
             url: image.url,
           })),
         }}
+        modelsBySubcategory={groupModelsBySubcategory(models)}
         subcategoriesByCategory={groupByCategory(subcategories)}
         submitLabel="Save Changes"
       />

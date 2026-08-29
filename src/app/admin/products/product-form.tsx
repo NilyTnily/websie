@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useActionState, useState } from "react";
 import { toast } from "sonner";
 
-import type { Category, Subcategory } from "~/db/schema";
+import type { Category, Model, Subcategory } from "~/db/schema";
 
 import { UploadButton } from "~/lib/uploadthing";
 import { Button } from "~/ui/primitives/button";
@@ -40,6 +40,7 @@ interface ProductFormDefaultValues {
   price: number;
   ref: string;
   specs: Record<string, string>;
+  modelId: null | string;
   strapMaterial: null | string;
   subcategoryId: null | string;
   waterResistanceM: null | number;
@@ -52,6 +53,7 @@ interface ProductFormProps {
   ) => Promise<ProductFormState>;
   categories: Category[];
   defaultValues?: ProductFormDefaultValues;
+  modelsBySubcategory?: Record<string, Model[]>;
   subcategoriesByCategory: Record<string, Subcategory[]>;
   submitLabel: string;
 }
@@ -60,6 +62,7 @@ export function ProductForm({
   action,
   categories,
   defaultValues,
+  modelsBySubcategory = {},
   subcategoriesByCategory,
   submitLabel,
 }: ProductFormProps) {
@@ -210,7 +213,9 @@ export function ProductForm({
         <CategorySubcategoryFields
           categories={categories}
           defaultCategoryId={defaultValues?.categoryId}
+          defaultModelId={defaultValues?.modelId}
           defaultSubcategoryId={defaultValues?.subcategoryId}
+          modelsBySubcategory={modelsBySubcategory}
           onCategoryChange={setCategoryId}
           subcategoriesByCategory={subcategoriesByCategory}
         />

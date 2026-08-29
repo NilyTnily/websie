@@ -35,6 +35,22 @@ export const subcategoryTable = pgTable(
   (table) => [index("subcategory_category_id_idx").on(table.categoryId)],
 );
 
+export const watchModelTable = pgTable(
+  "watch_model",
+  {
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    subcategoryId: text("subcategory_id")
+      .notNull()
+      .references(() => subcategoryTable.id, { onDelete: "cascade" }),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [index("watch_model_subcategory_id_idx").on(table.subcategoryId)],
+);
+
 // Free-text attribute columns (caseMaterial, movement, metal, gemstone, ...) are
 // deliberately not Postgres enums: the storefront derives its filter facets from
 // whatever values actually exist on in-stock products, so a new value an admin
@@ -66,6 +82,9 @@ export const productTable = pgTable(
     price: integer("price").notNull(),
     ref: text("ref").notNull().unique(),
     specs: jsonb("specs").$type<Record<string, string>>().notNull(),
+    modelId: text("model_id").references(() => watchModelTable.id, {
+      onDelete: "set null",
+    }),
     strapMaterial: text("strap_material"),
     subcategoryId: text("subcategory_id").references(() => subcategoryTable.id, {
       onDelete: "set null",
@@ -89,6 +108,7 @@ export const productTable = pgTable(
   (table) => [
     index("product_visible_idx").on(table.visible),
     index("product_category_id_idx").on(table.categoryId),
+    index("product_model_id_idx").on(table.modelId),
     index("product_on_table_idx").on(table.onTable),
     index("product_featured_idx").on(table.featured),
     index("product_visible_category_idx").on(table.visible, table.categoryId),

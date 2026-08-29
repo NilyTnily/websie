@@ -1,4 +1,4 @@
-import { LogOut, Package, Shield, UserIcon } from "lucide-react";
+import { Heart, LogOut, Package, Shield, UserIcon } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "~/lib/cn";
@@ -97,6 +97,12 @@ export function HeaderUserDropdown({
           <Link className="cursor-pointer" href="/dashboard/orders">
             <Package className="mr-2 h-4 w-4" />
             My Orders
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link className="cursor-pointer" href="/dashboard/saved">
+            <Heart className="mr-2 h-4 w-4" />
+            Favorites
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

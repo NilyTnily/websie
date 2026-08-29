@@ -135,6 +135,7 @@ function buildProductInput(
       price,
       ref,
       specs: parseSpecs(textField(formData, "specs")),
+      modelId: optionalText(formData, "modelId"),
       strapMaterial: optionalText(formData, "strapMaterial"),
       subcategoryId: optionalText(formData, "subcategoryId"),
       waterResistanceM,

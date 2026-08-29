@@ -1,8 +1,8 @@
 import "dotenv/config";
 
 import { db } from "./index";
-import { categoryTable, productTable, subcategoryTable } from "./schema";
-import { watchBrandProducts, watchBrandSubcategories } from "./watch-brands-data";
+import { categoryTable, productTable, subcategoryTable, watchModelTable } from "./schema";
+import { watchBrandModels, watchBrandProducts, watchBrandSubcategories } from "./watch-brands-data";
 
 async function main() {
   console.log("Seeding catalog...");
@@ -67,6 +67,8 @@ async function main() {
       sortOrder: 4,
     },
   ]);
+
+  await db.insert(watchModelTable).values(watchBrandModels).onConflictDoNothing();
 
   await db.insert(productTable).values([
     ...watchBrandProducts,

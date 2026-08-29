@@ -161,7 +161,7 @@ export default async function ProductDetailPage({
                 {product.inStock ? "In Stock" : "Out of Stock"}
               </p>
 
-              <p className="krs-price mt-6 text-[44px] text-foreground">
+              <p className="krs-price mt-6 text-2xl text-foreground">
                 {settings.noMoneyMode
                   ? "Contact Us"
                   : CURRENCY_FORMATTER.format(product.price)}

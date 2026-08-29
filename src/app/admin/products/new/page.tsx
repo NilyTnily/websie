@@ -1,16 +1,18 @@
 import {
+  getAllModels,
   getAllSubcategories,
   getCategoriesWithCounts,
 } from "~/lib/queries/catalog";
 
 import { createProductAction } from "../actions";
-import { groupByCategory } from "../group-by-category";
+import { groupByCategory, groupModelsBySubcategory } from "../group-by-category";
 import { ProductForm } from "../product-form";
 
 export default async function NewProductPage() {
-  const [categories, subcategories] = await Promise.all([
+  const [categories, subcategories, models] = await Promise.all([
     getCategoriesWithCounts(),
     getAllSubcategories(),
+    getAllModels(),
   ]);
 
   return (
@@ -19,6 +21,7 @@ export default async function NewProductPage() {
       <ProductForm
         action={createProductAction}
         categories={categories}
+        modelsBySubcategory={groupModelsBySubcategory(models)}
         subcategoriesByCategory={groupByCategory(subcategories)}
         submitLabel="Create Product"
       />

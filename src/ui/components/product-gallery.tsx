@@ -43,7 +43,7 @@ export function ProductGallery({ media, name }: ProductGalleryProps) {
   const selected = entries[selectedIndex];
 
   return (
-    <div>
+    <div className="mx-auto w-full max-w-[440px]">
       <div
         className={`
           relative aspect-square overflow-hidden bg-gradient-to-b from-accent
