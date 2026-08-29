@@ -45,12 +45,12 @@ async function scrapeWatch(page: Page, url: string, bs: string, bn: string): Pro
   try {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
     await waitCF(page);
-    const name = (await page.locator("h1").first().textContent() || "").trim(); if (!name) return null;
+    const name = (await page.locator("h1").first().textContent({ timeout: 10000 }) || "").trim(); if (!name) return null;
     const slug = url.split("/watches/")[1]?.replace(/\/$/, "") || slugify(name);
     let price: number | null = null;
     const jsonLd = await page.locator('script[type="application/ld+json"]').all();
     for (const s of jsonLd) { try { const c = await s.textContent(); if (c) { const d = JSON.parse(c); if (d.offers?.price) { price = parseFloat(d.offers.price); break; } if (Array.isArray(d) && d[0]?.offers?.price) { price = parseFloat(d[0].offers.price); break; } } } catch {} }
-    if (!price) { const pt = await page.locator(".price, [class*='price']").first().textContent(); if (pt) price = parsePrice(pt); }
+    if (!price) { try { const pt = await page.locator(".price, [class*='price']").first().textContent({ timeout: 5000 }); if (pt) price = parsePrice(pt); } catch {} }
     const specs: WatchSpecs = {};
     const tables = await page.locator("table, .wp-block-table").all();
     for (const t of tables) {
@@ -169,7 +169,7 @@ async function main() {
   };
   // How many NEW watches to add per brand this run. Infinity = get everything remaining.
   const NEW_CAPS: Record<string, number> = {
-    "omega": 500,
+    "omega": 318, // already added 182 this session toward the 500 target
   };
   const RESULTS_PER_PAGE = 80;
 
@@ -193,7 +193,14 @@ async function main() {
         const ext = path.extname(img.url).split("?")[0] || ".jpg";
         await downloadImage(img.url, path.join(id, `${w.slug}-${img.sortOrder}${ext}`));
       }
-      await fs.writeFile(path.join(od, "watches.json"), JSON.stringify(all, null, 2));
+      const payload = JSON.stringify(all, null, 2);
+      for (let attempt = 0; attempt < 5; attempt++) {
+        try { await fs.writeFile(path.join(od, "watches.json"), payload); break; }
+        catch (e) {
+          if (attempt === 4) { console.error("  writeFile failed after retries, continuing anyway:", e); break; }
+          await delay(500);
+        }
+      }
     }, maxPages, newCap);
 
     summary[brand.name] = result;

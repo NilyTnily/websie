@@ -33,6 +33,12 @@ export function ProfilePageClient({
   const [showQrCode, setShowQrCode] = useState(false);
   const [qrCodeData, setQrCodeData] = useState("");
   const [secret, setSecret] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   if (isPending) {
     return (
@@ -119,6 +125,43 @@ export function ProfilePageClient({
       });
   };
 
+  const handleChangePassword = async () => {
+    if (!currentPassword) {
+      setPasswordError("Current password is required");
+      return;
+    }
+    if (!newPassword) {
+      setPasswordError("New password is required");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
+    setPasswordError("");
+    setPasswordLoading(true);
+
+    try {
+      const { error } = await twoFactor.changePassword?.({
+        currentPassword,
+        newPassword,
+      });
+      if (error) {
+        setPasswordError(error.message || "Failed to change password");
+      } else {
+        setPasswordMessage("Password changed successfully");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err) {
+      setPasswordError("Failed to change password. Please try again.");
+      console.error(err);
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-0.5">
@@ -175,6 +218,54 @@ export function ProfilePageClient({
               >
                 Manage uploads <ArrowRight className="h-3.5 w-3.5" />
               </Link>
+              <Card className="mt-4">
+                <CardHeader>
+                  <CardTitle>Change Password</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="current-password">Current password</Label>
+                    <Input
+                      id="current-password"
+                      type="password"
+                      placeholder="Enter your current password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="new-password">New password</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      placeholder="Enter new password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="confirm-password">Confirm password</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      placeholder="Confirm new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex space-x-4">
+                    <Button disabled={passwordLoading} onClick={handleChangePassword}>
+                      {passwordLoading ? "Processing..." : "Change Password"}
+                    </Button>
+                  </div>
+                  {passwordError && (
+                    <p className="mt-2 text-sm text-destructive">{passwordError}</p>
+                  )}
+                  {passwordMessage && (
+                    <p className="mt-2 text-sm text-krs-mocha">{passwordMessage}</p>
+                  )}
+                </CardContent>
+              </Card>
             </CardContent>
           </Card>
 
@@ -232,7 +323,11 @@ export function ProfilePageClient({
           )}
 
           {message && (
-            <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
+            <div
+              className={`
+                rounded-md bg-krs-champagne/10 p-4 text-sm text-krs-mocha
+              `}
+            >
               {message}
             </div>
           )}

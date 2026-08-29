@@ -48,6 +48,13 @@ export const auth = betterAuth({
 
   plugins: [twoFactor()],
 
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+    },
+  },
+
   // Database-backed so limits hold under multiple server instances —
   // in-memory storage would reset per-instance and be trivially bypassed.
   rateLimit: {

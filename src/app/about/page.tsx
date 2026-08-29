@@ -67,15 +67,15 @@ export default function AboutPage() {
           `}
         >
           <div className="mx-auto max-w-7xl">
-            <p className="krs-eyebrow text-krs-champagne">About the house</p>
-            <h1
-              className={`
-                mt-4 font-display text-4xl text-krs-ivory
-                sm:text-[66px]
-              `}
-            >
-              Small on purpose
-            </h1>
+            <p className="krs-eyebrow text-krs-champagne">The House</p>
+<h1
+  className={`
+    mt-4 font-display text-4xl text-krs-ivory
+    sm:text-[66px]
+  `}
+>
+  Crafted with purpose
+</h1>
           </div>
         </div>
       </section>

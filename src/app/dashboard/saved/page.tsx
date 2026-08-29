@@ -15,7 +15,7 @@ import { ProductCard } from "~/ui/components/product-card";
 import { Button } from "~/ui/primitives/button";
 import { Skeleton } from "~/ui/primitives/skeleton";
 
-export default function SavedPage() {
+export default function FavoritesPage() {
   const { itemIds } = useWishlist();
   const [products, setProducts] = React.useState<null | ProductWithRelations[]>(
     null,
@@ -48,7 +48,7 @@ export default function SavedPage() {
   return (
     <div>
       <div className="space-y-0.5 pb-8">
-        <h2 className="font-display text-2xl text-foreground">Saved</h2>
+        <h2 className="font-display text-2xl text-foreground">Favorites</h2>
         <p className="text-muted-foreground">
           Pieces you&apos;ve set aside for later.
         </p>
@@ -67,7 +67,7 @@ export default function SavedPage() {
         </div>
       ) : products.length === 0 ? (
         <div className="py-16 text-center">
-          <p className="text-muted-foreground">Nothing saved yet.</p>
+          <p className="text-muted-foreground">Nothing favorites yet.</p>
           <Button asChild className="mt-4 rounded-none" variant="outline">
             <Link href="/products">Browse the Collection</Link>
           </Button>

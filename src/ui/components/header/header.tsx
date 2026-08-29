@@ -1,9 +1,9 @@
 "use client";
 
-import { Menu, UserIcon, X } from "lucide-react";
+import { Loader2, Menu, UserIcon, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { Suspense, useEffect, useRef, useState, useTransition } from "react";
 
 import { useCurrentUser } from "~/lib/auth-client";
 import { cn } from "~/lib/cn";
@@ -41,9 +41,11 @@ const UTILITY_LINK = `
 
 function HeaderContent({ showAuth = true }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { isPending, user } = useCurrentUser();
   const settings = useSiteSettings();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authNavPending, startAuthNav] = useTransition();
   const headerRef = useRef<HTMLElement>(null);
   const isHome = pathname === "/";
 
@@ -187,19 +189,28 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
               />
             ) : (
               showAuth && (
-                <Link
+                <button
                   aria-label="Account"
                   className={`
                     flex h-9 w-9 items-center justify-center rounded-full border
                     border-white/10 bg-white/5 text-krs-navy-foreground
                     transition-colors
                     hover:bg-white/10 hover:text-primary
+                    disabled:pointer-events-none disabled:opacity-70
                   `}
-                  href="/auth/sign-in"
+                  disabled={authNavPending}
+                  onClick={() =>
+                    startAuthNav(() => router.push("/auth/sign-in"))
+                  }
                   title="Sign in"
+                  type="button"
                 >
-                  <UserIcon className="h-4 w-4" />
-                </Link>
+                  {authNavPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <UserIcon className="h-4 w-4" />
+                  )}
+                </button>
               )
             )}
           </div>
