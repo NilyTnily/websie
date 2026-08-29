@@ -36,10 +36,6 @@ const TABLE_SECTION_INDEX = 1;
 // independently, so every extra bit of scroll span the engine allocates has
 // to be accounted for here too or our own jump targets land short/long.
 const TABLE_WATCH_CONNECTOR_WIDTH = 1.4;
-// Human-readable names for the dev HUD, same order/index as every other
-// SECTION_* array above — so "section 1" in the HUD reads as "1 · The
-// table" instead of a bare number you have to cross-reference by hand.
-const SECTION_LABELS = ["Storefront", "The table", "Under the loupe", "Fine jewelry"];
 // The table cutouts are revealed by jump-completion state, not scroll
 // position — scrub-engine.js's own crossfade (see CROSSFADE in
 // scrub-engine.js's read()) keeps a dive's video fully opaque across its
@@ -184,20 +180,6 @@ export function HomeHeroFlythrough({
   }));
   const currentIndexRef = useRef(0);
   const isJumpingRef = useRef(false);
-  // Dev-only calibration readout — polls whichever .sw-scene is currently
-  // most visible (scrub-engine.js sets its zIndex to 120, everything else
-  // lower) and reads its <video>'s currentTime/duration, so the exact
-  // fraction to hardcode into SECTION_LANDING_FRACTIONS can just be read off
-  // the screen while scrolling instead of guessed from static video files.
-  const [hudInfo, setHudInfo] = useState({
-    duration: 0,
-    fraction: 0,
-    isJumping: false,
-    scrollY: 0,
-    sectionIndex: 0,
-    t: 0,
-    videoFile: "",
-  });
 
   useEffect(() => {
     function updateViewportSize() {
@@ -391,45 +373,6 @@ export function HomeHeroFlythrough({
     applyResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [engineReady]);
-
-  // Dev-only calibration polling: surfaces the active scene's video
-  // currentTime/duration in the HUD below every animation frame, so the
-  // exact fraction to hardcode into SECTION_LANDING_FRACTIONS can be read
-  // off the screen while scrolling instead of guessed from static files.
-  useEffect(() => {
-    if (process.env.NODE_ENV === "production") return;
-    if (!engineReady) return;
-    let rafId: number;
-
-    function tick() {
-      const scenes =
-        containerRef.current?.querySelectorAll<HTMLElement>(".sw-scene") ??
-        [];
-      let activeEl: HTMLElement | undefined;
-      scenes.forEach((scene) => {
-        if (scene.style.zIndex === "120") activeEl = scene;
-      });
-      const video = activeEl?.querySelector<HTMLVideoElement>(
-        ".sw-scene__video",
-      );
-      if (video && video.duration > 0) {
-        const src = video.currentSrc || video.src;
-        setHudInfo({
-          duration: video.duration,
-          fraction: video.currentTime / video.duration,
-          isJumping: isJumpingRef.current,
-          scrollY: window.scrollY,
-          sectionIndex: currentIndexRef.current,
-          t: video.currentTime,
-          videoFile: src ? (src.split("/").pop() ?? src) : "",
-        });
-      }
-      rafId = requestAnimationFrame(tick);
-    }
-
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
   }, [engineReady]);
 
   // One wheel/swipe/key gesture = one jump to the next or previous scene —
@@ -686,55 +629,6 @@ export function HomeHeroFlythrough({
           .sw-route { display: none; }
         }
       `}</style>
-      {process.env.NODE_ENV !== "production" && (
-        // Calibration HUD — read this while dragging the native scrollbar
-        // thumb (the only input this component doesn't intercept into a
-        // discrete jump, so it's the one way to freely scrub to an exact
-        // frame). Wait for the STATUS line to read SETTLED before trusting
-        // a reading — mid-jump values are just whatever frame the jump
-        // animation happens to be passing through, not a real landing point.
-        <div
-          className={`
-            fixed bottom-3 left-3 z-[999] w-72 rounded-lg border
-            border-lime-400/30 bg-black/90 px-4 py-3 font-mono text-sm
-            text-lime-300 shadow-lg shadow-black/50
-          `}
-        >
-          <div
-            className={`
-              mb-2 border-b border-white/10 pb-2 text-xs font-bold tracking-wide
-              ${hudInfo.isJumping ? "text-orange-400" : "text-emerald-400"}
-            `}
-          >
-            {hudInfo.isJumping ? "● JUMPING…" : "● SETTLED"}
-          </div>
-          <div className="mb-1">
-            <span className="text-white/50">section</span>{" "}
-            <span className="font-bold">
-              {hudInfo.sectionIndex} · {SECTION_LABELS[hudInfo.sectionIndex] ?? "?"}
-            </span>
-          </div>
-          <div className="mb-1 truncate">
-            <span className="text-white/50">file</span>{" "}
-            <span className="font-bold">{hudInfo.videoFile || "—"}</span>
-          </div>
-          <div className="mb-1">
-            <span className="text-white/50">t</span>{" "}
-            {hudInfo.t.toFixed(2)}s / {hudInfo.duration.toFixed(2)}s
-          </div>
-          <div className="mb-1 text-white/50">
-            scrollY {Math.round(hudInfo.scrollY)}px
-          </div>
-          <div
-            className={`
-              mt-2 rounded bg-yellow-400/10 px-2 py-1.5 text-base font-bold
-              text-yellow-300
-            `}
-          >
-            fraction {hudInfo.fraction.toFixed(4)}
-          </div>
-        </div>
-      )}
       <div
         className={className}
         ref={containerRef}

@@ -145,6 +145,12 @@
 
   body {
     @apply bg-background font-sans text-foreground antialiased;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  body::-webkit-scrollbar {
+    display: none;
   }
 
   button,
