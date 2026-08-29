@@ -32,27 +32,6 @@ export function HomeHeroFlythroughGate({
   }
 
   return (
-    <div
-      className={`
-        bg-krs-onyx
-        min-h-screen
-        relative
-        overflow-hidden
-        ${className ?? ""}
-      `}
-    >
-      {/* Fallback background for when video autoplay is blocked on mobile */}
-      <div
-        className={`
-          absolute inset-0
-          bg-gradient-to-b
-          from-krs-onyx via-krs-mocha to-krs-onyx
-        `}
-      />
-      <HomeHeroFlythrough
-        className={className}
-        tableProducts={tableProducts}
-      />
-    </div>
+    <HomeHeroFlythrough className={className} tableProducts={tableProducts} />
   );
 }
