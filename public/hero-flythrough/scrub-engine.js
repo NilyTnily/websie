@@ -128,8 +128,9 @@ function injectCSS() {
        dvh + env() are progressive: browsers that lack them keep the vh fallback line. */
     .sw-copy{left:clamp(18px,5vw,64px);right:clamp(18px,5vw,64px);top:auto;bottom:clamp(64px,14vh,120px);transform:none;width:auto;max-width:560px;}
     .sw-copy{bottom:calc(clamp(56px,12dvh,110px) + env(safe-area-inset-bottom));}
-    .sw-copy__title{font-size:clamp(1.9rem,7.5vw,2.7rem);}
-    .sw-copy__body{max-width:none;font-size:clamp(.98rem,3.6vw,1.1rem);} .sw-scene__video,.sw-scene__still{object-position:center 46%;}
+    .sw-copy__eyebrow{font-size:.7rem;}
+    .sw-copy__title{font-size:clamp(1.5rem,6vw,2.1rem);}
+    .sw-copy__body{max-width:none;font-size:clamp(.88rem,3vw,.98rem);} .sw-scene__video,.sw-scene__still{object-position:center 46%;}
     .sw-hint{bottom:calc(20px + env(safe-area-inset-bottom));}
     .sw-route{gap:16px;right:6px;} .sw-route__label{display:none;}
   }

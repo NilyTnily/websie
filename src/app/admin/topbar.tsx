@@ -106,8 +106,8 @@ export function AdminTopbar() {
         </span>
         <Button
           className={`
-            ml-auto gap-2 text-muted-foreground
-            sm:w-64 sm:justify-start
+            ml-auto h-10 w-10 gap-2 p-0 text-muted-foreground
+            sm:h-9 sm:w-64 sm:justify-start sm:px-3
           `}
           onClick={() => setOpen(true)}
           size="sm"

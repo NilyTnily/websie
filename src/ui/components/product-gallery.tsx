@@ -43,7 +43,7 @@ export function ProductGallery({ media, name }: ProductGalleryProps) {
   const selected = entries[selectedIndex];
 
   return (
-    <div className="mx-auto w-full max-w-[440px]">
+    <div className="mx-auto w-full max-w-[560px]">
       <div
         className={`
           relative aspect-square overflow-hidden bg-gradient-to-b from-accent
@@ -122,7 +122,7 @@ export function ProductGallery({ media, name }: ProductGalleryProps) {
                 ) : (
                   <Image
                     alt={`${name} — view ${index + 1}`}
-                    className="object-cover"
+                    className="object-contain"
                     fill
                     onError={() => markErrored(thumbUrl)}
                     sizes="80px"

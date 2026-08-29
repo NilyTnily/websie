@@ -315,7 +315,7 @@ export function ProductsPageClient({
         ]}
       />
 
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <Button
           onClick={() => setAllVisibility(true)}
           type="button"

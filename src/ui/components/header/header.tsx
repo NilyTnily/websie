@@ -77,7 +77,16 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-40 w-full bg-krs-navy text-krs-navy-foreground`}
+      className={cn(
+        `
+          sticky top-0 z-40 w-full bg-krs-navy text-krs-navy-foreground
+        `,
+        // The hero flythrough's fixed-position scene overlays (table watch
+        // cutouts, .sw-topbar) sit at z-45/z-50 — above the header's normal
+        // z-40 — so the mobile menu needs to jump above those too while open,
+        // or it renders underneath whatever hero layer is currently visible.
+        mobileMenuOpen && "z-[60]",
+      )}
       ref={headerRef}
     >
       <div
@@ -90,7 +99,8 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
           <button
             aria-label="Open menu"
             className={`
-              text-krs-navy-foreground
+              relative text-krs-navy-foreground
+              before:absolute before:-inset-3 before:content-['']
               md:hidden
             `}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -209,11 +219,19 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
         <div className="border-t border-krs-navy-border" />
       )}
 
-      {/* Mobile menu */}
+      {/* Mobile menu — absolutely positioned so it overlays the page instead
+          of sitting in the header's normal flow. In-flow would grow
+          header.offsetHeight while open, and the ResizeObserver above feeds
+          that height into --header-height, which the hero flythrough uses
+          to size/position itself — so opening the menu would visibly shove
+          the hero video down each time. Overlaying keeps the header's own
+          measured height constant regardless of menu state. */}
       {mobileMenuOpen && (
         <div
           className={`
-            border-t border-krs-navy-border bg-krs-navy shadow-lg
+            absolute inset-x-0 top-full max-h-[calc(100dvh-100%)]
+            overflow-y-auto border-t border-krs-navy-border bg-krs-navy
+            shadow-lg
             md:hidden
           `}
         >
@@ -224,7 +242,7 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
               return (
                 <Link
                   className={cn(
-                    `krs-label block py-2`,
+                    `krs-label block py-3`,
                     isActive
                       ? "text-krs-champagne"
                       : `
@@ -242,7 +260,7 @@ function HeaderContent({ showAuth = true }: HeaderProps) {
             })}
             <Link
               className={`
-                krs-label block py-2 text-krs-navy-foreground/72
+                krs-label block py-3 text-krs-navy-foreground/72
                 hover:text-krs-champagne
               `}
               href="/about"

@@ -131,18 +131,21 @@ const TABLE_VIDEO_OBJECT_POSITION_Y = 0.42; // "42%"
 // crop compose completely differently, so this map doesn't apply there —
 // mobile renders its own independent, viewport-centered grid instead, see
 // the mobile cutout block below).
-// Layout: 2 rows × 3 per line = 6 total, grouped close together at center.
-// yFrac shifted -0.075 (7.5% up) then +0.015 (1.5% back down) from the
-// original 0.433/0.658 rows per direct request — net -0.06.
+// Layout: 2 rows × 3–4 per line = 7 total, zigzag along X axis.
+// Bottom row has 4 watches (new + 3 lowers), top row has 3 uppers.
+// Offset by ~half a watch spacing so no two watches ever share the
+// same y axis and bracelets don't overlap. Even X spacing (~0.13)
+// throughout, comfortable gaps. New watch sits bottom-most left.
 const TABLE_CUTOUT_SLOTS = [
-  // Row 1 — back line
-  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.373 },
-  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.373 },
-  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.373 },
-  // Row 2 — front line
-  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.598 },
-  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.598 },
-  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.598 },
+  // Row 1 — upper
+  { wFrac: 0.08, xFrac: 0.350, yFrac: 0.360 },
+  { wFrac: 0.08, xFrac: 0.478, yFrac: 0.360 },
+  { wFrac: 0.08, xFrac: 0.606, yFrac: 0.360 },
+  // Row 2 — lower (offset +0.065 on X for zigzag, 4 watches)
+  { wFrac: 0.08, xFrac: 0.285, yFrac: 0.605 },
+  { wFrac: 0.08, xFrac: 0.415, yFrac: 0.605 },
+  { wFrac: 0.08, xFrac: 0.543, yFrac: 0.605 },
+  { wFrac: 0.08, xFrac: 0.671, yFrac: 0.605 },
 ];
 
 /**
@@ -628,6 +631,43 @@ export function HomeHeroFlythrough({
         @media (max-width: 860px) {
           .sw-route { display: none; }
         }
+        /* Table section on mobile only: the watch cutouts sit centered in
+           the middle of the screen (see the mobile grid overlay below), and
+           the eyebrow/title/body copy competes with them for the same
+           vertical space — drop just that text (and the "01 / 04" counter)
+           so the watches read clearly, keeping only each cutout's own name
+           caption as the "subtext". The CTA button ("View all watches")
+           stays visible — hiding the text above it shouldn't take the
+           button with it. Desktop keeps the full copy block. */
+        @media (max-width: 860px) {
+          .sw-copylayer .sw-copy:nth-child(2) .sw-copy__num,
+          .sw-copylayer .sw-copy:nth-child(2) .sw-copy__eyebrow,
+          .sw-copylayer .sw-copy:nth-child(2) .sw-copy__title,
+          .sw-copylayer .sw-copy:nth-child(2) .sw-copy__body {
+            display: none !important;
+          }
+          /* Re-anchor what's left (just the CTA button) to sit centered,
+             directly under the watch grid — that grid is vertically
+             centered on the viewport (see the mobile cutout overlay's
+             top-1/2 + translateY(-50%) below), so anchoring the button off
+             the viewport's own center rather than the bottom edge is what
+             keeps it reading as "attached to the watches" instead of
+             stranded down by the scroll hint. */
+          .sw-copylayer .sw-copy:nth-child(2) {
+            left: 50% !important;
+            right: auto !important;
+            top: 50% !important;
+            bottom: auto !important;
+            width: auto !important;
+            max-width: none !important;
+            transform: translate(-50%, calc(148px + 10vh)) !important;
+            text-align: center;
+          }
+          .sw-copylayer .sw-copy:nth-child(2) .sw-copy__cta {
+            justify-content: center;
+            margin-top: 0;
+          }
+        }
       `}</style>
       <div
         className={className}
@@ -771,7 +811,12 @@ export function HomeHeroFlythrough({
           }}
         >
           <div className="grid grid-cols-3 gap-x-3 gap-y-8">
-            {tableCutouts.map((product) => (
+            {/* Mobile stays capped at 6 (2 full rows of 3) — desktop's grid
+                grew to 7 in a zigzag layout that has no clean mobile
+                equivalent (a 7th item would either overflow to a lonely
+                third row or force uneven columns), so mobile intentionally
+                keeps the original 3x2 count instead of following desktop. */}
+            {tableCutouts.slice(0, 6).map((product) => (
               <a
                 className="flex flex-col items-center"
                 href={`/products/${product.id}`}

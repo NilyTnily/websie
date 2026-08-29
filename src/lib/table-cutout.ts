@@ -20,8 +20,17 @@ export async function generateTableCutout(
     const { removeBackground } = await import(
       "@imgly/background-removal-node"
     );
+    const { default: sharp } = await import("sharp");
     const blob = await removeBackground(sourceImageUrl);
-    const buffer = Buffer.from(await blob.arrayBuffer());
+    const rawBuffer = Buffer.from(await blob.arrayBuffer());
+    // Trim the transparent margin left by background removal down to the
+    // watch's actual content box — source photos vary in how far back/zoomed
+    // the shot is, so without this two watches at the same on-screen slot
+    // width (see TABLE_CUTOUT_SLOTS in home-hero-flythrough.tsx) can render
+    // at very different apparent sizes even though the PNG canvas itself is
+    // the same size. Trimming to content first makes the shared wFrac
+    // scaling in mapCutoutSlot land on a consistent physical size.
+    const buffer = await sharp(rawBuffer).trim().toBuffer();
     // Native File, not UploadThing's own UTFile helper — UTFile assigns
     // `this.name` in its constructor, which throws under Bun's runtime
     // (File#name is a read-only getter there). uploadFiles() accepts a

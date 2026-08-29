@@ -1,9 +1,10 @@
 "use client";
 
+import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { SEO_CONFIG, SYSTEM_CONFIG } from "~/app";
 import { signIn } from "~/lib/auth-client";
@@ -19,6 +20,13 @@ export function SignInPageClient() {
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Warms the client-side router cache for the post-login destination so the
+  // navigation after a successful sign-in doesn't wait on a cold RSC fetch.
+  useEffect(() => {
+    router.prefetch(SYSTEM_CONFIG.redirectAfterSignIn);
+  }, [router]);
 
   const validateEmail = (value: string) => {
     const v = value.trim();
@@ -70,16 +78,19 @@ export function SignInPageClient() {
         } else {
           setError(raw);
         }
+        setLoading(false);
         return;
       }
 
+      // Leave `loading` true through the redirect — resetting it here made the
+      // button snap back to normal while the destination page was still
+      // loading, which read as the sign-in being stuck.
       router.push(SYSTEM_CONFIG.redirectAfterSignIn);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign-in request failed");
-      console.error(err);
-    } finally {
       setLoading(false);
+      console.error(err);
     }
   };
 
@@ -173,16 +184,35 @@ export function SignInPageClient() {
                   <Label className="col-start-1 row-start-1" htmlFor="password">
                     Password
                   </Label>
-                  <Input
-                    className="col-span-2 row-start-2"
-                    id="password"
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                    }}
-                    required
-                    type="password"
-                    value={password}
-                  />
+                  <div className="relative col-span-2 row-start-2">
+                    <Input
+                      className="pr-10"
+                      id="password"
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                      }}
+                      required
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                    />
+                    <button
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      className={`
+                        absolute top-1/2 right-2 -translate-y-1/2
+                        text-muted-foreground transition-colors
+                        hover:text-foreground
+                      `}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      tabIndex={-1}
+                      type="button"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                   <Link
                     className={`
                       col-start-2 row-start-1 justify-self-end text-sm

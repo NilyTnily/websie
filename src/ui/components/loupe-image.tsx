@@ -94,7 +94,7 @@ export function LoupeImage({
           alt={alt}
           blurDataURL={BLUR_DATA_URL}
           className={cn(
-            "object-cover opacity-0 transition-opacity duration-500",
+            "object-contain opacity-0 transition-opacity duration-500",
             isLoaded && "opacity-100",
             imageClassName,
           )}

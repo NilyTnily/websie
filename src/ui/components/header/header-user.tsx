@@ -33,6 +33,7 @@ export function HeaderUserDropdown({
             relative flex h-9 w-9 items-center justify-center overflow-hidden
             rounded-full border border-white/10 bg-white/5
             text-krs-navy-foreground transition-colors
+            before:absolute before:-inset-2.5 before:content-['']
             hover:bg-white/10 hover:text-primary
           `}
           title={userName || "Account"}

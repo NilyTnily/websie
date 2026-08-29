@@ -80,7 +80,7 @@ export const productTable = pgTable(
     // auto-generates the cutout).
     onTable: boolean("on_table").default(false).notNull(),
     price: integer("price").notNull(),
-    ref: text("ref").notNull().unique(),
+    ref: text("ref").notNull(),
     specs: jsonb("specs").$type<Record<string, string>>().notNull(),
     modelId: text("model_id").references(() => watchModelTable.id, {
       onDelete: "set null",
