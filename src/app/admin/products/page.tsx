@@ -9,8 +9,29 @@ import { ProductsPageClient } from "./page.client";
 // applies to them too.
 export const maxDuration = 60;
 
-export default async function AdminProductsPage() {
-  const products = await getAllProducts();
+interface AdminProductsPageProps {
+  searchParams: Promise<{ stock?: string }>;
+}
 
-  return <ProductsPageClient products={products} />;
+export default async function AdminProductsPage({
+  searchParams,
+}: AdminProductsPageProps) {
+  const { stock } = await searchParams;
+  const allProducts = await getAllProducts();
+
+  const outOfStockOnly = stock === "out";
+  const products = outOfStockOnly
+    ? allProducts.filter((product) => !product.inStock)
+    : allProducts;
+
+  return (
+    <ProductsPageClient
+      activeFilter={
+        outOfStockOnly
+          ? { clearHref: "/admin/products", label: "out of stock" }
+          : null
+      }
+      products={products}
+    />
+  );
 }

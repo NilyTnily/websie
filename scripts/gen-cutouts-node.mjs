@@ -1,10 +1,12 @@
-import postgres from 'postgres';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { eq } from 'drizzle-orm';
-import * as schema from '../src/db/schema/index.ts';
-import { productTable } from '../src/db/schema/catalog/tables.ts';
 import { removeBackground } from '@imgly/background-removal-node';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import { UTApi } from 'uploadthing/server';
+
+import { productTable } from '../src/db/schema/catalog/tables.ts';
+import * as schema from '../src/db/schema/index.ts';
+
 import 'dotenv/config';
 
 const url = process.env.DATABASE_URL;
@@ -21,7 +23,7 @@ const ids = [
 ];
 
 for (const id of ids) {
-  const prod = await db.query.productTable.findFirst({ where: eq(productTable.id, id), columns: { id: true, image: true, name: true, tableCutoutUrl: true } });
+  const prod = await db.query.productTable.findFirst({ columns: { id: true, image: true, name: true, tableCutoutUrl: true }, where: eq(productTable.id, id) });
   console.log(`\n=== ${prod.name} (${prod.id}) ===`);
   console.log('source', prod.image);
   try {

@@ -29,7 +29,7 @@ export const conn: DbConnection =
   postgres(process.env.DATABASE_URL, {
     connect_timeout: 10,
     idle_timeout: 20,
-    max: isPooler ? 1 : 10,
+    max: isPooler ? 10 : 10,
     prepare: false,
   });
 globalForDb.conn = conn;

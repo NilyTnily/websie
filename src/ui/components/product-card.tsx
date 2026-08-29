@@ -61,8 +61,8 @@ export function ProductCard({
         >
           <div
             className={`
-              relative aspect-[4/5] overflow-hidden bg-gradient-to-b
-              from-accent to-muted
+              relative aspect-[4/5] overflow-hidden bg-gradient-to-b from-accent
+              to-muted
             `}
           >
             {hasError ? (

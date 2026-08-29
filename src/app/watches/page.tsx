@@ -2,20 +2,21 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-import { getProductsByCategorySlug } from "~/lib/queries/catalog";
+import { getProductsByCategorySlugLite } from "~/lib/queries/catalog";
 import { CollectionBrowser } from "~/ui/components/collection-browser";
 
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1628608570910-5ba45093d2c2?q=80&w=2000&auto=format&fit=crop";
 
+export const revalidate = 60;
+
 export const metadata = {
-  description:
-    "Automatic and hand-wound movements, cased by hand and serviced in-house.",
+  description: "Automatic and hand-wound movements, cased by hand and serviced in-house.",
   title: "Watches — KRS",
 };
 
 export default async function WatchesPage() {
-  const result = await getProductsByCategorySlug("timepieces");
+  const result = await getProductsByCategorySlugLite("timepieces");
   if (!result) notFound();
   const { category, products } = result;
 
@@ -23,55 +24,21 @@ export default async function WatchesPage() {
     <div className="flex min-h-screen flex-col">
       <section className="relative overflow-hidden">
         <div className="relative aspect-[16/7] w-full sm:aspect-[16/5] lg:aspect-[16/4.5] 2xl:aspect-[21/6]">
-          <Image
-            alt="A man in a black suit wearing a gold analog watch, beside a vintage Aston Martin"
-            className="object-cover"
-            fill
-            priority
-            sizes="100vw"
-            src={HERO_IMAGE}
-          />
-          <div
-            className={`
-              pointer-events-none absolute inset-0 bg-gradient-to-t
-              from-black/70 via-black/10 to-transparent
-            `}
-          />
+          <Image alt="A man in a black suit wearing a gold analog watch, beside a vintage Aston Martin" className="object-cover" fill priority sizes="100vw" src={HERO_IMAGE} />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
         </div>
-        <div
-          className={`
-            absolute inset-x-0 bottom-0 px-4 pb-6
-            sm:px-6 sm:pb-8
-            lg:px-8 lg:pb-10
-            2xl:px-10
-          `}
-        >
+        <div className="absolute inset-x-0 bottom-0 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10 2xl:px-10">
           <div className="mx-auto max-w-[1920px]">
-            <h1
-              className={`
-                font-display text-[28px] leading-none text-white
-                sm:text-4xl
-                lg:text-5xl
-                2xl:text-6xl
-              `}
-            >
-              {category.name}
-            </h1>
-            <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80 sm:text-[15px]">
-              {category.description}
-            </p>
+            <h1 className="font-display text-[28px] leading-none text-white sm:text-4xl lg:text-5xl 2xl:text-6xl">{category.name}</h1>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80 sm:text-[15px]">{category.description}</p>
           </div>
         </div>
       </section>
 
       <main className="flex-1 py-8 sm:py-10">
         <div className="mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 2xl:px-10">
-          <Suspense fallback={null}>
-            <CollectionBrowser
-              categories={[]}
-              lockedCategoryId={category.id}
-              products={products}
-            />
+          <Suspense fallback={<div className="h-64 animate-pulse bg-accent" />}>
+            <CollectionBrowser categories={[]} lockedCategoryId={category.id} products={products} />
           </Suspense>
         </div>
       </main>

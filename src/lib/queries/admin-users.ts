@@ -30,9 +30,9 @@ export async function getAdminUsersWithSpending(search?: string): Promise<AdminU
         email: userTable.email,
         emailVerified: userTable.emailVerified,
         id: userTable.id,
-        name: userTable.name,
         // aggregates from inquiry
         inquiryCount: sql<number>`count(${inquiryTable.id})::int`.as("inquiryCount"),
+        name: userTable.name,
         pendingAmount: sql<number>`coalesce(sum(${inquiryTable.subtotal}) filter (where ${inquiryTable.status} = 'pending'), 0)::int`.as("pendingAmount"),
         totalRequested: sql<number>`coalesce(sum(${inquiryTable.subtotal}), 0)::int`.as("totalRequested"),
         totalSpent: sql<number>`coalesce(sum(${inquiryTable.subtotal}) filter (where ${inquiryTable.deliveryStatus} = 'delivered'), 0)::int`.as("totalSpent"),

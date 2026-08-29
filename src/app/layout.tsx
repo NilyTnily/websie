@@ -17,12 +17,14 @@ import { ThemeProvider } from "~/ui/components/theme-provider";
 import { Toaster } from "~/ui/primitives/sonner";
 
 const cinzel = Cinzel({
+  display: "swap",
   subsets: ["latin"],
   variable: "--font-cinzel",
   weight: ["400", "500", "600"],
 });
 
 const montserrat = Montserrat({
+  display: "swap",
   subsets: ["latin"],
   variable: "--font-montserrat",
   weight: ["200", "300", "400", "500", "600"],

@@ -2,10 +2,12 @@
 
 import {
   BellRing,
+  ExternalLink,
   FolderTree,
   Inbox,
   LayoutDashboard,
   LogOut,
+  MessageCircle,
   Package,
   Quote,
   Settings,
@@ -14,8 +16,10 @@ import {
   Watch,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
+import { signOut } from "~/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "~/ui/primitives/avatar";
 import {
   Sidebar,
@@ -37,6 +41,7 @@ const ADMIN_NAV = [
   { href: "/admin/categories", icon: FolderTree, name: "Categories" },
   { href: "/admin/products", icon: Package, name: "Products" },
   { href: "/admin/inquiries", icon: Inbox, name: "Inquiries" },
+  { href: "/admin/whatsapp", icon: MessageCircle, name: "WhatsApp" },
   { href: "/admin/reviews", icon: Star, name: "Reviews" },
   { href: "/admin/stock-notifications", icon: BellRing, name: "Stock Alerts" },
   { href: "/admin/testimonials", icon: Quote, name: "Testimonials" },
@@ -44,17 +49,30 @@ const ADMIN_NAV = [
 ];
 
 interface AdminSidebarProps {
+  /** Pending-work counts keyed by nav href — rendered as a badge when > 0. */
+  badges?: Partial<Record<string, number>>;
   userEmail: string;
   userImage?: null | string;
   userName: string;
 }
 
+const NO_BADGES: NonNullable<AdminSidebarProps["badges"]> = {};
+
 export function AdminSidebar({
+  badges = NO_BADGES,
   userEmail,
   userImage,
   userName,
 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("Signed out.");
+    router.push("/");
+    router.refresh();
+  };
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -89,16 +107,33 @@ export function AdminSidebar({
             <SidebarMenu>
               {ADMIN_NAV.map((item) => {
                 const isActive = pathname?.startsWith(item.href);
+                const count = badges[item.href];
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}
-                      tooltip={item.name}
+                      tooltip={
+                        count && count > 0
+                          ? `${item.name} (${count})`
+                          : item.name
+                      }
                     >
                       <Link href={item.href}>
                         <item.icon />
                         <span>{item.name}</span>
+                        {count && count > 0 ? (
+                          <span
+                            className={`
+                              ml-auto rounded-full bg-primary px-2 py-0.5
+                              text-[11px] leading-none font-semibold
+                              text-primary-foreground
+                              group-data-[collapsible=icon]:hidden
+                            `}
+                          >
+                            {count > 99 ? "99+" : count}
+                          </span>
+                        ) : null}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -136,11 +171,17 @@ export function AdminSidebar({
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Back to site">
+            <SidebarMenuButton asChild tooltip="View site">
               <Link href="/">
-                <LogOut />
-                <span>Back to site</span>
+                <ExternalLink />
+                <span>View site</span>
               </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleSignOut} tooltip="Sign out">
+              <LogOut />
+              <span>Sign out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

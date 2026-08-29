@@ -27,17 +27,29 @@ export function Product360Viewer({
   React.useEffect(() => {
     setLoadedCount(0);
     let cancelled = false;
-    for (const src of frames) {
-      const img = new window.Image();
-      const markLoaded = () => {
-        if (!cancelled) setLoadedCount((n) => n + 1);
+    // Defer bulk preload to idle to avoid blocking navigation bandwidth
+    const preload = () => {
+      for (const src of frames) {
+        const img = new window.Image();
+        const markLoaded = () => {
+          if (!cancelled) setLoadedCount((n) => n + 1);
+        };
+        img.onload = markLoaded;
+        img.onerror = markLoaded;
+        img.src = src;
+      }
+    };
+    if ("requestIdleCallback" in window) {
+      const id = (window as unknown as { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(preload);
+      return () => {
+        cancelled = true;
+        (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback?.(id);
       };
-      img.onload = markLoaded;
-      img.onerror = markLoaded;
-      img.src = src;
     }
+    const t = setTimeout(preload, 300);
     return () => {
       cancelled = true;
+      clearTimeout(t);
     };
   }, [frames]);
 

@@ -4,9 +4,12 @@ import { useActionState } from "react";
 
 import type { Inquiry } from "~/db/schema";
 
-import { DELIVERY_STATUS_LABEL, DELIVERY_STEPS } from "~/lib/delivery-status";
+import {
+  DELIVERY_STATUS_LABEL,
+  DELIVERY_STEPS,
+  TERMINAL_DELIVERY_STATUSES,
+} from "~/lib/delivery-status";
 import { Button } from "~/ui/primitives/button";
-import { Input } from "~/ui/primitives/input";
 import { Label } from "~/ui/primitives/label";
 
 import type { DeliveryFormState } from "./actions";
@@ -16,17 +19,10 @@ interface DeliveryFormProps {
     state: DeliveryFormState,
     formData: FormData,
   ) => Promise<DeliveryFormState>;
-  carrier: null | string;
   deliveryStatus: Inquiry["deliveryStatus"];
-  trackingUrl: null | string;
 }
 
-export function DeliveryForm({
-  action,
-  carrier,
-  deliveryStatus,
-  trackingUrl,
-}: DeliveryFormProps) {
+export function DeliveryForm({ action, deliveryStatus }: DeliveryFormProps) {
   const [state, formAction, isPending] = useActionState<
     DeliveryFormState,
     FormData
@@ -52,27 +48,13 @@ export function DeliveryForm({
               {DELIVERY_STATUS_LABEL[step]}
             </option>
           ))}
+          <option disabled>──────────</option>
+          {TERMINAL_DELIVERY_STATUSES.map((step) => (
+            <option key={step} value={step}>
+              {DELIVERY_STATUS_LABEL[step]}
+            </option>
+          ))}
         </select>
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="carrier">Carrier</Label>
-        <Input
-          defaultValue={carrier ?? ""}
-          id="carrier"
-          name="carrier"
-          placeholder="e.g. DHL Express"
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="trackingUrl">Tracking Link</Label>
-        <Input
-          defaultValue={trackingUrl ?? ""}
-          id="trackingUrl"
-          name="trackingUrl"
-          placeholder="https://…"
-        />
       </div>
 
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}

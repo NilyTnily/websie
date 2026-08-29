@@ -95,10 +95,10 @@ export function ForgotPasswordPageClient() {
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
-                    id="email"
                     autoCapitalize="off"
                     autoComplete="email"
                     autoCorrect="off"
+                    id="email"
                     inputMode="email"
                     onBlur={() => setEmailError(validateEmail(email))}
                     onChange={(e) => {

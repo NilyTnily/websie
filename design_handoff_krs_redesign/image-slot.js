@@ -237,7 +237,7 @@
   function getSlot(id) {
     const v = slots[id];
     if (!v) return null;
-    return typeof v === 'string' ? { u: v, s: 1, x: 0, y: 0 } : v;
+    return typeof v === 'string' ? { s: 1, u: v, x: 0, y: 0 } : v;
   }
 
   function setSlot(id, val) {
@@ -441,53 +441,6 @@
       return ['shape', 'radius', 'mask', 'fit', 'placeholder', 'src', 'id', 'credit', 'credit-href'];
     }
 
-    /** Duplicate-slide hook (called by deck-stage, see its
-     *  _remintDuplicateIds): copy this id's stored image, if any, under a
-     *  freshly minted key and return that key — so a duplicated slide's
-     *  slot keeps its dropped photo instead of reverting to the
-     *  placeholder. 'isFree' is the caller's uniqueness check (document
-     *  ids); candidates must ALSO be unused in the sidecar, which can
-     *  hold keys from other pages sharing the project root. (An EMPTY
-     *  slot on another page leaves no sidecar entry, so its id is not
-     *  detectable here — a minted key can collide with it and that slot
-     *  would show this photo. Same blast radius as two pages reusing an
-     *  id by hand, which the shared sidecar already permits.) Returns null
-     *  when no id could be minted (caller strips the id, today's
-     *  behavior). */
-    static cloneSlot(fromId, isFree) {
-      if (typeof fromId !== 'string' || !fromId) return null;
-      // Pre-hydration the store can't veto candidates or source the copy
-      // — degrade to the strip (today's behavior) rather than mint
-      // against keys we can't see yet. Any rendered (= droppable) slot
-      // means load() has already settled.
-      if (!loaded) return null;
-      const stem = fromId.replace(/-\d+$/, '') || fromId;
-      for (let n = 2; n < 100; n++) {
-        const toId = stem + '-' + n;
-        if (toId === fromId) continue;
-        if (slots[toId] !== undefined) {
-          // Reuse a key holding this exact value (bytes AND crop) if no
-          // live element here owns it — a duplicate op the host refused
-          // after minting leaves such a key behind, and reusing keeps
-          // refused retries from accumulating one orphaned copy per
-          // attempt. Full equality (not just bytes) so a byte-identical
-          // key another PAGE owns with its own crop is stepped past, not
-          // adopted or rewritten. (Entries without .u never match.)
-          const prev = getSlot(toId);
-          const cur = getSlot(fromId);
-          if (!(prev && cur && prev.u && prev.u === cur.u &&
-                prev.s === cur.s && prev.x === cur.x && prev.y === cur.y &&
-                (typeof isFree !== 'function' || isFree(toId)))) continue;
-          return toId;
-        }
-        if (typeof isFree === 'function' && !isFree(toId)) continue;
-        const v = getSlot(fromId);
-        if (v) setSlot(toId, Object.assign({}, v));
-        return toId;
-      }
-      return null;
-    }
-
     constructor() {
       super();
       // clonable: rail thumbnails deep-clone slides and carry this shadow
@@ -495,7 +448,7 @@
       // (Deliberately NOT serializable — a getHTML consumer would embed
       // multi-MB sidecar data-URLs into serialized page HTML.)
       const root = this.shadowRoot ||
-        this.attachShadow({ mode: 'open', clonable: true });
+        this.attachShadow({ clonable: true, mode: 'open' });
       // .spill and .ctl sit OUTSIDE .frame so overflow:hidden + border-radius
       // on the frame (circle, pill, rounded) can't clip them.
       root.innerHTML =
@@ -627,20 +580,20 @@
         e.stopPropagation();
         this._spill.setPointerCapture(e.pointerId);
         const rect = this.getBoundingClientRect();
-        const fw = rect.width || 1, fh = rect.height || 1;
+        const fh = rect.height || 1, fw = rect.width || 1;
         const corner = e.target.getAttribute && e.target.getAttribute('data-c');
         let move;
         if (corner) {
           // Resize about the OPPOSITE corner. Viewport-px throughout (rect
           // fw/fh, not clientWidth) so the math survives a transform:scale()
           // ancestor — deck_stage renders slides scaled-to-fit.
-          const iw = this._img.naturalWidth || 1, ih = this._img.naturalHeight || 1;
+          const ih = this._img.naturalHeight || 1, iw = this._img.naturalWidth || 1;
           const contain = (this.getAttribute('fit') || 'cover').toLowerCase() === 'contain';
           const base = contain ? Math.min(fw / iw, fh / ih) : Math.max(fw / iw, fh / ih);
           const sx = corner.includes('e') ? 1 : -1;
           const sy = corner.includes('s') ? 1 : -1;
           const s0 = this._view.s;
-          const w0 = iw * base * s0, h0 = ih * base * s0;
+          const h0 = ih * base * s0, w0 = iw * base * s0;
           const cx0 = (50 + this._view.x) / 100 * fw;
           const cy0 = (50 + this._view.y) / 100 * fh;
           const ox = cx0 - sx * w0 / 2, oy = cy0 - sy * h0 / 2;
@@ -702,46 +655,131 @@
       }, { passive: false });
     }
 
-    connectedCallback() {
-      // Warn once per page — an id-less slot works for the session but
-      // cannot persist, and two id-less slots would share nothing.
-      if (!this.id && !ImageSlot._warned) {
-        ImageSlot._warned = true;
-        console.warn('<image-slot> without an id will not persist its dropped image.');
+    /** Duplicate-slide hook (called by deck-stage, see its
+     *  _remintDuplicateIds): copy this id's stored image, if any, under a
+     *  freshly minted key and return that key — so a duplicated slide's
+     *  slot keeps its dropped photo instead of reverting to the
+     *  placeholder. 'isFree' is the caller's uniqueness check (document
+     *  ids); candidates must ALSO be unused in the sidecar, which can
+     *  hold keys from other pages sharing the project root. (An EMPTY
+     *  slot on another page leaves no sidecar entry, so its id is not
+     *  detectable here — a minted key can collide with it and that slot
+     *  would show this photo. Same blast radius as two pages reusing an
+     *  id by hand, which the shared sidecar already permits.) Returns null
+     *  when no id could be minted (caller strips the id, today's
+     *  behavior). */
+    static cloneSlot(fromId, isFree) {
+      if (typeof fromId !== 'string' || !fromId) return null;
+      // Pre-hydration the store can't veto candidates or source the copy
+      // — degrade to the strip (today's behavior) rather than mint
+      // against keys we can't see yet. Any rendered (= droppable) slot
+      // means load() has already settled.
+      if (!loaded) return null;
+      const stem = fromId.replace(/-\d+$/, '') || fromId;
+      for (let n = 2; n < 100; n++) {
+        const toId = stem + '-' + n;
+        if (toId === fromId) continue;
+        if (slots[toId] !== undefined) {
+          // Reuse a key holding this exact value (bytes AND crop) if no
+          // live element here owns it — a duplicate op the host refused
+          // after minting leaves such a key behind, and reusing keeps
+          // refused retries from accumulating one orphaned copy per
+          // attempt. Full equality (not just bytes) so a byte-identical
+          // key another PAGE owns with its own crop is stepped past, not
+          // adopted or rewritten. (Entries without .u never match.)
+          const prev = getSlot(toId);
+          const cur = getSlot(fromId);
+          if (!(prev && cur && prev.u && prev.u === cur.u &&
+                prev.s === cur.s && prev.x === cur.x && prev.y === cur.y &&
+                (typeof isFree !== 'function' || isFree(toId)))) continue;
+          return toId;
+        }
+        if (typeof isFree === 'function' && !isFree(toId)) continue;
+        const v = getSlot(fromId);
+        if (v) setSlot(toId, Object.assign({}, v));
+        return toId;
       }
-      this.addEventListener('dragenter', this);
-      this.addEventListener('dragover', this);
-      this.addEventListener('dragleave', this);
-      this.addEventListener('drop', this);
-      subs.add(this._subFn);
-      // The host may inject window.omelette.writeFile AFTER the first render;
-      // re-render on hover so the editable-gated controls reliably appear.
-      this.addEventListener('pointerenter', this._subFn);
-      // width%/height% in _applyView encode the frame aspect at call time —
-      // a host resize (responsive grid, pane divider) would stretch the
-      // image until the next _render. Re-render on size change: _render()
-      // re-seeds _view from stored before clamp/apply, so a shrink→grow
-      // cycle round-trips instead of ratcheting x/y toward the narrower
-      // frame's clamp range.
-      this._ro = new ResizeObserver(() => this._render());
-      this._ro.observe(this);
-      load();
-      this._render();
+      return null;
     }
 
-    disconnectedCallback() {
-      subs.delete(this._subFn);
-      this.removeEventListener('pointerenter', this._subFn);
-      this.removeEventListener('dragenter', this);
-      this.removeEventListener('dragover', this);
-      this.removeEventListener('dragleave', this);
-      this.removeEventListener('drop', this);
-      if (this._ro) { this._ro.disconnect(); this._ro = null; }
-      // commit=false: a disconnect is not a user intent — committing here
-      // would persist whatever half-finished drag a React remount or DOM
-      // splice happened to interrupt. Deliberate exits commit on their own
-      // paths (Escape/click-out/toggle), and unloads commit via pagehide.
-      this._exitReframe(false);
+    _applyView() {
+      const g = this._geom();
+      // Top-layer controls: pin to the frame's top-right in viewport px
+      // (the same 8px inset as the in-frame layout; unscaled — top-layer UI
+      // reads as chrome, not page content). BEFORE the geometry branch:
+      // placement needs only the frame rect, and a not-yet-loaded or broken
+      // src must not leave the promoted strip floating unpositioned. Gated
+      // on the popover actually being open: without the Popover API,
+      // showPopover() threw (swallowed in _enterReframe), .ctl stays in
+      // its in-frame absolute layout, and viewport-px coordinates would
+      // shove it off-frame — and matches(':popover-open') itself throws
+      // there (unknown pseudo-class), hence the try/catch.
+      if (this.hasAttribute('data-reframe')) {
+        let onTop = false;
+        try { onTop = this._ctl.matches(':popover-open'); } catch {}
+        if (onTop) {
+          const r = this.getBoundingClientRect();
+          this._ctl.style.left = (r.right - 8) + 'px';
+          this._ctl.style.top = (r.top + 8) + 'px';
+        }
+      }
+      if (!g) {
+        // Dimensions not known yet (before img load) — centered fit so there
+        // is no flash of an unpositioned image before the geometry lands.
+        const contain = (this.getAttribute('fit') || 'cover').toLowerCase() === 'contain';
+        this._img.style.width = '100%';
+        this._img.style.height = '100%';
+        this._img.style.left = '50%';
+        this._img.style.top = '50%';
+        this._img.style.objectFit = contain ? 'contain' : 'cover';
+        return;
+      }
+      // Baseline (cover-fill or contain-fit) × view scale. Width/height and
+      // left/top are all frame-% — depends only on the frame aspect ratio, so
+      // a responsive resize keeps the same crop. The spill layer mirrors the
+      // same box so its corners = image corners.
+      const k = g.base * this._view.s;
+      const w = (g.iw * k / g.fw * 100) + '%';
+      const h = (g.ih * k / g.fh * 100) + '%';
+      const l = (50 + this._view.x) + '%';
+      const t = (50 + this._view.y) + '%';
+      this._img.style.width = w; this._img.style.height = h;
+      this._img.style.left = l; this._img.style.top = t;
+      this._img.style.objectFit = '';
+      if (this.hasAttribute('data-reframe')) {
+        // Top-layer spill: position in viewport px over the frame. The top
+        // layer escapes ancestor transforms entirely, so EVERY term must be
+        // in viewport units: getBoundingClientRect gives the frame's scaled
+        // origin AND size, and the rect/layout ratio rescales the ghost —
+        // sizing from layout px alone renders it 1/scale too large under a
+        // scaled deck slide. Inner ghost + handles stay box-relative.
+        const r = this.getBoundingClientRect();
+        const sx = g.fw ? r.width / g.fw : 1;
+        const sy = g.fh ? r.height / g.fh : 1;
+        this._spill.style.width = (g.iw * k * sx) + 'px';
+        this._spill.style.height = (g.ih * k * sy) + 'px';
+        this._spill.style.left = (r.left + (50 + this._view.x) / 100 * r.width) + 'px';
+        this._spill.style.top = (r.top + (50 + this._view.y) / 100 * r.height) + 'px';
+      }
+    }
+
+    _clampView() {
+      // Pan range on each axis is half the overflow past the frame edge.
+      const g = this._geom();
+      if (!g) return;
+      const mx = Math.max(0, (g.iw * g.base * this._view.s / g.fw - 1) * 50);
+      const my = Math.max(0, (g.ih * g.base * this._view.s / g.fh - 1) * 50);
+      this._view.x = Math.max(-mx, Math.min(mx, this._view.x));
+      this._view.y = Math.max(-my, Math.min(my, this._view.y));
+    }
+
+    _commitView() {
+      const v = { s: this._view.s, x: this._view.x, y: this._view.y };
+      if (this._userUrl) v.u = this._userUrl;
+      // Framing-only (no u) persists too so an author-src slot remembers its
+      // crop; clearing the sidecar still falls through to src=.
+      if (this.id) setSlot(this.id, v);
+      else { this._local = v; }
     }
 
     _enterReframe() {
@@ -815,65 +853,23 @@
       this._signalReframe(false);
     }
 
-    // Reframe state lives only in this DOM until commit, invisible to the
-    // host's dirty signals — announce enter/exit so the host can hold
-    // auto-reloads for exactly the gesture (the guest bundle forwards
-    // image-slot:reframe to the host as imageSlotReframe). Dispatched on
-    // the element (composed, so it escapes shadow roots) while connected;
-    // a disconnected exit (disconnectedCallback) falls back to document so
-    // the host still hears it.
-    _signalReframe(active) {
-      const target = this.isConnected ? this : document;
-      target.dispatchEvent(new CustomEvent('image-slot:reframe', {
-        bubbles: true, composed: true,
-        detail: { active: active, id: this.id || null }
-      }));
-    }
-
-    // Public: host's "Import from computer" calls this to run local browse.
-    openFilePicker() { this._exitReframe(true); this._input.click(); }
-
-    // A src write is a newer intent for this slot's content — the host
-    // pick path (setImageSlotImage) or an agent edit — so it must win
-    // over any encode still in flight from an earlier drop: left live,
-    // that encode lands later, passes _ingest's gen guard, and its
-    // setSlot silently overwrites the pick (the stored value shadows
-    // src in _render). Bumping _gen kills the encode before its own
-    // _swapGen clear runs, so clear the dead claim here too — otherwise
-    // _releaseMask (gated on !_swapGen) never fires and the pick's
-    // spinner is stranded. src ONLY: the pick sets credit/credit-href
-    // in the same task, and clearing _swapGen on those would let the
-    // same-src branch unmask the old image mid-encode.
-    attributeChangedCallback(name, oldVal, newVal) {
-      if (name === 'src' && oldVal !== newVal) {
-        this._gen++;
-        this._swapGen = 0;
-      }
-      if (this.shadowRoot) this._render();
-    }
-
-    // handleEvent — one listener object for all four drag events keeps the
-    // add/remove symmetric and the depth counter correct.
-    handleEvent(e) {
-      if (e.type === 'dragenter' || e.type === 'dragover') {
-        // Without preventDefault the browser never fires 'drop'.
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
-        if (e.type === 'dragenter') this._depth++;
-        this.setAttribute('data-over', '');
-      } else if (e.type === 'dragleave') {
-        // dragenter/leave fire for every descendant crossing — count depth
-        // so hovering the icon inside the empty state doesn't flicker.
-        if (--this._depth <= 0) { this._depth = 0; this.removeAttribute('data-over'); }
-      } else if (e.type === 'drop') {
-        e.preventDefault();
-        e.stopPropagation();
-        this._depth = 0;
-        this.removeAttribute('data-over');
-        const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-        if (f) this._ingest(f);
-      }
+    // Baseline geometry, shared by clamp/apply/resize. `base` is the scale at
+    // view-scale s=1: cover = fill the frame (overflow on the looser axis),
+    // contain = fit fully inside (letterboxed). Zooming a contain image past
+    // s where it overflows naturally becomes a crop. Null until the img has
+    // loaded (naturalWidth is 0 before that) or when the slot has no layout
+    // box — ResizeObserver fires with a 0×0 rect under display:none, and
+    // clamping against a degenerate 1×1 frame would silently pull the stored
+    // pan toward zero.
+    _geom() {
+      const ih = this._img.naturalHeight, iw = this._img.naturalWidth;
+      const fh = this.clientHeight, fw = this.clientWidth;
+      if (!iw || !ih || !fw || !fh) return null;
+      const contain = (this.getAttribute('fit') || 'cover').toLowerCase() === 'contain';
+      const base = contain
+        ? Math.min(fw / iw, fh / ih)
+        : Math.max(fw / iw, fh / ih);
+      return { base, fh, fw, ih, iw };
     }
 
     async _ingest(file) {
@@ -909,7 +905,7 @@
         // pending encode, so a byte-identical re-upload (same data URL, no
         // load event coming) still clears the mask via the complete branch.
         this._swapGen = 0;
-        const val = { u: url, s: 1, x: 0, y: 0 };
+        const val = { s: 1, u: url, x: 0, y: 0 };
         setSlot(this.id || '', val);
         // Keep a session-local copy for id-less slots so the drop still
         // shows, even though it cannot persist.
@@ -924,16 +920,6 @@
         this._setError('Could not read that image.');
         console.warn('<image-slot> ingest failed:', err);
       }
-    }
-
-    _setError(msg) {
-      if (this._err) { this._err.remove(); this._err = null; }
-      if (!msg) return;
-      const d = document.createElement('div');
-      d.className = 'err'; d.textContent = msg;
-      this.shadowRoot.appendChild(d);
-      this._err = d;
-      setTimeout(() => { if (this._err === d) { d.remove(); this._err = null; } }, 3000);
     }
 
     // Reframing (pan/resize) is available on any filled slot — the user can
@@ -964,105 +950,6 @@
       ) {
         this.removeAttribute('data-swapping');
       }
-    }
-
-    // Baseline geometry, shared by clamp/apply/resize. `base` is the scale at
-    // view-scale s=1: cover = fill the frame (overflow on the looser axis),
-    // contain = fit fully inside (letterboxed). Zooming a contain image past
-    // s where it overflows naturally becomes a crop. Null until the img has
-    // loaded (naturalWidth is 0 before that) or when the slot has no layout
-    // box — ResizeObserver fires with a 0×0 rect under display:none, and
-    // clamping against a degenerate 1×1 frame would silently pull the stored
-    // pan toward zero.
-    _geom() {
-      const iw = this._img.naturalWidth, ih = this._img.naturalHeight;
-      const fw = this.clientWidth, fh = this.clientHeight;
-      if (!iw || !ih || !fw || !fh) return null;
-      const contain = (this.getAttribute('fit') || 'cover').toLowerCase() === 'contain';
-      const base = contain
-        ? Math.min(fw / iw, fh / ih)
-        : Math.max(fw / iw, fh / ih);
-      return { iw, ih, fw, fh, base };
-    }
-
-    _clampView() {
-      // Pan range on each axis is half the overflow past the frame edge.
-      const g = this._geom();
-      if (!g) return;
-      const mx = Math.max(0, (g.iw * g.base * this._view.s / g.fw - 1) * 50);
-      const my = Math.max(0, (g.ih * g.base * this._view.s / g.fh - 1) * 50);
-      this._view.x = Math.max(-mx, Math.min(mx, this._view.x));
-      this._view.y = Math.max(-my, Math.min(my, this._view.y));
-    }
-
-    _applyView() {
-      const g = this._geom();
-      // Top-layer controls: pin to the frame's top-right in viewport px
-      // (the same 8px inset as the in-frame layout; unscaled — top-layer UI
-      // reads as chrome, not page content). BEFORE the geometry branch:
-      // placement needs only the frame rect, and a not-yet-loaded or broken
-      // src must not leave the promoted strip floating unpositioned. Gated
-      // on the popover actually being open: without the Popover API,
-      // showPopover() threw (swallowed in _enterReframe), .ctl stays in
-      // its in-frame absolute layout, and viewport-px coordinates would
-      // shove it off-frame — and matches(':popover-open') itself throws
-      // there (unknown pseudo-class), hence the try/catch.
-      if (this.hasAttribute('data-reframe')) {
-        let onTop = false;
-        try { onTop = this._ctl.matches(':popover-open'); } catch {}
-        if (onTop) {
-          const r = this.getBoundingClientRect();
-          this._ctl.style.left = (r.right - 8) + 'px';
-          this._ctl.style.top = (r.top + 8) + 'px';
-        }
-      }
-      if (!g) {
-        // Dimensions not known yet (before img load) — centered fit so there
-        // is no flash of an unpositioned image before the geometry lands.
-        const contain = (this.getAttribute('fit') || 'cover').toLowerCase() === 'contain';
-        this._img.style.width = '100%';
-        this._img.style.height = '100%';
-        this._img.style.left = '50%';
-        this._img.style.top = '50%';
-        this._img.style.objectFit = contain ? 'contain' : 'cover';
-        return;
-      }
-      // Baseline (cover-fill or contain-fit) × view scale. Width/height and
-      // left/top are all frame-% — depends only on the frame aspect ratio, so
-      // a responsive resize keeps the same crop. The spill layer mirrors the
-      // same box so its corners = image corners.
-      const k = g.base * this._view.s;
-      const w = (g.iw * k / g.fw * 100) + '%';
-      const h = (g.ih * k / g.fh * 100) + '%';
-      const l = (50 + this._view.x) + '%';
-      const t = (50 + this._view.y) + '%';
-      this._img.style.width = w; this._img.style.height = h;
-      this._img.style.left = l; this._img.style.top = t;
-      this._img.style.objectFit = '';
-      if (this.hasAttribute('data-reframe')) {
-        // Top-layer spill: position in viewport px over the frame. The top
-        // layer escapes ancestor transforms entirely, so EVERY term must be
-        // in viewport units: getBoundingClientRect gives the frame's scaled
-        // origin AND size, and the rect/layout ratio rescales the ghost —
-        // sizing from layout px alone renders it 1/scale too large under a
-        // scaled deck slide. Inner ghost + handles stay box-relative.
-        const r = this.getBoundingClientRect();
-        const sx = g.fw ? r.width / g.fw : 1;
-        const sy = g.fh ? r.height / g.fh : 1;
-        this._spill.style.width = (g.iw * k * sx) + 'px';
-        this._spill.style.height = (g.ih * k * sy) + 'px';
-        this._spill.style.left = (r.left + (50 + this._view.x) / 100 * r.width) + 'px';
-        this._spill.style.top = (r.top + (50 + this._view.y) / 100 * r.height) + 'px';
-      }
-    }
-
-    _commitView() {
-      const v = { s: this._view.s, x: this._view.x, y: this._view.y };
-      if (this._userUrl) v.u = this._userUrl;
-      // Framing-only (no u) persists too so an author-src slot remembers its
-      // crop; clearing the sidecar still falls through to src=.
-      if (this.id) setSlot(this.id, v);
-      else { this._local = v; }
     }
 
     _render() {
@@ -1217,6 +1104,119 @@
       }
       this.toggleAttribute('data-credit', showCredit);
     }
+
+    _setError(msg) {
+      if (this._err) { this._err.remove(); this._err = null; }
+      if (!msg) return;
+      const d = document.createElement('div');
+      d.className = 'err'; d.textContent = msg;
+      this.shadowRoot.appendChild(d);
+      this._err = d;
+      setTimeout(() => { if (this._err === d) { d.remove(); this._err = null; } }, 3000);
+    }
+
+    // Reframe state lives only in this DOM until commit, invisible to the
+    // host's dirty signals — announce enter/exit so the host can hold
+    // auto-reloads for exactly the gesture (the guest bundle forwards
+    // image-slot:reframe to the host as imageSlotReframe). Dispatched on
+    // the element (composed, so it escapes shadow roots) while connected;
+    // a disconnected exit (disconnectedCallback) falls back to document so
+    // the host still hears it.
+    _signalReframe(active) {
+      const target = this.isConnected ? this : document;
+      target.dispatchEvent(new CustomEvent('image-slot:reframe', {
+        bubbles: true, composed: true,
+        detail: { active: active, id: this.id || null }
+      }));
+    }
+
+    // A src write is a newer intent for this slot's content — the host
+    // pick path (setImageSlotImage) or an agent edit — so it must win
+    // over any encode still in flight from an earlier drop: left live,
+    // that encode lands later, passes _ingest's gen guard, and its
+    // setSlot silently overwrites the pick (the stored value shadows
+    // src in _render). Bumping _gen kills the encode before its own
+    // _swapGen clear runs, so clear the dead claim here too — otherwise
+    // _releaseMask (gated on !_swapGen) never fires and the pick's
+    // spinner is stranded. src ONLY: the pick sets credit/credit-href
+    // in the same task, and clearing _swapGen on those would let the
+    // same-src branch unmask the old image mid-encode.
+    attributeChangedCallback(name, oldVal, newVal) {
+      if (name === 'src' && oldVal !== newVal) {
+        this._gen++;
+        this._swapGen = 0;
+      }
+      if (this.shadowRoot) this._render();
+    }
+
+    connectedCallback() {
+      // Warn once per page — an id-less slot works for the session but
+      // cannot persist, and two id-less slots would share nothing.
+      if (!this.id && !ImageSlot._warned) {
+        ImageSlot._warned = true;
+        console.warn('<image-slot> without an id will not persist its dropped image.');
+      }
+      this.addEventListener('dragenter', this);
+      this.addEventListener('dragover', this);
+      this.addEventListener('dragleave', this);
+      this.addEventListener('drop', this);
+      subs.add(this._subFn);
+      // The host may inject window.omelette.writeFile AFTER the first render;
+      // re-render on hover so the editable-gated controls reliably appear.
+      this.addEventListener('pointerenter', this._subFn);
+      // width%/height% in _applyView encode the frame aspect at call time —
+      // a host resize (responsive grid, pane divider) would stretch the
+      // image until the next _render. Re-render on size change: _render()
+      // re-seeds _view from stored before clamp/apply, so a shrink→grow
+      // cycle round-trips instead of ratcheting x/y toward the narrower
+      // frame's clamp range.
+      this._ro = new ResizeObserver(() => this._render());
+      this._ro.observe(this);
+      load();
+      this._render();
+    }
+
+    disconnectedCallback() {
+      subs.delete(this._subFn);
+      this.removeEventListener('pointerenter', this._subFn);
+      this.removeEventListener('dragenter', this);
+      this.removeEventListener('dragover', this);
+      this.removeEventListener('dragleave', this);
+      this.removeEventListener('drop', this);
+      if (this._ro) { this._ro.disconnect(); this._ro = null; }
+      // commit=false: a disconnect is not a user intent — committing here
+      // would persist whatever half-finished drag a React remount or DOM
+      // splice happened to interrupt. Deliberate exits commit on their own
+      // paths (Escape/click-out/toggle), and unloads commit via pagehide.
+      this._exitReframe(false);
+    }
+
+    // handleEvent — one listener object for all four drag events keeps the
+    // add/remove symmetric and the depth counter correct.
+    handleEvent(e) {
+      if (e.type === 'dragenter' || e.type === 'dragover') {
+        // Without preventDefault the browser never fires 'drop'.
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+        if (e.type === 'dragenter') this._depth++;
+        this.setAttribute('data-over', '');
+      } else if (e.type === 'dragleave') {
+        // dragenter/leave fire for every descendant crossing — count depth
+        // so hovering the icon inside the empty state doesn't flicker.
+        if (--this._depth <= 0) { this._depth = 0; this.removeAttribute('data-over'); }
+      } else if (e.type === 'drop') {
+        e.preventDefault();
+        e.stopPropagation();
+        this._depth = 0;
+        this.removeAttribute('data-over');
+        const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (f) this._ingest(f);
+      }
+    }
+
+    // Public: host's "Import from computer" calls this to run local browse.
+    openFilePicker() { this._exitReframe(true); this._input.click(); }
   }
 
   if (!customElements.get('image-slot')) {

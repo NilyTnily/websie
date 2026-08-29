@@ -47,9 +47,7 @@ export interface InquiryStats {
 }
 
 export interface UpdateDeliveryInput {
-  carrier?: string;
   deliveryStatus: Inquiry["deliveryStatus"];
-  trackingUrl?: string;
 }
 
 export async function createInquiry(
@@ -236,9 +234,7 @@ export async function updateInquiryDelivery(
     await db
       .update(inquiryTable)
       .set({
-        carrier: input.carrier || null,
         deliveryStatus: input.deliveryStatus,
-        trackingUrl: input.trackingUrl || null,
         updatedAt: new Date(),
       })
       .where(eq(inquiryTable.id, id));

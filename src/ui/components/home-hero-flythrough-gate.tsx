@@ -1,11 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
 import type { ProductWithRelations } from "~/db/schema/catalog/types";
 
-import { HomeHeroFlythrough } from "~/ui/components/home-hero-flythrough";
 import { HomeHeroScroll } from "~/ui/components/home-hero-scroll";
+
+const HomeHeroFlythrough = dynamic(
+  () => import("~/ui/components/home-hero-flythrough").then((m) => m.HomeHeroFlythrough),
+  { loading: () => <HomeHeroScroll className="bg-krs-onyx" />, ssr: false },
+);
 
 interface HomeHeroFlythroughGateProps {
   className?: string;

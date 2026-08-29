@@ -1,13 +1,18 @@
 "use client";
 
 import { Film, RotateCw } from "lucide-react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import * as React from "react";
 
 import { cn } from "~/lib/cn";
 import { ImageFallback } from "~/ui/components/image-fallback";
 import { LoupeImage } from "~/ui/components/loupe-image";
-import { Product360Viewer } from "~/ui/components/product-360-viewer";
+
+const Product360Viewer = dynamic(
+  () => import("~/ui/components/product-360-viewer").then((m) => m.Product360Viewer),
+  { loading: () => <div className="h-full w-full animate-pulse bg-accent" />, ssr: false },
+);
 
 export interface ProductMediaItem {
   mediaType: "360" | "image" | "video";

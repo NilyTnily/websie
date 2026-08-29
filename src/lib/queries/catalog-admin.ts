@@ -1,7 +1,7 @@
 import "server-only";
 import { createId } from "@paralleldrive/cuid2";
 import { count, eq, inArray } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 import type { NewProduct } from "~/db/schema";
 
@@ -424,5 +424,8 @@ async function generateUniqueId(
 }
 
 function revalidateStorefront(): void {
+  revalidateTag("products");
+  revalidateTag("categories");
+  revalidateTag("site-settings");
   revalidatePath("/", "layout");
 }

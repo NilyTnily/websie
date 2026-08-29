@@ -28,6 +28,18 @@ const ASSET_BASE = "/hero-flythrough";
 const SECTION_SCROLL_WEIGHTS = [1.4, 1.4, 1.6, 1.6];
 const SECTION_COUNT = SECTION_SCROLL_WEIGHTS.length;
 const TABLE_SECTION_INDEX = 1;
+// Scroll allotment (vh) for the leg2 connector clip inserted between
+// section 1 and section 2 (see the `connectors` array passed to
+// mountScrollWorld below) — must stay in sync with `connScroll` there for
+// the same reason SECTION_SCROLL_WEIGHTS must match each section's own
+// `scroll`: sectionPositions() below reimplements the engine's scroll-math
+// independently, so every extra bit of scroll span the engine allocates has
+// to be accounted for here too or our own jump targets land short/long.
+const TABLE_WATCH_CONNECTOR_WIDTH = 1.4;
+// Human-readable names for the dev HUD, same order/index as every other
+// SECTION_* array above — so "section 1" in the HUD reads as "1 · The
+// table" instead of a bare number you have to cross-reference by hand.
+const SECTION_LABELS = ["Storefront", "The table", "Under the loupe", "Fine jewelry"];
 // The table cutouts are revealed by jump-completion state, not scroll
 // position — scrub-engine.js's own crossfade (see CROSSFADE in
 // scrub-engine.js's read()) keeps a dive's video fully opaque across its
@@ -39,64 +51,62 @@ const TABLE_SECTION_INDEX = 1;
 // delay — so they read as "instantly there the moment the shot locks in,"
 // not a slow separate fade-up after arriving. TABLE_FADE_IN_MS is kept just
 // long enough (a couple frames) to avoid a jarring single-frame pop/strobe.
-const TABLE_FADE_IN_MS = 120;
+const TABLE_FADE_IN_MS = 96; // 120 * 0.8 — reveal 20% faster
 // Leaving is intentionally quicker than arriving — once the camera starts
 // pulling away from the tray the composited pieces should peel off right
 // away, not linger over a scene that's already moving on.
 const TABLE_FADE_OUT_MS = 260;
-// How far into each section's scroll range to land, per section — NOT a
-// single constant. scrub-engine.js gives each section its own copy-opacity
-// curve (see read() in scrub-engine.js): section 0 "greets on landing" and
-// its copy is fully gone by pr=0.62; middle sections peak exactly at
-// pr=0.5; the last section ramps up late and holds its CTA near pr=1. A
-// uniform landing fraction breaks legibility on whichever sections don't
-// match that one value — these targets are chosen to land each section on
-// its own copy-opacity peak while still reading as a composed "arrived"
-// shot, not a mid-motion blur.
-// Section 0 lands at the true first frame (fraction 0) — deliberately not
-// biased forward into the clip.
-// The table section is the exception: its title is pinned at 100% by passing
-// the same value as `copyPeak` (scrub-engine.js reads `s.copyPeak`), so it
-// can land on any chosen frame of leg2.mp4 — leg2 was regenerated for the
-// steep table-overhead angle fix (4.04s @ 24fps = 97 frames; 0.93 → frame
-// ~90). Watch and jewelry (leg3.mp4, leg4.mp4) are back to their original,
-// pre-fix assets, so their landing fractions are unchanged from before:
-const TABLE_LANDING_FRACTION = 0.93;
-// Watch (leg3.mp4: 6.04s @ 24fps = 145 frames): 80/145 → 0.552.
-// Jewelry (leg4.mp4 trimmed to 119 frames): lands 10 frames short of the
-// true last frame — frame 109/119 → 0.916. Being the last section, this is
-// also the deepest point jumpTo can reach (it clamps to SECTION_COUNT - 1),
-// so it functions as the final frame — nothing scrolls past it (see also
-// the track-height cap below, which removes the extra scrollable space the
-// engine otherwise leaves past this point).
-const SECTION_LANDING_FRACTIONS = [0, TABLE_LANDING_FRACTION, 0.552, 0.916];
+// Landing fractions for each section — fraction of THAT section's scroll range
+// where the jump should land, which maps to the same fraction of the clip's
+// duration. Read directly off the on-screen frame-counter HUD (bottom-left,
+// dev-only): scroll to where each clip's camera visually settles, note the
+// `fraction` line.
+//
+// 0 (storefront):         0       — leg1-final.mp4, land on the very first
+//                                   frame (storefront exterior).
+// 1 (the table / tray):   0.9869  — leg1-final.mp4, SAME clip as section 0
+//                                   above — scrub-engine.js merges the two
+//                                   into one continuous video instance (see
+//                                   the section's own `clip` comment below),
+//                                   so this is now safe: no double load, no
+//                                   restart-from-0 on the 0→1 jump. Lands on
+//                                   leg1's own tail, the wide straight-on
+//                                   empty tray, per exact HUD reading.
+// 2 (watch->jewelry):    0.12    — leg3-final.mp4, settles on the watch
+//                                  close-up before the camera pulls back into
+//                                  the jewelry-case glide later in the clip.
+// 3 (jewelry hold):      0.9378  — leg4-final.mp4, per exact HUD reading
+//                                  (scrollY 2244px, t 4.85s/5.17s).
+const SECTION_LANDING_FRACTIONS = [0, 0.9869, 0.12, 0.9378];
 // Jump duration scales with distance instead of being fixed — the three
 // possible hops cover very different scroll distances (storefront→table
 // ≈2.7vh, table→watch ≈1.48vh via the connector, watch→jewelry ≈2.18vh; see
 // sectionPositions below), so a fixed wall-clock duration for all of them
 // gave each a different average pace. Scaling by distance keeps every jump
-// moving at roughly the same vh-per-ms rate, which is what actually reads
-// as "consistent pace" rather than "consistent stopwatch time." Clamped so
-// a very short or very long hop (e.g. a multi-section route-dot skip) still
-// feels responsive rather than instant or sluggish.
-const MS_PER_VH = 1000;
-const MIN_JUMP_DURATION_MS = 1200;
-const MAX_JUMP_DURATION_MS = 3000;
+// moving at the same vh-per-ms rate ended up reading as inconsistent pace
+// instead — some hops span far more underlying video (a landing fraction
+// near a clip's end pulls almost the entire next clip through the jump too)
+// than others, so distance-based timing let short-video-content jumps feel
+// snappy and long-video-content ones feel rushed even after clamping. Every
+// jump now takes the exact same wall-clock time — that's what actually
+// reads as "consistent pace" to a person watching it, not a derived rate.
+const JUMP_DURATION_MS = 4180; // 3800 * 1.1 — all jumps slowed 10%
 const WHEEL_TRIGGER_THRESHOLD = 12;
 const TOUCH_TRIGGER_THRESHOLD_PX = 40;
+// A real (non-trackpad) mouse wheel's notches arrive as separate hardware
+// events spaced out over real time — a single quick flick of a free-spinning
+// wheel can still be generating notches 300-600ms after the "gesture" felt
+// like it ended. isJumpingRef alone only blocks input WHILE the 4.18s jump
+// animation is in flight; a trailing notch that lands just after it flips
+// back to false reads as a second, deliberate scroll and fires a second
+// jump — which is exactly what turned "one little scroll" into landing two
+// sections away. This grace window keeps ignoring wheel input for a beat
+// after landing too, so residual notches from the same physical flick are
+// absorbed instead of counted. Scoped to wheel only (see handleWheel) —
+// keyboard and touch have no equivalent hardware queue behind them.
+const WHEEL_COOLDOWN_MS = 550;
 
-// scrub-engine.js inserts a connector segment between two dives when
-// `connectors[i]` is set (see mountScrollWorld below) — used here between
-// table and watch (leg2 now ends near-top-down over the tray; leg3 starts
-// at eye-level in the gallery, too different a camera position to crossfade
-// directly). The connector consumes its own slice of scroll distance in the
-// engine's actual segment layout, so sectionPositions() below must add it
-// in too or every landing position from watch onward would be wrong by
-// this amount — the engine and our own scroll math would disagree about
-// where each section starts.
-const CONNECTOR_SCROLL_WEIGHT = 0.5;
-
-// The table scene's clip (leg2.mp4) native resolution and CSS
+// The table scene's clip (leg1-final.mp4, shared with section 0) native resolution and CSS
 // object-position (see .sw-scene__video in scrub-engine.js's injected CSS)
 // — needed to invert object-fit: cover's crop math in mapCutoutSlot below,
 // so the cutouts track the tray's actual position in the footage at ANY
@@ -105,21 +115,16 @@ const CONNECTOR_SCROLL_WEIGHT = 0.5;
 // aspect ratio it was eyeballed against — cover crops differently at every
 // other ratio, which is exactly what made cutouts sit further and further
 // off the tray on very wide, very narrow, or very large screens.
-const TABLE_VIDEO_WIDTH = 1920;
-const TABLE_VIDEO_HEIGHT = 1080;
+// Matches leg2-final.mp4's actual encoded resolution (2K upscale, 7:4).
+const TABLE_VIDEO_WIDTH = 2520;
+const TABLE_VIDEO_HEIGHT = 1440;
 const TABLE_VIDEO_OBJECT_POSITION_X = 0.5; // "center"
 const TABLE_VIDEO_OBJECT_POSITION_Y = 0.42; // "42%"
 
-// Anchors for the velvet display tray visible in the table scene's landing
-// frame (public/hero-flythrough/scene2-desktop.webp at
-// TABLE_LANDING_FRACTION), expressed as fractions of the SOURCE VIDEO
-// FRAME (0..1 on each axis) rather than the viewport — that's the
+// Anchors for the velvet display tray, expressed as fractions of the SOURCE
+// VIDEO FRAME (0..1 on each axis) rather than the viewport — that's the
 // coordinate system mapCutoutSlot projects onto the current viewport at
-// render time. Pixel-measured against the actual frame (guide render in
-// .tests/tray-guide.png): outer leather pad spans x 0.17→0.72,
-// y 0.135→0.805; the velvet recess floor spans x 0.30→0.675,
-// y 0.215→0.705. Columns divide the velvet floor into thirds, rows into
-// halves.
+// render time.
 //
 // IMPORTANT: every anchor below is the CENTER of that watch's IMAGE — not
 // its top or bottom edge. mapCutoutSlot positions each cutout by its
@@ -130,16 +135,18 @@ const TABLE_VIDEO_OBJECT_POSITION_Y = 0.42; // "42%"
 // crop compose completely differently, so this map doesn't apply there —
 // mobile renders its own independent, viewport-centered grid instead, see
 // the mobile cutout block below).
-// Layout: 2 rows × 3 per line = 6 total.
+// Layout: 2 rows × 3 per line = 6 total, grouped close together at center.
+// yFrac shifted -0.075 (7.5% up) then +0.015 (1.5% back down) from the
+// original 0.433/0.658 rows per direct request — net -0.06.
 const TABLE_CUTOUT_SLOTS = [
-  // Row 1 — back line — tightened gap 1% down
-  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.383 },
-  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.383 },
-  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.383 },
-  // Row 2 — front line — tightened gap 1% up (gap -0.02 total)
-  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.608 },
-  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.608 },
-  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.608 },
+  // Row 1 — back line
+  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.373 },
+  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.373 },
+  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.373 },
+  // Row 2 — front line
+  { wFrac: 0.08, xFrac: 0.362, yFrac: 0.598 },
+  { wFrac: 0.08, xFrac: 0.488, yFrac: 0.598 },
+  { wFrac: 0.08, xFrac: 0.612, yFrac: 0.598 },
 ];
 
 /**
@@ -177,6 +184,20 @@ export function HomeHeroFlythrough({
   }));
   const currentIndexRef = useRef(0);
   const isJumpingRef = useRef(false);
+  // Dev-only calibration readout — polls whichever .sw-scene is currently
+  // most visible (scrub-engine.js sets its zIndex to 120, everything else
+  // lower) and reads its <video>'s currentTime/duration, so the exact
+  // fraction to hardcode into SECTION_LANDING_FRACTIONS can just be read off
+  // the screen while scrolling instead of guessed from static video files.
+  const [hudInfo, setHudInfo] = useState({
+    duration: 0,
+    fraction: 0,
+    isJumping: false,
+    scrollY: 0,
+    sectionIndex: 0,
+    t: 0,
+    videoFile: "",
+  });
 
   useEffect(() => {
     function updateViewportSize() {
@@ -193,23 +214,38 @@ export function HomeHeroFlythrough({
     }
 
     window.mountScrollWorld(containerRef.current, {
-      connectors: [undefined, `${ASSET_BASE}/conn-table-watch.mp4`, undefined],
-      // One entry per gap between sections (index i = the gap after
-      // section i). Only the table→watch gap has a connector — see
-      // CONNECTOR_SCROLL_WEIGHT above for why it's needed there.
-      connectorsMobile: [
-        undefined,
-        `${ASSET_BASE}/conn-table-watch-mobile.mp4`,
-        undefined,
-      ],
-      connScroll: CONNECTOR_SCROLL_WEIGHT,
+      // Off — the gradient/glow sits behind every scene at z-index 0 and is
+      // fully hidden as long as the active scene is at opacity 1, but during
+      // a crossfade the entering/leaving scene briefly dips below 1, letting
+      // this accent-tinted gradient show through. Never asked for, only
+      // capable of reading as an unwanted darken/tint during transitions —
+      // off entirely removes that possibility.
+      atmosphere: false,
+      // Only one real connector: leg2, between section 1 and section 2.
+      // Section 1 now lands on leg1's own tail (the tray) and section 2
+      // starts fresh on leg3 (whose own opening frame is the single-watch
+      // close-up — confirmed pixel-identical to leg2's OWN ending frame).
+      // leg2 is the clip that actually bridges those two — tray at its
+      // start, that same watch close-up at its end — so it plays as a
+      // genuine fly-through during the 1→2 jump instead of jump-cutting
+      // from the tray straight to the watch. See TABLE_WATCH_CONNECTOR_WIDTH
+      // below for how sectionPositions() accounts for its extra scroll span.
+      // The other two seams still crossfade directly — section 0 and
+      // section 3 don't have this same clip-reuse gap.
+      connectors: [undefined, `${ASSET_BASE}/leg2-final.mp4`, undefined],
+      connectorsMobile: [undefined, `${ASSET_BASE}/leg2-mobile.mp4`, undefined],
+      connScroll: TABLE_WATCH_CONNECTOR_WIDTH,
+      // Default seam dissolve is 0.12vh — barely any scroll distance, so it
+      // reads as an abrupt pop rather than a blend. Widened so the dissolve
+      // itself has room to feel like a cross-dissolve instead of a hard cut.
+      crossfade: 0.45,
       hint: "scroll to step inside",
       nav: false,
       sections: [
         {
           accent: "#c8a97e",
           body: "A small house on a quiet street — every piece serviced in-house, every case fitted before it leaves the bench.",
-          clip: `${ASSET_BASE}/leg1.mp4`,
+          clip: `${ASSET_BASE}/leg1-final.mp4`,
           clipMobile: `${ASSET_BASE}/leg1-mobile.mp4`,
           eyebrow: "Fine watches & jewelry",
           id: "storefront",
@@ -221,10 +257,25 @@ export function HomeHeroFlythrough({
         },
         {
           accent: "#c8a97e",
-          body: "",
-          clip: `${ASSET_BASE}/leg2.mp4`,
-          clipMobile: `${ASSET_BASE}/leg2-mobile.mp4`,
-          copyPeak: TABLE_LANDING_FRACTION,
+          body: "Six pieces pulled from the case this week — hover a watch to see it, click to look closer.",
+          // Reuses leg1 (same as section 0) — scrub-engine.js now detects
+          // two adjacent sections sharing a clip and merges them into ONE
+          // continuous video instance spanning both sections' combined
+          // scroll range (see the `owner`/groupStart/groupEnd logic in
+          // scrub-engine.js), instead of loading it twice and restarting
+          // playback at this section's own start. That merge is what makes
+          // it safe to point this at leg1's own tail frame directly.
+          clip: `${ASSET_BASE}/leg1-final.mp4`,
+          clipMobile: `${ASSET_BASE}/leg1-mobile.mp4`,
+          // Tracks the landing fraction (same copyPeak-tracks-landing fix as
+          // watch/jewelry below) so the title is fully opaque exactly when
+          // the shot settles, instead of peaking at the scroll-progress
+          // default of 0.5 and being mostly faded out by the time this
+          // section (which lands near the very end of its own range) stops.
+          copyPeak: SECTION_LANDING_FRACTIONS[1],
+          cta: {
+            primary: { href: "/watches", label: "View all watches" },
+          },
           // moved title down: was copyPos "top" (pinned at top), now default
           // centered copy so "What's on the table today" sits lower
           eyebrow: "Currently on display",
@@ -238,8 +289,18 @@ export function HomeHeroFlythrough({
         {
           accent: "#c8a97e",
           body: "Skeletonized dials, moonphases, hand-finished bridges — the kind of watchmaking worth pausing on.",
-          clip: `${ASSET_BASE}/leg3.mp4`,
+          clip: `${ASSET_BASE}/leg3-final.mp4`,
           clipMobile: `${ASSET_BASE}/leg3-mobile.mp4`,
+          // Without copyPeak, title opacity defaults to peaking at scroll
+          // progress 0.5 — but this section lands at 0.89, so by the time
+          // the camera settles the title had already faded to ~22%
+          // opacity. Pinning peak to the landing fraction keeps it fully
+          // opaque exactly when the shot arrives, same fix as the table
+          // section's copyPeak above.
+          copyPeak: SECTION_LANDING_FRACTIONS[2],
+          cta: {
+            primary: { href: "/watches", label: "Shop watches" },
+          },
           eyebrow: "Under the loupe",
           id: "watch",
           label: "Under the loupe",
@@ -252,10 +313,12 @@ export function HomeHeroFlythrough({
         {
           accent: "#c8a97e",
           body: "Pavé and brilliant-cut stones, set by hand, in platinum and gold.",
-          clip: `${ASSET_BASE}/leg4.mp4`,
+          clip: `${ASSET_BASE}/leg4-final.mp4`,
           clipMobile: `${ASSET_BASE}/leg4-mobile.mp4`,
+          // Same copyPeak fix as watch above — this section lands at 0.916.
+          copyPeak: SECTION_LANDING_FRACTIONS[3],
           cta: {
-            primary: { href: "/watches", label: "Shop the collection" },
+            primary: { href: "/jewelry", label: "Shop the collection" },
           },
           eyebrow: "Fine jewelry",
           id: "jewelry",
@@ -330,20 +393,84 @@ export function HomeHeroFlythrough({
     return () => window.removeEventListener("resize", handleResize);
   }, [engineReady]);
 
+  // Dev-only calibration polling: surfaces the active scene's video
+  // currentTime/duration in the HUD below every animation frame, so the
+  // exact fraction to hardcode into SECTION_LANDING_FRACTIONS can be read
+  // off the screen while scrolling instead of guessed from static files.
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    if (!engineReady) return;
+    let rafId: number;
+
+    function tick() {
+      const scenes =
+        containerRef.current?.querySelectorAll<HTMLElement>(".sw-scene") ??
+        [];
+      let activeEl: HTMLElement | undefined;
+      scenes.forEach((scene) => {
+        if (scene.style.zIndex === "120") activeEl = scene;
+      });
+      const video = activeEl?.querySelector<HTMLVideoElement>(
+        ".sw-scene__video",
+      );
+      if (video && video.duration > 0) {
+        const src = video.currentSrc || video.src;
+        setHudInfo({
+          duration: video.duration,
+          fraction: video.currentTime / video.duration,
+          isJumping: isJumpingRef.current,
+          scrollY: window.scrollY,
+          sectionIndex: currentIndexRef.current,
+          t: video.currentTime,
+          videoFile: src ? (src.split("/").pop() ?? src) : "",
+        });
+      }
+      rafId = requestAnimationFrame(tick);
+    }
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [engineReady]);
+
   // One wheel/swipe/key gesture = one jump to the next or previous scene —
   // never a continuous, many-ticks-per-scene scrub. Uses a manual
   // rAF-driven scroll animation (not native scrollTo smooth-behavior) for
   // consistent, reliable motion.
   useEffect(() => {
+    // Wheel/key/touch input that arrives while a jump is already in flight
+    // is simply ignored — one gesture, one jump. Queuing-and-replaying the
+    // latest direction (a prior approach) let trackpad momentum, which can
+    // keep firing wheel events for a second or more after the user's finger
+    // lifts, chain into a second, third, even fourth jump back-to-back,
+    // which is exactly what read as "one little scroll runs all the way to
+    // the end." Dropping input during a jump is the deliberate tradeoff:
+    // an extra wheel tick mid-animation is lost, but navigation is fully
+    // discrete and predictable — the same physical gesture always produces
+    // the same number of jumps.
+    //
+    // Route-dot / logo clicks are different: a click is a single discrete,
+    // deliberate event, so instead of dropping it (wheel) or queuing it to
+    // run only after the in-flight jump fully finishes (a prior approach —
+    // that made a click during an active jump take up to 2x
+    // JUMP_DURATION_MS to land, which read as "the table button doesn't
+    // show watches" if you didn't wait the full ~8s out), a click always
+    // RETARGETS immediately: cancel whatever jump is currently in flight and
+    // start a fresh one from the current scroll position straight to the
+    // clicked section. activeRafId tracks the in-flight step() loop so it
+    // can actually be cancelled instead of leaving two loops fighting over
+    // window.scrollTo.
+    let activeRafId: null | number = null;
+    // Timestamp (performance.now()) until which wheel input is ignored even
+    // though isJumpingRef.current has already gone back to false — see
+    // WHEEL_COOLDOWN_MS above.
+    let wheelCooldownUntil = 0;
+
     function animateScrollTo(targetY: number) {
+      if (activeRafId !== null) cancelAnimationFrame(activeRafId);
       isJumpingRef.current = true;
       const startY = window.scrollY;
       const distance = targetY - startY;
-      const vh = window.innerHeight;
-      const durationMs = Math.min(
-        MAX_JUMP_DURATION_MS,
-        Math.max(MIN_JUMP_DURATION_MS, (Math.abs(distance) / vh) * MS_PER_VH),
-      );
+      const durationMs = JUMP_DURATION_MS;
       const startTime = performance.now();
       const targetIndex = currentIndexRef.current;
 
@@ -352,9 +479,13 @@ export function HomeHeroFlythrough({
         const progress = Math.min(1, elapsed / durationMs);
         window.scrollTo(0, startY + distance * easeInOutCubic(progress));
         if (progress < 1) {
-          requestAnimationFrame(step);
+          activeRafId = requestAnimationFrame(step);
         } else {
+          activeRafId = null;
           isJumpingRef.current = false;
+          // See WHEEL_COOLDOWN_MS — absorbs trailing wheel notches from the
+          // same physical flick instead of counting them as a new gesture.
+          wheelCooldownUntil = performance.now() + WHEEL_COOLDOWN_MS;
           // Reveal the instant we've landed — no added delay (see
           // TABLE_FADE_IN_MS above for why).
           if (targetIndex === TABLE_SECTION_INDEX) {
@@ -363,7 +494,7 @@ export function HomeHeroFlythrough({
         }
       }
 
-      requestAnimationFrame(step);
+      activeRafId = requestAnimationFrame(step);
     }
 
     function jumpTo(index: number) {
@@ -376,20 +507,31 @@ export function HomeHeroFlythrough({
       animateScrollTo(sectionPositions(window.innerHeight)[clamped]);
     }
 
+    // Browsers restore the previous scrollY on reload/back-navigation by
+    // default (history.scrollRestoration = "auto") — that fights our own
+    // "always land on section 0 on mount" call below, since the browser's
+    // restore can run after ours and silently override it, which is exactly
+    // what was landing the page on whatever deep section was last scrolled
+    // to in a prior session instead of the true start. Taking manual control
+    // stops the browser from touching scrollY on its own.
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
     // Land on section 0's real keyframe immediately — the page must never
     // show the raw y=0 top-of-track state, that's the floor from the start.
     window.scrollTo(0, sectionPositions(window.innerHeight)[0]);
 
-    // scrub-engine.js's own route dots (.sw-route__dot, the side buttons) ship
-    // a built-in click handler that jumps to the MIDPOINT of a section's
-    // scroll range — that lands mid-motion, not on the section's tuned
-    // landing frame (see SECTION_LANDING_FRACTIONS above). We can't remove
-    // the engine's own listener directly (it's a closure inside the vendored
-    // script), so we intercept the click during the capture phase, stop it
-    // from ever reaching the dot, and redirect to our own exact-frame jumpTo.
-    // The same interception redirects the header's KRS logo (the header is a
-    // sibling, not part of the engine's container) back to section 0 instead
-    // of navigating away from this preview.
+    // scrub-engine.js's own route dots (.sw-route__dot, the side buttons)
+    // used to ship a built-in click handler that jumped to the MIDPOINT of a
+    // section's scroll range — that landed mid-motion, not on the section's
+    // tuned landing frame (see SECTION_LANDING_FRACTIONS above); that
+    // internal handler has since been deleted from the vendored script
+    // entirely (it was fully dead anyway, since this capture-phase
+    // interceptor always got there first). We intercept the click during the
+    // capture phase, stop it from ever reaching the dot, and redirect to our
+    // own exact-frame jumpTo. The same interception redirects the header's
+    // KRS logo (the header is a sibling, not part of the engine's container)
+    // back to section 0 instead of navigating away from this preview.
     function handleGlobalClickCapture(e: MouseEvent) {
       const target = e.target as HTMLElement | null;
       const dot = target?.closest?.(".sw-route__dot");
@@ -398,7 +540,9 @@ export function HomeHeroFlythrough({
         e.stopPropagation();
         const route = dot.parentElement;
         const index = route ? Array.from(route.children).indexOf(dot) : -1;
-        if (index >= 0 && !isJumpingRef.current) jumpTo(index);
+        if (index >= 0) {
+          jumpTo(index);
+        }
         return;
       }
 
@@ -406,28 +550,31 @@ export function HomeHeroFlythrough({
       if (brandLink) {
         e.preventDefault();
         e.stopPropagation();
-        if (!isJumpingRef.current) jumpTo(0);
+        jumpTo(0);
       }
     }
     window.addEventListener("click", handleGlobalClickCapture, true);
 
     function handleWheel(e: WheelEvent) {
       e.preventDefault();
-      if (isJumpingRef.current) return;
       // Section 0 is the floor — scrolling further "up" from it is a no-op,
       // never reveals anything above its landing point.
       if (currentIndexRef.current === 0 && e.deltaY < 0) return;
       if (Math.abs(e.deltaY) < WHEEL_TRIGGER_THRESHOLD) return;
-      jumpTo(currentIndexRef.current + (e.deltaY > 0 ? 1 : -1));
+      if (isJumpingRef.current) return;
+      if (performance.now() < wheelCooldownUntil) return;
+      const dir = e.deltaY > 0 ? 1 : -1;
+      jumpTo(currentIndexRef.current + dir);
     }
 
     function handleKeydown(e: KeyboardEvent) {
-      if (isJumpingRef.current) return;
       if (e.key === "ArrowDown" || e.key === "PageDown") {
         e.preventDefault();
+        if (isJumpingRef.current) return;
         jumpTo(currentIndexRef.current + 1);
       } else if (e.key === "ArrowUp" || e.key === "PageUp") {
         e.preventDefault();
+        if (isJumpingRef.current) return;
         jumpTo(currentIndexRef.current - 1);
       }
     }
@@ -451,11 +598,12 @@ export function HomeHeroFlythrough({
       e.preventDefault();
     }
     function handleTouchEnd(e: TouchEvent) {
-      if (isJumpingRef.current) return;
       const endY = e.changedTouches[0]?.clientY ?? touchStartY;
       const delta = touchStartY - endY;
       if (Math.abs(delta) < TOUCH_TRIGGER_THRESHOLD_PX) return;
-      jumpTo(currentIndexRef.current + (delta > 0 ? 1 : -1));
+      if (isJumpingRef.current) return;
+      const dir = delta > 0 ? 1 : -1;
+      jumpTo(currentIndexRef.current + dir);
     }
 
     // Belt-and-suspenders catch-all: anything that can move scrollY without
@@ -518,6 +666,11 @@ export function HomeHeroFlythrough({
             intercepts pointer events over the real Header's top band. */}
       <style>{`
         .sw-copy__num { display: none; }
+        /* Bubbles: the engine always appends .sw-particles regardless of the
+           atmosphere config flag (that flag only gates the gradient/glow
+           layers) — hide it outright instead of patching the vendored
+           script. */
+        .sw-particles { display: none; }
         html, body { overflow-x: visible; }
         .sw-topbar { pointer-events: none; }
         /* Table section title way more down: override centered copy */
@@ -533,6 +686,55 @@ export function HomeHeroFlythrough({
           .sw-route { display: none; }
         }
       `}</style>
+      {process.env.NODE_ENV !== "production" && (
+        // Calibration HUD — read this while dragging the native scrollbar
+        // thumb (the only input this component doesn't intercept into a
+        // discrete jump, so it's the one way to freely scrub to an exact
+        // frame). Wait for the STATUS line to read SETTLED before trusting
+        // a reading — mid-jump values are just whatever frame the jump
+        // animation happens to be passing through, not a real landing point.
+        <div
+          className={`
+            fixed bottom-3 left-3 z-[999] w-72 rounded-lg border
+            border-lime-400/30 bg-black/90 px-4 py-3 font-mono text-sm
+            text-lime-300 shadow-lg shadow-black/50
+          `}
+        >
+          <div
+            className={`
+              mb-2 border-b border-white/10 pb-2 text-xs font-bold tracking-wide
+              ${hudInfo.isJumping ? "text-orange-400" : "text-emerald-400"}
+            `}
+          >
+            {hudInfo.isJumping ? "● JUMPING…" : "● SETTLED"}
+          </div>
+          <div className="mb-1">
+            <span className="text-white/50">section</span>{" "}
+            <span className="font-bold">
+              {hudInfo.sectionIndex} · {SECTION_LABELS[hudInfo.sectionIndex] ?? "?"}
+            </span>
+          </div>
+          <div className="mb-1 truncate">
+            <span className="text-white/50">file</span>{" "}
+            <span className="font-bold">{hudInfo.videoFile || "—"}</span>
+          </div>
+          <div className="mb-1">
+            <span className="text-white/50">t</span>{" "}
+            {hudInfo.t.toFixed(2)}s / {hudInfo.duration.toFixed(2)}s
+          </div>
+          <div className="mb-1 text-white/50">
+            scrollY {Math.round(hudInfo.scrollY)}px
+          </div>
+          <div
+            className={`
+              mt-2 rounded bg-yellow-400/10 px-2 py-1.5 text-base font-bold
+              text-yellow-300
+            `}
+          >
+            fraction {hudInfo.fraction.toFixed(4)}
+          </div>
+        </div>
+      )}
       <div
         className={className}
         ref={containerRef}
@@ -557,7 +759,17 @@ export function HomeHeroFlythrough({
           `}
           style={{
             opacity: isTableSettled ? 1 : 0,
-            pointerEvents: isTableSettled ? "auto" : "none",
+            // NOT "auto" here — this wrapper is `fixed inset-0`, covering
+            // the entire viewport including the real Header up top (which
+            // sits at a lower z-index, z-40, than this z-45 layer). Setting
+            // pointer-events on the wrapper itself made the whole viewport
+            // hit-testable the instant a watch was visible, silently eating
+            // every click on the header/logo/nav while landed on the table
+            // section — that's the "header isn't clickable" bug. Each
+            // cutout <a> below sets its own pointer-events instead, so only
+            // the actual watch images (not the transparent space around
+            // them, including the header strip) ever intercept a click.
+            pointerEvents: "none",
             transition: `opacity ${isTableSettled ? TABLE_FADE_IN_MS : TABLE_FADE_OUT_MS}ms ease`,
           }}
         >
@@ -571,13 +783,16 @@ export function HomeHeroFlythrough({
             );
             return (
               <a
-                className="group absolute hover:z-10"
+                className={`
+                  group absolute
+                  hover:z-10
+                `}
                 href={`/products/${product.id}`}
                 key={product.id}
                 style={{
                   left: `${centerX}%`,
+                  pointerEvents: isTableSettled ? "auto" : "none",
                   top: `${centerY}%`,
-                  width: `${widthPct}%`,
                   // Position by CENTER: the anchor's box is exactly the
                   // image's box (the img below is block w-full and the
                   // labels are out of flow), so this translation puts the
@@ -586,17 +801,19 @@ export function HomeHeroFlythrough({
                   // their centers no matter each image's natural size or
                   // aspect ratio.
                   transform: "translate(-50%, -50%)",
+                  width: `${widthPct}%`,
                 }}
               >
                 {isTopRow && (
                   <p
                     className={`
                       absolute bottom-full left-1/2 z-10 mb-1.5 max-w-[220%]
-                      -translate-x-1/2 whitespace-normal break-words rounded
-                      bg-black/60 px-2 py-0.5 text-center font-display text-xs
-                      leading-tight text-krs-ivory opacity-0 backdrop-blur-sm
-                      transition-opacity duration-200 group-hover:opacity-100
+                      -translate-x-1/2 rounded bg-black/60 px-2 py-0.5
+                      text-center font-display text-xs leading-tight break-words
+                      whitespace-normal text-krs-ivory opacity-0
+                      backdrop-blur-sm transition-opacity duration-200
                       group-hover:text-krs-champagne-light
+                      group-hover:opacity-100
                     `}
                   >
                     {product.name}
@@ -616,12 +833,13 @@ export function HomeHeroFlythrough({
                 {!isTopRow && (
                   <p
                     className={`
-                      absolute left-1/2 top-full z-10 mt-1.5 max-w-[220%]
-                      -translate-x-1/2 whitespace-normal break-words rounded
-                      bg-black/60 px-2 py-0.5 text-center font-display text-xs
-                      leading-tight text-krs-ivory opacity-0 backdrop-blur-sm
-                      transition-opacity duration-200 group-hover:opacity-100
+                      absolute top-full left-1/2 z-10 mt-1.5 max-w-[220%]
+                      -translate-x-1/2 rounded bg-black/60 px-2 py-0.5
+                      text-center font-display text-xs leading-tight break-words
+                      whitespace-normal text-krs-ivory opacity-0
+                      backdrop-blur-sm transition-opacity duration-200
                       group-hover:text-krs-champagne-light
+                      group-hover:opacity-100
                     `}
                   >
                     {product.name}
@@ -650,7 +868,10 @@ export function HomeHeroFlythrough({
           `}
           style={{
             opacity: isTableSettled ? 1 : 0,
-            pointerEvents: isTableSettled ? "auto" : "none",
+            // Same fix as the desktop overlay above — wrapper stays
+            // pointer-events:none (it's fixed inset-x-0, spanning full
+            // width including over the header), each <a> opts itself in.
+            pointerEvents: "none",
             transform: "translateY(-50%)",
             transition: `opacity ${isTableSettled ? TABLE_FADE_IN_MS : TABLE_FADE_OUT_MS}ms ease`,
           }}
@@ -661,6 +882,7 @@ export function HomeHeroFlythrough({
                 className="flex flex-col items-center"
                 href={`/products/${product.id}`}
                 key={product.id}
+                style={{ pointerEvents: isTableSettled ? "auto" : "none" }}
               >
                 {/* Fixed height (not a square background box) — every cutout
                     has its own natural aspect ratio, so pinning height (and
@@ -669,8 +891,7 @@ export function HomeHeroFlythrough({
                 <img
                   alt={product.name}
                   className={`
-                    h-28 w-auto
-                    drop-shadow-[0_6px_12px_rgba(0,0,0,0.55)]
+                    h-28 w-auto drop-shadow-[0_6px_12px_rgba(0,0,0,0.55)]
                   `}
                   decoding="async"
                   loading="lazy"
@@ -752,13 +973,16 @@ function mapCutoutSlot(
 }
 
 function sectionPositions(vh: number): number[] {
+  // Segment chain: dive0(1.4) → dive1(1.4) → [leg2 connector: 1.4] →
+  // dive2(1.6) → dive3(1.6). The connector is real again (see `connectors`
+  // in mountScrollWorld above) — it's what actually bridges section 1
+  // landing on leg1's tray to section 2 starting on leg3's watch close-up.
+  // Sections 0 and 3 still have no connector gap either side of them.
   let offset = 0;
   return SECTION_SCROLL_WEIGHTS.map((w, i) => {
     const landing = (offset + w * SECTION_LANDING_FRACTIONS[i]) * vh;
     offset += w;
-    // Mirrors the engine's own segment layout (layout() in scrub-engine.js),
-    // which inserts the table→watch connector's scroll distance here too.
-    if (i === TABLE_SECTION_INDEX) offset += CONNECTOR_SCROLL_WEIGHT;
+    if (i === 1) offset += TABLE_WATCH_CONNECTOR_WIDTH;
     return landing;
   });
 }

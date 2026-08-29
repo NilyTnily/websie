@@ -66,7 +66,11 @@ export function ProductGalleryEditor({
               key={row.id}
             >
               {row.mediaType === "video" ? (
-                <video className="h-full w-full object-cover" muted src={row.url} />
+                <video
+                  className="h-full w-full object-cover"
+                  muted
+                  src={row.url}
+                />
               ) : (
                 <Image
                   alt="Gallery media"

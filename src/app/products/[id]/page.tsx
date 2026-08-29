@@ -1,16 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { categoryHref } from "~/lib/catalog-links";
 import { getProductById, getRelatedProducts } from "~/lib/queries/catalog";
 import { getSiteSettings } from "~/lib/queries/settings";
 import { slugify } from "~/lib/slugify";
-import { buildWhatsAppLink } from "~/lib/whatsapp";
+import { buildWhatsAppLinkSync } from "~/lib/whatsapp";
 import { FeaturedProductsGrid } from "~/ui/components/featured-products-grid";
 import { ProductGallery } from "~/ui/components/product-gallery";
 import { ProductReviews } from "~/ui/components/product-reviews";
 import { Button } from "~/ui/primitives/button";
 import { Separator } from "~/ui/primitives/separator";
+import { Skeleton } from "~/ui/primitives/skeleton";
 
 import { ProductPurchasePanel } from "./product-purchase-panel";
 
@@ -48,12 +50,10 @@ export default async function ProductDetailPage({
     getSiteSettings(),
   ]);
   if (product && !product.visible) notFound();
-  const relatedProducts = product
-    ? await getRelatedProducts(product.category.id, product.id)
-    : [];
   const viewingLink = product
-    ? await buildWhatsAppLink(
+    ? buildWhatsAppLinkSync(
         `I'd like to book a private viewing of ${product.name} (Ref. ${product.ref}).`,
+        settings.whatsappNumber,
       )
     : null;
 
@@ -284,25 +284,68 @@ export default async function ProductDetailPage({
             </section>
           </div>
 
-          {relatedProducts.length > 0 && (
-            <>
-              <Separator className="my-10" />
-              <section>
-                <h2 className="font-display text-xl text-foreground">
-                  You May Also Like
-                </h2>
-                <div className="mt-6">
-                  <FeaturedProductsGrid products={relatedProducts} />
-                </div>
-              </section>
-            </>
-          )}
+          <Suspense fallback={<RelatedProductsSkeleton />}>
+            <RelatedProductsSection categoryId={product.category.id} productId={product.id} />
+          </Suspense>
 
           <Separator className="my-10" />
 
-          <ProductReviews productId={product.id} />
+          <Suspense fallback={<ReviewsSkeleton />}>
+            <ProductReviews productId={product.id} />
+          </Suspense>
         </div>
       </main>
+    </div>
+  );
+}
+
+async function RelatedProductsSection({
+  categoryId,
+  productId,
+}: {
+  categoryId: string;
+  productId: string;
+}) {
+  const relatedProducts = await getRelatedProducts(categoryId, productId);
+  if (relatedProducts.length === 0) return null;
+  return (
+    <>
+      <Separator className="my-10" />
+      <section>
+        <h2 className="font-display text-xl text-foreground">You May Also Like</h2>
+        <div className="mt-6">
+          <FeaturedProductsGrid products={relatedProducts} />
+        </div>
+      </section>
+    </>
+  );
+}
+
+function RelatedProductsSkeleton() {
+  return (
+    <>
+      <Separator className="my-10" />
+      <div className="space-y-4">
+        <Skeleton className="h-6 w-40" />
+        <div className={`
+          grid grid-cols-2 gap-4
+          sm:grid-cols-4
+        `}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton className="h-64 w-full" key={i} />
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function ReviewsSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-6 w-32" />
+      <Skeleton className="h-20 w-full" />
+      <Skeleton className="h-20 w-full" />
     </div>
   );
 }

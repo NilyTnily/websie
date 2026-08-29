@@ -85,10 +85,11 @@ export function StockNotificationsPageClient({
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Requested" />
         ),
-        meta: defineMeta(
-          (row: StockNotificationWithProduct) => row.createdAt,
-          { displayName: "Requested", icon: Bell, type: "date" },
-        ) as ColumnMeta<StockNotificationWithProduct, unknown>,
+        meta: defineMeta((row: StockNotificationWithProduct) => row.createdAt, {
+          displayName: "Requested",
+          icon: Bell,
+          type: "date",
+        }) as ColumnMeta<StockNotificationWithProduct, unknown>,
       },
       {
         accessorKey: "notified",

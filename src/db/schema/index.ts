@@ -10,6 +10,9 @@ export * from "./inquiries/relations";
 export * from "./inquiries/tables";
 export * from "./inquiries/types";
 
+export * from "./integrations/tables";
+export * from "./integrations/types";
+
 export * from "./newsletter/tables";
 export * from "./newsletter/types";
 
@@ -22,6 +25,10 @@ export * from "./reviews/types";
 
 export * from "./settings/tables";
 export * from "./settings/types";
+
+export * from "./shipments/relations";
+export * from "./shipments/tables";
+export * from "./shipments/types";
 
 export * from "./stock-notifications/relations";
 export * from "./stock-notifications/tables";
@@ -41,3 +48,7 @@ export * from "./users/relations";
 export * from "./users/tables";
 // types
 export * from "./users/types";
+
+export * from "./whatsapp/relations";
+export * from "./whatsapp/tables";
+export * from "./whatsapp/types";

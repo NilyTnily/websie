@@ -2,11 +2,29 @@
 
 import { revalidatePath } from "next/cache";
 
+import { updateIntegrationSettings } from "~/lib/queries/integrations";
 import { updateSiteSettings } from "~/lib/queries/settings";
 
 export interface SettingsFormState {
   error?: string;
   success?: boolean;
+}
+
+export async function updateIntegrationSettingsAction(
+  _prevState: SettingsFormState,
+  formData: FormData,
+): Promise<SettingsFormState> {
+  const result = await updateIntegrationSettings({
+    whatsappAccessToken: optionalText(formData, "whatsappAccessToken"),
+    whatsappAppSecret: optionalText(formData, "whatsappAppSecret"),
+    whatsappPhoneNumberId: optionalText(formData, "whatsappPhoneNumberId"),
+    whatsappVerifyToken: optionalText(formData, "whatsappVerifyToken"),
+  });
+
+  if (!result.success) return { error: result.error };
+
+  revalidatePath("/admin/settings");
+  return { success: true };
 }
 
 export async function updateSiteSettingsAction(

@@ -10,7 +10,8 @@ import {
 } from "nuqs";
 import * as React from "react";
 
-import type { CategoryWithCount, ProductWithRelations } from "~/db/schema";
+import type { CategoryWithCount } from "~/db/schema";
+import type { ProductListItem } from "~/lib/queries/catalog";
 
 import { cn } from "~/lib/cn";
 import { useSiteSettings } from "~/lib/hooks/use-site-settings";
@@ -103,7 +104,7 @@ interface CollectionBrowserProps {
   categories: CategoryWithCount[];
   initialCategoryId?: string;
   lockedCategoryId?: string;
-  products: ProductWithRelations[];
+  products: ProductListItem[];
 }
 
 export function CollectionBrowser({
@@ -135,7 +136,7 @@ export function CollectionBrowser({
   // Clear price param when entering noMoneyMode (your critical requirement)
   React.useEffect(() => {
     if (noMoneyMode && selectedPriceKeys.length > 0) {
-      void setQuery({ price: [], page: 1 });
+      void setQuery({ page: 1, price: [] });
     }
   }, [noMoneyMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -148,7 +149,7 @@ export function CollectionBrowser({
   // Ensure sort is valid when noMoneyMode toggles
   React.useEffect(() => {
     if (noMoneyMode && (sortBy === "price-asc" || sortBy === "price-desc")) {
-      void setQuery({ sort: "featured", page: 1 });
+      void setQuery({ page: 1, sort: "featured" });
     }
   }, [noMoneyMode, sortBy]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -426,16 +427,22 @@ export function CollectionBrowser({
   const filterPanel = (
     <div className="divide-y divide-border">
       {!lockedCategoryId && (
-        <FilterSection title="Category" defaultOpen>
+        <FilterSection defaultOpen title="Category">
           <ul className="space-y-2">
             <li>
               <button
                 aria-pressed={selectedCategoryId === null}
                 className={cn(
-                  "flex w-full items-center justify-between text-sm transition-colors",
+                  `
+                    flex w-full items-center justify-between text-sm
+                    transition-colors
+                  `,
                   selectedCategoryId === null
                     ? "font-medium text-foreground"
-                    : "text-muted-foreground hover:text-foreground",
+                    : `
+                      text-muted-foreground
+                      hover:text-foreground
+                    `,
                 )}
                 onClick={() => setSelectedCategoryId(null)}
                 type="button"
@@ -451,10 +458,16 @@ export function CollectionBrowser({
                 <button
                   aria-pressed={selectedCategoryId === category.id}
                   className={cn(
-                    "flex w-full items-center justify-between text-sm transition-colors",
+                    `
+                      flex w-full items-center justify-between text-sm
+                      transition-colors
+                    `,
                     selectedCategoryId === category.id
                       ? "font-medium text-foreground"
-                      : "text-muted-foreground hover:text-foreground",
+                      : `
+                        text-muted-foreground
+                        hover:text-foreground
+                      `,
                   )}
                   onClick={() => setSelectedCategoryId(category.id)}
                   type="button"
@@ -471,53 +484,58 @@ export function CollectionBrowser({
       )}
 
       <FilterSection
-        title={houseLabel}
         count={houseFacet.length}
         defaultOpen
+        title={houseLabel}
       >
         {houseFacet.length === 0 ? (
           <p className="text-xs text-muted-foreground">No options</p>
         ) : (
           <FacetList
+            idPrefix="house"
+            onToggle={toggleHouse}
             options={houseFacet}
             selected={selectedHouses}
-            onToggle={toggleHouse}
-            idPrefix="house"
           />
         )}
       </FilterSection>
 
-      <FilterSection title="Availability" defaultOpen>
+      <FilterSection defaultOpen title="Availability">
         <label
+          className={`
+            flex cursor-pointer items-center gap-2 text-sm text-foreground
+          `}
           htmlFor="filter-instock"
-          className="flex cursor-pointer items-center gap-2 text-sm text-foreground"
         >
           <Checkbox
-            id="filter-instock"
             checked={inStockFilter === "1"}
+            id="filter-instock"
             onCheckedChange={(v) =>
               void setQuery({ inStock: v ? "1" : "", page: 1 })
             }
           />
           In stock only
-          <span className="ml-auto krs-meta text-[10px] text-muted-foreground">
+          <span className="krs-meta ml-auto text-[10px] text-muted-foreground">
             {categoryScopedProducts.filter((p) => p.inStock).length}
           </span>
         </label>
       </FilterSection>
 
       {!noMoneyMode && (
-        <FilterSection title="Price" defaultOpen>
+        <FilterSection defaultOpen title="Price">
           <ul className="space-y-2">
             {PRICE_BANDS.map((band) => (
               <li key={band.key}>
                 <label
+                  className={`
+                    flex cursor-pointer items-center gap-2 text-sm
+                    text-foreground
+                  `}
                   htmlFor={`price-${band.key}`}
-                  className="flex cursor-pointer items-center gap-2 text-sm text-foreground"
                 >
                   <Checkbox
-                    id={`price-${band.key}`}
                     checked={selectedPriceKeys.includes(band.key)}
+                    id={`price-${band.key}`}
                     onCheckedChange={() => toggleArray("price", band.key, selectedPriceKeys)}
                   />
                   <span className="flex-1">{band.label}</span>
@@ -537,47 +555,50 @@ export function CollectionBrowser({
 
       {/* WATCH FACETS */}
       {showWatchFacets && movementFacet.length > 0 && (
-        <FilterSection title="Movement" count={movementFacet.length}>
+        <FilterSection count={movementFacet.length} title="Movement">
           <FacetList
+            idPrefix="movement"
+            onToggle={(v) => toggleArray("movement", v, selectedMovements)}
             options={movementFacet}
             selected={selectedMovements}
-            onToggle={(v) => toggleArray("movement", v, selectedMovements)}
-            idPrefix="movement"
           />
         </FilterSection>
       )}
       {showWatchFacets && caseMatFacet.length > 0 && (
-        <FilterSection title="Case Material" count={caseMatFacet.length}>
+        <FilterSection count={caseMatFacet.length} title="Case Material">
           <FacetList
+            idPrefix="caseMat"
+            onToggle={(v) => toggleArray("caseMat", v, selectedCaseMats)}
             options={caseMatFacet}
             selected={selectedCaseMats}
-            onToggle={(v) => toggleArray("caseMat", v, selectedCaseMats)}
-            idPrefix="caseMat"
           />
         </FilterSection>
       )}
       {showWatchFacets && strapFacet.length > 0 && (
-        <FilterSection title="Strap" count={strapFacet.length}>
+        <FilterSection count={strapFacet.length} title="Strap">
           <FacetList
+            idPrefix="strap"
+            onToggle={(v) => toggleArray("strap", v, selectedStraps)}
             options={strapFacet}
             selected={selectedStraps}
-            onToggle={(v) => toggleArray("strap", v, selectedStraps)}
-            idPrefix="strap"
           />
         </FilterSection>
       )}
       {showWatchFacets && waterFacet.length > 0 && (
-        <FilterSection title="Water Resistance" count={waterFacet.length}>
+        <FilterSection count={waterFacet.length} title="Water Resistance">
           <ul className="space-y-2">
             {waterFacet.map((opt) => (
               <li key={opt.value}>
                 <label
+                  className={`
+                    flex cursor-pointer items-center gap-2 text-sm
+                    text-foreground
+                  `}
                   htmlFor={`water-${opt.value}`}
-                  className="flex cursor-pointer items-center gap-2 text-sm text-foreground"
                 >
                   <Checkbox
-                    id={`water-${opt.value}`}
                     checked={selectedWaters.includes(opt.value)}
+                    id={`water-${opt.value}`}
                     onCheckedChange={() => toggleArray("water", opt.value, selectedWaters)}
                   />
                   <span className="flex-1">{opt.label}</span>
@@ -593,69 +614,73 @@ export function CollectionBrowser({
 
       {/* JEWELRY FACETS */}
       {showJewelryFacets && metalFacet.length > 0 && (
-        <FilterSection title="Metal" count={metalFacet.length} defaultOpen={isJewelryContext}>
+        <FilterSection count={metalFacet.length} defaultOpen={isJewelryContext} title="Metal">
           <FacetList
+            idPrefix="metal"
+            onToggle={(v) => toggleArray("metal", v, selectedMetals)}
             options={metalFacet}
             selected={selectedMetals}
-            onToggle={(v) => toggleArray("metal", v, selectedMetals)}
-            idPrefix="metal"
           />
         </FilterSection>
       )}
       {showJewelryFacets && gemFacet.length > 0 && (
-        <FilterSection title="Gemstone" count={gemFacet.length} defaultOpen={isJewelryContext}>
+        <FilterSection count={gemFacet.length} defaultOpen={isJewelryContext} title="Gemstone">
           <FacetList
+            idPrefix="gem"
+            onToggle={(v) => toggleArray("gem", v, selectedGems)}
             options={gemFacet}
             selected={selectedGems}
-            onToggle={(v) => toggleArray("gem", v, selectedGems)}
-            idPrefix="gem"
           />
         </FilterSection>
       )}
 
       {caseSizeBounds && caseSizeRange && showWatchFacets && (
-        <FilterSection title="Case Size" defaultOpen={false}>
+        <FilterSection defaultOpen={false} title="Case Size">
           <div className="space-y-3">
             <Slider
-              min={caseSizeBounds[0]}
               max={caseSizeBounds[1]}
+              min={caseSizeBounds[0]}
+              onValueChange={(v) => setCaseSizeRange(v as [number, number])}
               step={1}
               value={caseSizeRange}
-              onValueChange={(v) => setCaseSizeRange(v as [number, number])}
             />
             <div className="flex items-center gap-2">
               <div className="flex flex-1 items-center gap-1.5">
                 <Input
                   aria-label="Min case size"
                   className="h-8 rounded-none text-center text-xs"
-                  type="number"
-                  min={caseSizeBounds[0]}
                   max={caseSizeBounds[1]}
-                  value={caseSizeRange[0]}
+                  min={caseSizeBounds[0]}
                   onChange={(e) => {
                     const n = Number(e.target.value);
                     if (!Number.isNaN(n))
                       setCaseSizeRange([Math.max(caseSizeBounds[0], Math.min(n, caseSizeRange[1])), caseSizeRange[1]]);
                   }}
+                  type="number"
+                  value={caseSizeRange[0]}
                 />
                 <span className="krs-meta text-[10px] text-muted-foreground">—</span>
                 <Input
                   aria-label="Max case size"
                   className="h-8 rounded-none text-center text-xs"
-                  type="number"
-                  min={caseSizeBounds[0]}
                   max={caseSizeBounds[1]}
-                  value={caseSizeRange[1]}
+                  min={caseSizeBounds[0]}
                   onChange={(e) => {
                     const n = Number(e.target.value);
                     if (!Number.isNaN(n))
                       setCaseSizeRange([caseSizeRange[0], Math.min(caseSizeBounds[1], Math.max(n, caseSizeRange[0]))]);
                   }}
+                  type="number"
+                  value={caseSizeRange[1]}
                 />
               </div>
-              <span className="krs-meta shrink-0 text-[10px] text-muted-foreground">mm</span>
+              <span className={`
+                krs-meta shrink-0 text-[10px] text-muted-foreground
+              `}>mm</span>
             </div>
-            <p className="krs-meta text-center text-[10px] text-muted-foreground">
+            <p className={`
+              krs-meta text-center text-[10px] text-muted-foreground
+            `}>
               {caseSizeRange[0]}mm – {caseSizeRange[1]}mm · {categoryScopedProducts.filter((p) => p.caseSizeMm != null && p.caseSizeMm >= caseSizeRange[0] && p.caseSizeMm <= caseSizeRange[1]).length} pieces
             </p>
           </div>
@@ -665,9 +690,12 @@ export function CollectionBrowser({
       {hasActiveFilters && (
         <div className="pt-6">
           <Button
-            variant="link"
-            className="h-auto p-0 text-xs text-krs-champagne hover:text-krs-champagne-light"
+            className={`
+              h-auto p-0 text-xs text-krs-champagne
+              hover:text-krs-champagne-light
+            `}
             onClick={resetFilters}
+            variant="link"
           >
             Clear all filters
           </Button>
@@ -701,19 +729,43 @@ export function CollectionBrowser({
   const totalHouses = new Set(products.map((p) => p.subcategory?.name).filter(Boolean)).size;
 
   return (
-    <div className="flex flex-col gap-8 lg:flex-row lg:gap-10 xl:gap-12 2xl:gap-16">
-      <aside className="hidden w-[264px] shrink-0 lg:block xl:w-[280px] 2xl:w-[300px] lg:sticky lg:top-[calc(var(--header-height)+24px)] lg:max-h-[calc(100vh-var(--header-height)-48px)] lg:overflow-y-auto lg:pr-3 no-scrollbar lg:self-start">
+    <div className={`
+      flex flex-col gap-8
+      lg:flex-row lg:gap-10
+      xl:gap-12
+      2xl:gap-16
+    `}>
+      <aside className={`
+        no-scrollbar hidden w-[264px] shrink-0
+        lg:sticky lg:top-[calc(var(--header-height)+24px)] lg:block
+        lg:max-h-[calc(100vh-var(--header-height)-48px)] lg:self-start
+        lg:overflow-y-auto lg:pr-3
+        xl:w-[280px]
+        2xl:w-[300px]
+      `}>
         {filterPanel}
       </aside>
 
       <div className="min-w-0 flex-1">
-        <div className="mb-6 flex flex-col gap-3 sm:gap-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="relative w-full sm:max-w-[360px] sm:flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+        <div className={`
+          mb-6 flex flex-col gap-3
+          sm:gap-4
+        `}>
+          <div className={`
+            flex flex-col gap-3
+            sm:flex-row sm:items-center sm:justify-between
+          `}>
+            <div className={`
+              relative w-full
+              sm:max-w-[360px] sm:flex-1
+            `}>
+              <Search className={`
+                pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5
+                -translate-y-1/2 text-muted-foreground
+              `} />
               <Input
                 aria-label="Search the collection"
-                className="h-[42px] rounded-none pl-9 pr-9 text-sm"
+                className="h-[42px] rounded-none pr-9 pl-9 text-sm"
                 onChange={(e) => void setQuery({ page: 1, search: e.target.value })}
                 placeholder="Name, house or reference"
                 type="text"
@@ -722,7 +774,11 @@ export function CollectionBrowser({
               {searchQuery && (
                 <button
                   aria-label="Clear search"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className={`
+                    absolute top-1/2 right-3 -translate-y-1/2
+                    text-muted-foreground
+                    hover:text-foreground
+                  `}
                   onClick={() => void setQuery({ page: 1, search: "" })}
                   type="button"
                 >
@@ -731,20 +787,33 @@ export function CollectionBrowser({
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+            <div className={`
+              grid grid-cols-2 gap-2
+              sm:flex sm:items-center
+            `}>
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" className="h-[42px] gap-1.5 rounded-none lg:hidden">
+                  <Button className={`
+                    h-[42px] gap-1.5 rounded-none
+                    lg:hidden
+                  `} variant="outline">
                     <SlidersHorizontal className="h-3.5 w-3.5" />
                     Filters
                     {hasActiveFilters && (
-                      <span className="ml-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground">
+                      <span className={`
+                        ml-1 flex h-4 min-w-4 items-center justify-center
+                        rounded-full bg-primary px-1 text-[10px]
+                        text-primary-foreground
+                      `}>
                         {activeChips.length}
                       </span>
                     )}
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[88%] overflow-y-auto p-6 sm:max-w-[380px]">
+                <SheetContent className={`
+                  w-[88%] overflow-y-auto p-6
+                  sm:max-w-[380px]
+                `} side="left">
                   <SheetTitle className="font-display text-lg">Filter</SheetTitle>
                   <p className="krs-meta mt-1 text-[10px] text-muted-foreground">
                     {filteredProducts.length} pieces · {totalHouses} houses
@@ -756,10 +825,18 @@ export function CollectionBrowser({
                 </SheetContent>
               </Sheet>
 
-              <label className="relative flex items-center sm:w-auto">
+              <label className={`
+                relative flex items-center
+                sm:w-auto
+              `}>
                 <select
                   aria-label="Sort products"
-                  className="h-[42px] w-full appearance-none border border-input bg-transparent pl-3 pr-8 text-xs text-foreground focus-visible:outline-none focus-visible:border-primary sm:min-w-[200px]"
+                  className={`
+                    h-[42px] w-full appearance-none border border-input
+                    bg-transparent pr-8 pl-3 text-xs text-foreground
+                    focus-visible:border-primary focus-visible:outline-none
+                    sm:min-w-[200px]
+                  `}
                   onChange={(e) => void setQuery({ page: 1, sort: e.target.value as SortOption })}
                   value={sortBy}
                 >
@@ -769,7 +846,10 @@ export function CollectionBrowser({
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                <ChevronDown className={`
+                  pointer-events-none absolute right-2.5 h-3.5 w-3.5
+                  text-muted-foreground
+                `} />
               </label>
             </div>
           </div>
@@ -778,19 +858,27 @@ export function CollectionBrowser({
             <div className="flex flex-wrap gap-2">
               {activeChips.map((chip) => (
                 <button
+                  className={`
+                    krs-meta inline-flex items-center gap-1.5 border
+                    border-primary bg-background px-2.5 py-1.5 text-[11px]
+                    text-foreground transition-colors
+                    hover:bg-muted
+                  `}
                   key={chip.key}
-                  type="button"
                   onClick={chip.onClear}
-                  className="krs-meta inline-flex items-center gap-1.5 border border-primary bg-background px-2.5 py-1.5 text-[11px] text-foreground transition-colors hover:bg-muted"
+                  type="button"
                 >
                   {chip.label}
                   <X className="h-3 w-3 shrink-0" />
                 </button>
               ))}
               <button
-                type="button"
+                className={`
+                  krs-meta px-2 py-1.5 text-[11px] text-krs-champagne
+                  hover:text-krs-champagne-light
+                `}
                 onClick={resetFilters}
-                className="krs-meta px-2 py-1.5 text-[11px] text-krs-champagne hover:text-krs-champagne-light"
+                type="button"
               >
                 Clear all
               </button>
@@ -798,7 +886,9 @@ export function CollectionBrowser({
           )}
         </div>
 
-        <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
+        <div className={`
+          mb-6 flex items-center justify-between border-b border-border pb-4
+        `}>
           <p className="text-sm text-muted-foreground">
             {filteredProducts.length === 0
               ? "No pieces"
@@ -809,31 +899,45 @@ export function CollectionBrowser({
               <span> · Showing {rangeStart}–{rangeEnd}</span>
             )}
           </p>
-          <span className="hidden text-xs text-muted-foreground sm:inline">
+          <span className={`
+            hidden text-xs text-muted-foreground
+            sm:inline
+          `}>
             {activeChips.length > 0 ? `${activeChips.length} filters active` : ""}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-y-9 2xl:gap-x-8">
+        <div className={`
+          grid grid-cols-1 gap-x-5 gap-y-8 gap-y-9
+          sm:grid-cols-2 sm:gap-x-6
+          lg:grid-cols-2
+          xl:grid-cols-3
+          2xl:grid-cols-4 2xl:gap-x-8
+        `}>
           {pagedProducts.map((product) => (
             <ProductCard key={product.id} product={toCardProduct(product)} />
           ))}
         </div>
 
         {filteredProducts.length === 0 && (
-          <div className="mt-10 border border-border bg-card px-6 py-12 text-center">
+          <div className={`
+            mt-10 border border-border bg-card px-6 py-12 text-center
+          `}>
             <p className="font-display text-lg text-foreground">No pieces match</p>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+            <p className={`
+              mx-auto mt-2 max-w-md text-sm leading-relaxed
+              text-muted-foreground
+            `}>
               Try widening the price range, clearing the {houseLabel.toLowerCase()} filter, or searching by reference number.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
-              <Button variant="outline" className="rounded-none" onClick={resetFilters}>
+              <Button className="rounded-none" onClick={resetFilters} variant="outline">
                 Clear filters
               </Button>
               <Button
-                variant="ghost"
                 className="rounded-none text-krs-champagne"
                 onClick={() => void setQuery({ search: "" })}
+                variant="ghost"
               >
                 Clear search
               </Button>
@@ -842,30 +946,38 @@ export function CollectionBrowser({
         )}
 
         {pageCount > 1 && (
-          <nav aria-label="Pagination" className="mt-10 flex flex-wrap items-center justify-center gap-1.5">
+          <nav aria-label="Pagination" className={`
+            mt-10 flex flex-wrap items-center justify-center gap-1.5
+          `}>
             <Button
-              variant="outline"
               className="h-[34px] rounded-none px-3 text-xs"
               disabled={currentPage <= 1}
               onClick={() => void setQuery({ page: currentPage - 1 })}
+              variant="outline"
             >
               Prev
             </Button>
             {paginationRange(currentPage, pageCount).map((item, idx) =>
               item === "..." ? (
-                <span key={`ellipsis-${idx}`} className="px-1 text-xs text-muted-foreground">
+                <span className="px-1 text-xs text-muted-foreground" key={`ellipsis-${idx}`}>
                   …
                 </span>
               ) : (
                 <button
-                  key={item}
                   aria-current={item === currentPage ? "page" : undefined}
                   className={cn(
-                    "krs-meta flex h-[34px] min-w-[34px] items-center justify-center border px-2 text-xs transition-colors",
+                    `
+                      krs-meta flex h-[34px] min-w-[34px] items-center
+                      justify-center border px-2 text-xs transition-colors
+                    `,
                     item === currentPage
                       ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border text-foreground hover:border-primary",
+                      : `
+                        border-border text-foreground
+                        hover:border-primary
+                      `,
                   )}
+                  key={item}
                   onClick={() => void setQuery({ page: item as number })}
                   type="button"
                 >
@@ -874,10 +986,10 @@ export function CollectionBrowser({
               ),
             )}
             <Button
-              variant="outline"
               className="h-[34px] rounded-none px-3 text-xs"
               disabled={currentPage >= pageCount}
               onClick={() => void setQuery({ page: currentPage + 1 })}
+              variant="outline"
             >
               Next
             </Button>
@@ -888,46 +1000,31 @@ export function CollectionBrowser({
   );
 }
 
-function FilterSection({
-  title,
-  children,
-  count,
-  defaultOpen = true,
-}: {
-  title: string;
-  children: React.ReactNode;
-  count?: number;
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = React.useState(defaultOpen);
-  return (
-    <div className="py-6 first:pt-0">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between text-left"
-        aria-expanded={open}
-      >
-        <h3 className="krs-eyebrow text-krs-tobacco">
-          {title} {count != null && <span className="ml-1 font-sans text-[10px] normal-case tracking-normal text-muted-foreground">({count})</span>}
-        </h3>
-        <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform", open && "rotate-180")} />
-      </button>
-      {open && <div className="mt-3">{children}</div>}
-    </div>
-  );
+function facetFrom(
+  products: ProductListItem[],
+  get: (p: ProductListItem) => null | string,
+): { count: number; label: string; value: string; }[] {
+  const counts = new Map<string, number>();
+  for (const p of products) {
+    const v = get(p);
+    if (!v) continue;
+    counts.set(v, (counts.get(v) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([value, count]) => ({ count, label: value, value }));
 }
 
 function FacetList({
+  idPrefix,
+  onToggle,
   options,
   selected,
-  onToggle,
-  idPrefix,
 }: {
-  options: { value: string; label: string; count: number }[];
-  selected: string[];
-  onToggle: (v: string) => void;
   idPrefix: string;
+  onToggle: (v: string) => void;
+  options: { count: number; label: string; value: string; }[];
+  selected: string[];
 }) {
   const [showAll, setShowAll] = React.useState(false);
   const visible = showAll ? options : options.slice(0, FACET_COLLAPSED);
@@ -937,25 +1034,32 @@ function FacetList({
         {visible.map((opt) => (
           <li key={opt.value}>
             <label
+              className={`
+                flex cursor-pointer items-center gap-2 text-sm text-foreground
+              `}
               htmlFor={`${idPrefix}-${opt.value}`}
-              className="flex cursor-pointer items-center gap-2 text-sm text-foreground"
             >
               <Checkbox
-                id={`${idPrefix}-${opt.value}`}
                 checked={selected.includes(opt.value)}
+                id={`${idPrefix}-${opt.value}`}
                 onCheckedChange={() => onToggle(opt.value)}
               />
               <span className="min-w-0 flex-1 truncate">{opt.label}</span>
-              <span className="krs-meta shrink-0 text-[10px] text-muted-foreground">{opt.count}</span>
+              <span className={`
+                krs-meta shrink-0 text-[10px] text-muted-foreground
+              `}>{opt.count}</span>
             </label>
           </li>
         ))}
       </ul>
       {options.length > FACET_COLLAPSED && (
         <button
-          type="button"
+          className={`
+            krs-meta mt-3 text-krs-champagne
+            hover:text-krs-champagne-light
+          `}
           onClick={() => setShowAll((v) => !v)}
-          className="krs-meta mt-3 text-krs-champagne hover:text-krs-champagne-light"
+          type="button"
         >
           {showAll ? "Show fewer" : `+ ${options.length - FACET_COLLAPSED} more`}
         </button>
@@ -964,7 +1068,59 @@ function FacetList({
   );
 }
 
-function toCardProduct(product: ProductWithRelations) {
+function FilterSection({
+  children,
+  count,
+  defaultOpen = true,
+  title,
+}: {
+  children: React.ReactNode;
+  count?: number;
+  defaultOpen?: boolean;
+  title: string;
+}) {
+  const [open, setOpen] = React.useState(defaultOpen);
+  return (
+    <div className={`
+      py-6
+      first:pt-0
+    `}>
+      <button
+        aria-expanded={open}
+        className="flex w-full items-center justify-between text-left"
+        onClick={() => setOpen((v) => !v)}
+        type="button"
+      >
+        <h3 className="krs-eyebrow text-krs-tobacco">
+          {title} {count != null && <span className={`
+            ml-1 font-sans text-[10px] tracking-normal text-muted-foreground
+            normal-case
+          `}>({count})</span>}
+        </h3>
+        <ChevronDown className={cn(`
+          h-3.5 w-3.5 text-muted-foreground transition-transform
+        `, open && `rotate-180`)} />
+      </button>
+      {open && <div className="mt-3">{children}</div>}
+    </div>
+  );
+}
+
+function paginationRange(current: number, total: number): ("..." | number)[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const delta = 1;
+  const range: ("..." | number)[] = [];
+  const left = Math.max(2, current - delta);
+  const right = Math.min(total - 1, current + delta);
+  range.push(1);
+  if (left > 2) range.push("...");
+  for (let i = left; i <= right; i++) range.push(i);
+  if (right < total - 1) range.push("...");
+  range.push(total);
+  return range;
+}
+
+function toCardProduct(product: ProductListItem) {
   return {
     house: product.subcategory?.name ?? product.category.name,
     id: product.id,
@@ -974,33 +1130,4 @@ function toCardProduct(product: ProductWithRelations) {
     price: product.price,
     ref: product.ref,
   };
-}
-
-function facetFrom(
-  products: ProductWithRelations[],
-  get: (p: ProductWithRelations) => null | string,
-): { value: string; label: string; count: number }[] {
-  const counts = new Map<string, number>();
-  for (const p of products) {
-    const v = get(p);
-    if (!v) continue;
-    counts.set(v, (counts.get(v) ?? 0) + 1);
-  }
-  return [...counts.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .map(([value, count]) => ({ value, label: value, count }));
-}
-
-function paginationRange(current: number, total: number): (number | "...")[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-  const delta = 1;
-  const range: (number | "...")[] = [];
-  const left = Math.max(2, current - delta);
-  const right = Math.min(total - 1, current + delta);
-  range.push(1);
-  if (left > 2) range.push("...");
-  for (let i = left; i <= right; i++) range.push(i);
-  if (right < total - 1) range.push("...");
-  range.push(total);
-  return range;
 }

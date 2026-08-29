@@ -8,9 +8,73 @@ import {
   updateInquiryDelivery,
   updateInquiryStatus,
 } from "~/lib/queries/inquiries";
+import {
+  createShipment,
+  deleteShipment,
+  type ShipmentInput,
+  updateShipment,
+} from "~/lib/queries/shipments";
+import {
+  applyMessageAsShipment,
+  markMessageIgnored,
+  matchMessageToInquiry,
+} from "~/lib/queries/whatsapp-messages";
 
 export interface DeliveryFormState {
   error?: string;
+}
+
+export interface ShipmentFormState {
+  error?: string;
+}
+
+export async function applyMessageAsShipmentAction(
+  messageId: string,
+  inquiryId: string,
+  _prevState: ShipmentFormState,
+  formData: FormData,
+): Promise<ShipmentFormState> {
+  const result = await applyMessageAsShipment(
+    messageId,
+    inquiryId,
+    parseShipmentFormData(formData),
+  );
+  if (!result.success) return { error: result.error };
+  revalidateOrder(inquiryId);
+  return {};
+}
+
+export async function createShipmentAction(
+  inquiryId: string,
+  _prevState: ShipmentFormState,
+  formData: FormData,
+): Promise<ShipmentFormState> {
+  const result = await createShipment(inquiryId, parseShipmentFormData(formData));
+  if (!result.success) return { error: result.error };
+  revalidateOrder(inquiryId);
+  return {};
+}
+
+export async function deleteShipmentAction(
+  inquiryId: string,
+  shipmentId: string,
+): Promise<void> {
+  await deleteShipment(shipmentId);
+  revalidateOrder(inquiryId);
+}
+
+export async function ignoreMessageAction(messageId: string): Promise<void> {
+  await markMessageIgnored(messageId);
+  revalidatePath("/admin/whatsapp");
+}
+
+export async function matchMessageToOrderAction(
+  messageId: string,
+  inquiryId: string,
+): Promise<void> {
+  await matchMessageToInquiry(messageId, inquiryId);
+  revalidatePath("/admin/whatsapp");
+  revalidatePath(`/admin/inquiries/${inquiryId}`);
 }
 
 export async function updateInquiryDeliveryAction(
@@ -21,14 +85,8 @@ export async function updateInquiryDeliveryAction(
   const deliveryStatus = String(
     formData.get("deliveryStatus") ?? "",
   ) as Inquiry["deliveryStatus"];
-  const carrier = String(formData.get("carrier") ?? "").trim();
-  const trackingUrl = String(formData.get("trackingUrl") ?? "").trim();
 
-  const result = await updateInquiryDelivery(id, {
-    carrier,
-    deliveryStatus,
-    trackingUrl,
-  });
+  const result = await updateInquiryDelivery(id, { deliveryStatus });
   if (!result.success) return { error: result.error };
 
   revalidatePath("/admin/inquiries");
@@ -43,4 +101,33 @@ export async function updateInquiryStatusAction(
 ): Promise<void> {
   await updateInquiryStatus(id, status);
   revalidatePath("/admin/inquiries");
+}
+
+export async function updateShipmentAction(
+  inquiryId: string,
+  shipmentId: string,
+  _prevState: ShipmentFormState,
+  formData: FormData,
+): Promise<ShipmentFormState> {
+  const result = await updateShipment(shipmentId, parseShipmentFormData(formData));
+  if (!result.success) return { error: result.error };
+  revalidateOrder(inquiryId);
+  return {};
+}
+
+function parseShipmentFormData(formData: FormData): ShipmentInput {
+  return {
+    carrier: String(formData.get("carrier") ?? "").trim(),
+    itemIds: formData.getAll("itemIds").map(String),
+    label: String(formData.get("label") ?? "").trim(),
+    trackingNumber: String(formData.get("trackingNumber") ?? "").trim(),
+    trackingUrl: String(formData.get("trackingUrl") ?? "").trim(),
+  };
+}
+
+function revalidateOrder(inquiryId: string): void {
+  revalidatePath("/admin/inquiries");
+  revalidatePath(`/admin/inquiries/${inquiryId}`);
+  revalidatePath(`/dashboard/orders/${inquiryId}`);
+  revalidatePath("/admin/whatsapp");
 }

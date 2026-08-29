@@ -12,6 +12,7 @@ import type { InquiryStats } from "~/lib/queries/inquiries";
 
 import { defineMeta, filterFn } from "~/lib/filters";
 import { formatOrderNumber } from "~/lib/order-number";
+import { ActiveFilterBanner } from "~/ui/components/admin/active-filter-banner";
 import { StatCardGrid } from "~/ui/components/admin/stat-card";
 import { DataTable } from "~/ui/primitives/data-table/data-table";
 import { DataTableColumnHeader } from "~/ui/primitives/data-table/data-table-column-header";
@@ -30,11 +31,13 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
 });
 
 interface InquiriesPageClientProps {
+  activeFilter?: null | { clearHref: string; label: string };
   inquiries: Inquiry[];
   stats: InquiryStats;
 }
 
 export function InquiriesPageClient({
+  activeFilter,
   inquiries,
   stats,
 }: InquiriesPageClientProps) {
@@ -207,6 +210,13 @@ export function InquiriesPageClient({
           },
         ]}
       />
+
+      {activeFilter && (
+        <ActiveFilterBanner
+          clearHref={activeFilter.clearHref}
+          label={activeFilter.label}
+        />
+      )}
 
       <DataTable columns={columns} data={inquiries} />
     </div>

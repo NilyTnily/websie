@@ -8,8 +8,8 @@ const W = 864;
 const H = 496;
 
 // Measured against .tests/tray-grid.png
-const PAD = { x0: 0.17, y0: 0.135, x1: 0.72, y1: 0.805 };
-const VELVET = { x0: 0.3, y0: 0.215, x1: 0.675, y1: 0.705 };
+const PAD = { x0: 0.17, x1: 0.72, y0: 0.135, y1: 0.805 };
+const VELVET = { x0: 0.3, x1: 0.675, y0: 0.215, y1: 0.705 };
 
 // Proposed slots — xFrac/yFrac are the IMAGE CENTER (not top-left).
 const COLS = [0.362, 0.488, 0.612];
@@ -55,7 +55,7 @@ function guideSvg() {
 }
 
 await sharp("public/hero-flythrough/scene2-desktop.webp")
-  .composite([{ input: Buffer.from(guideSvg()), top: 0, left: 0 }])
+  .composite([{ input: Buffer.from(guideSvg()), left: 0, top: 0 }])
   .png()
   .toFile(".tests/tray-guide.png");
 

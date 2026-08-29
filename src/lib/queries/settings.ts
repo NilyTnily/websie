@@ -1,5 +1,6 @@
 import "server-only";
 import { eq } from "drizzle-orm";
+import { revalidateTag, unstable_cache } from "next/cache";
 import { cache } from "react";
 
 import type { SiteSettings } from "~/db/schema";
@@ -36,7 +37,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
 };
 
 /** Falls back to the hardcoded SEO_CONFIG/SOCIAL_LINKS defaults until an admin saves settings for the first time. */
-export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
+async function fetchSiteSettings(): Promise<SiteSettings> {
   try {
     const row = await db.query.siteSettingsTable.findFirst({
       where: eq(siteSettingsTable.id, "default"),
@@ -46,6 +47,17 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
     console.error("Failed to fetch site settings:", error);
     return DEFAULT_SETTINGS;
   }
+}
+
+// Persistent cross-request cache: settings rarely change, revalidated on write or every hour
+const cachedFetchSiteSettings = unstable_cache(fetchSiteSettings, ["site-settings"], {
+  revalidate: 3600,
+  tags: ["site-settings"],
+});
+
+// react.cache dedupes within a single request (generateMetadata + layout), unstable_cache across requests
+export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
+  return cachedFetchSiteSettings();
 });
 
 export async function updateSiteSettings(
@@ -60,6 +72,7 @@ export async function updateSiteSettings(
         set: { ...input, updatedAt: new Date() },
         target: siteSettingsTable.id,
       });
+    revalidateTag("site-settings");
     return { success: true };
   } catch (error) {
     console.error("Failed to update site settings:", error);

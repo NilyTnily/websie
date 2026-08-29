@@ -50,13 +50,31 @@ export function buildInquiryMessage(input: InquiryMessageInput): string {
 /** Returns null when no WhatsApp number is configured, so callers can fall back gracefully. */
 export async function buildWhatsAppLink(
   message: string,
+  whatsappNumber?: null | string,
 ): Promise<null | string> {
-  const settings = await getSiteSettings();
-  const rawNumber = settings.whatsappNumber ?? process.env.WHATSAPP_NUMBER;
+  let rawNumber = whatsappNumber;
+  if (rawNumber === undefined) {
+    const settings = await getSiteSettings();
+    rawNumber = settings.whatsappNumber ?? process.env.WHATSAPP_NUMBER;
+  } else {
+    rawNumber = rawNumber ?? process.env.WHATSAPP_NUMBER;
+  }
   if (!rawNumber) return null;
 
   const digits = rawNumber.replace(/\D/g, "");
   if (!digits) return null;
 
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
+
+/** Sync version when caller already has settings — avoids extra DB hit */
+export function buildWhatsAppLinkSync(
+  message: string,
+  whatsappNumber: null | string | undefined,
+): null | string {
+  const rawNumber = whatsappNumber ?? process.env.WHATSAPP_NUMBER;
+  if (!rawNumber) return null;
+  const digits = rawNumber.replace(/\D/g, "");
+  if (!digits) return null;
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }

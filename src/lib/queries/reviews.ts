@@ -1,5 +1,6 @@
 import "server-only";
 import { and, desc, eq, sql } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 
 import type { ProductReview } from "~/db/schema";
 
@@ -45,6 +46,8 @@ export async function approveReview(
       .update(productReviewTable)
       .set({ approved: true })
       .where(eq(productReviewTable.id, id));
+    const { revalidateTag } = await import("next/cache");
+    revalidateTag("reviews");
     return MutationResult.ok();
   } catch (error) {
     console.error("Failed to approve review:", error);
@@ -99,6 +102,8 @@ export async function createReview(
       rating: Math.min(5, Math.max(1, Math.round(input.rating))),
       userId: input.userId,
     });
+    const { revalidateTag } = await import("next/cache");
+    revalidateTag("reviews");
     return MutationResult.ok();
   } catch (error) {
     console.error("Failed to create review:", error);
@@ -119,7 +124,7 @@ export async function getAllReviewsForAdmin(): Promise<ReviewWithProduct[]> {
   }
 }
 
-export async function getApprovedReviewsForProduct(
+async function fetchApprovedReviewsForProduct(
   productId: string,
 ): Promise<ProductReviewSummary> {
   try {
@@ -140,6 +145,12 @@ export async function getApprovedReviewsForProduct(
     console.error("Failed to fetch reviews:", error);
     return { averageRating: 0, reviews: [], totalCount: 0 };
   }
+}
+const cachedApprovedReviews = unstable_cache(fetchApprovedReviewsForProduct, ["approved-reviews"], { tags: ["reviews"], revalidate: 60 });
+export async function getApprovedReviewsForProduct(
+  productId: string,
+): Promise<ProductReviewSummary> {
+  return cachedApprovedReviews(productId);
 }
 
 export async function getReviewStats(): Promise<ReviewStats> {
@@ -169,6 +180,8 @@ export async function rejectReview(
   await requireAdmin();
   try {
     await db.delete(productReviewTable).where(eq(productReviewTable.id, id));
+    const { revalidateTag } = await import("next/cache");
+    revalidateTag("reviews");
     return MutationResult.ok();
   } catch (error) {
     console.error("Failed to reject review:", error);

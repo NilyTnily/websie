@@ -26,7 +26,9 @@ interface TableOrderEditorProps {
 export function TableOrderEditor({ products }: TableOrderEditorProps) {
   const router = useRouter();
   const [isSaving, startSaving] = useTransition();
-  const [order, setOrder] = useState(() => products.map((product) => product.id));
+  const [order, setOrder] = useState(() =>
+    products.map((product) => product.id),
+  );
   const [draggedId, setDraggedId] = useState<null | string>(null);
 
   const isDirty = order.some((id, index) => id !== products[index]?.id);
@@ -100,9 +102,7 @@ export function TableOrderEditor({ products }: TableOrderEditorProps) {
               onDrop={() => handleDrop(id)}
             >
               <div
-                className={`
-                  relative h-16 w-16 overflow-hidden rounded bg-muted
-                `}
+                className={`relative h-16 w-16 overflow-hidden rounded bg-muted`}
               >
                 <Image
                   alt={product.name}

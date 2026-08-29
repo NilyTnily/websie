@@ -9,7 +9,9 @@ import {
   Navigation,
   Package,
   PackageCheck,
+  RotateCcw,
   Truck,
+  XCircle,
 } from "lucide-react";
 
 import type { Inquiry } from "~/db/schema";
@@ -19,6 +21,7 @@ import {
   DELIVERY_STATUS_LABEL,
   DELIVERY_STEPS,
   getDeliveryStepIndex,
+  isTerminalDeliveryStatus,
 } from "~/lib/delivery-status";
 import { Button } from "~/ui/primitives/button";
 
@@ -26,12 +29,14 @@ const STEP_ICON: Record<
   Inquiry["deliveryStatus"],
   React.ComponentType<{ className?: string }>
 > = {
+  cancelled: XCircle,
   confirmed: BadgeCheck,
   delivered: PackageCheck,
   out_for_delivery: Navigation,
   pending_review: Clock,
   placed: Package,
   processing: Hammer,
+  refunded: RotateCcw,
   shipped: Truck,
 };
 
@@ -46,6 +51,33 @@ export function OrderProgressTracker({
   deliveryStatus,
   trackingUrl,
 }: OrderProgressTrackerProps) {
+  if (isTerminalDeliveryStatus(deliveryStatus)) {
+    const isCancelled = deliveryStatus === "cancelled";
+    const Icon = isCancelled ? XCircle : RotateCcw;
+    return (
+      <div
+        className={cn(
+          "flex items-center gap-3 border p-6",
+          isCancelled
+            ? "border-destructive/30 bg-destructive/5 text-destructive"
+            : "border-border bg-muted/30 text-muted-foreground",
+        )}
+      >
+        <Icon className="h-6 w-6 shrink-0" />
+        <div>
+          <p className="font-semibold">
+            {DELIVERY_STATUS_LABEL[deliveryStatus]}
+          </p>
+          <p className="text-sm opacity-80">
+            {isCancelled
+              ? "This order was cancelled and is no longer in progress."
+              : "This order was refunded."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const currentIndex = getDeliveryStepIndex(deliveryStatus);
   const progressPercent = (currentIndex / (DELIVERY_STEPS.length - 1)) * 100;
 

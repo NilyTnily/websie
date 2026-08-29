@@ -56,6 +56,11 @@ export const deliveryStatusEnum = pgEnum("delivery_status", [
   "shipped",
   "out_for_delivery",
   "delivered",
+  // Terminal states — not part of the linear sequence above, selectable at
+  // any time from any stage. See TERMINAL_DELIVERY_STATUSES in
+  // ~/lib/delivery-status.
+  "cancelled",
+  "refunded",
 ]);
 
 // A cart handed off as a purchase request (via WhatsApp or another channel)

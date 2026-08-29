@@ -85,8 +85,8 @@ export function ProductPurchasePanel({
       <div className="mt-4 flex items-center gap-3">
         <Button
           className={`
-            h-[54px] flex-1 rounded-none text-xs font-medium
-            tracking-[0.15em] uppercase
+            h-[54px] flex-1 rounded-none text-xs font-medium tracking-[0.15em]
+            uppercase
           `}
           disabled={isAdding}
           onClick={handleAddToCart}

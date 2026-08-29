@@ -22,6 +22,7 @@ import type { ProductWithRelations } from "~/db/schema";
 import { ConfirmSubmitButton } from "~/app/admin/confirm-submit-button";
 import { defineMeta, filterFn } from "~/lib/filters";
 import { MAX_TABLE_PRODUCTS } from "~/lib/table-constants";
+import { ActiveFilterBanner } from "~/ui/components/admin/active-filter-banner";
 import { StatCardGrid } from "~/ui/components/admin/stat-card";
 import { Badge } from "~/ui/primitives/badge";
 import { Button } from "~/ui/primitives/button";
@@ -40,16 +41,22 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
 });
 
 interface ProductsPageClientProps {
+  activeFilter?: null | { clearHref: string; label: string };
   products: ProductWithRelations[];
 }
 
-export function ProductsPageClient({ products }: ProductsPageClientProps) {
+export function ProductsPageClient({
+  activeFilter,
+  products,
+}: ProductsPageClientProps) {
   const router = useRouter();
   const [isSaving, startSaving] = useTransition();
   // Draft visibility state — checkboxes only edit this locally; nothing is
   // persisted until "Save Changes" is clicked (see setProductsVisibilityAction).
   const [draft, setDraft] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(products.map((product) => [product.id, product.visible])),
+    Object.fromEntries(
+      products.map((product) => [product.id, product.visible]),
+    ),
   );
 
   const inStock = products.filter((product) => product.inStock);
@@ -74,7 +81,9 @@ export function ProductsPageClient({ products }: ProductsPageClientProps) {
   );
 
   const setAllVisibility = (visible: boolean) => {
-    setDraft(Object.fromEntries(products.map((product) => [product.id, visible])));
+    setDraft(
+      Object.fromEntries(products.map((product) => [product.id, visible])),
+    );
   };
 
   const handleSaveVisibility = () => {
@@ -284,6 +293,13 @@ export function ProductsPageClient({ products }: ProductsPageClientProps) {
       </div>
 
       <TableOrderEditor products={onTable} />
+
+      {activeFilter && (
+        <ActiveFilterBanner
+          clearHref={activeFilter.clearHref}
+          label={activeFilter.label}
+        />
+      )}
 
       <StatCardGrid
         stats={[

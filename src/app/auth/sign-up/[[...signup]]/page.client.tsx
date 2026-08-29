@@ -153,8 +153,8 @@ export function SignUpPageClient() {
                 <div className="grid gap-2">
                   <Label htmlFor="name">Full Name</Label>
                   <Input
-                    id="name"
                     autoComplete="name"
+                    id="name"
                     name="name"
                     onChange={handleChange}
                     placeholder="John Doe"
@@ -166,10 +166,10 @@ export function SignUpPageClient() {
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
-                    id="email"
                     autoCapitalize="off"
                     autoComplete="email"
                     autoCorrect="off"
+                    id="email"
                     inputMode="email"
                     name="email"
                     onChange={handleChange}
@@ -183,14 +183,16 @@ export function SignUpPageClient() {
                 <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
                   <Input
-                    id="password"
                     autoComplete="new-password"
+                    id="password"
                     name="password"
                     onChange={handleChange}
                     type="password"
                     value={formData.password}
                   />
-                  {fieldErrors.password ? <p className="text-sm text-destructive">{fieldErrors.password}</p> : null}
+                  {fieldErrors.password ? <p className={`
+                    text-sm text-destructive
+                  `}>{fieldErrors.password}</p> : null}
                 </div>
                 {error && (
                   <div className="text-sm font-medium text-destructive">

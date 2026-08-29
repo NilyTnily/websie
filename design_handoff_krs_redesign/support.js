@@ -2,7 +2,7 @@
 "use strict";
 (() => {
   var __defProp = Object.defineProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { configurable: true, enumerable: true, value, writable: true }) : obj[key] = value;
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
   // src/react.ts
@@ -25,14 +25,14 @@
     const dc = doc.querySelector("x-dc");
     if (!dc) return null;
     const scriptEl = doc.querySelector("script[data-dc-script]");
-    const { props, preview } = parseDataProps(
+    const { preview, props } = parseDataProps(
       scriptEl?.getAttribute("data-props") ?? null
     );
     return {
-      template: dc.innerHTML,
       js: scriptEl ? scriptEl.textContent || "" : "",
+      preview,
       props,
-      preview
+      template: dc.innerHTML
     };
   }
   function parseDcText(src) {
@@ -43,26 +43,26 @@
     const template = src.slice(openMatch.index + openMatch[0].length, close);
     const doc = new DOMParser().parseFromString(src, "text/html");
     const scriptEl = doc.querySelector("script[data-dc-script]");
-    const { props, preview } = parseDataProps(
+    const { preview, props } = parseDataProps(
       scriptEl?.getAttribute("data-props") ?? null
     );
     return {
-      template,
       js: scriptEl ? scriptEl.textContent || "" : "",
+      preview,
       props,
-      preview
+      template
     };
   }
   function parseDataProps(raw) {
-    if (!raw) return { props: null, preview: null };
+    if (!raw) return { preview: null, props: null };
     let parsed;
     try {
       parsed = JSON.parse(raw);
     } catch {
-      return { props: null, preview: null };
+      return { preview: null, props: null };
     }
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      return { props: null, preview: null };
+      return { preview: null, props: null };
     }
     const obj = parsed;
     const preview = obj.$preview && typeof obj.$preview === "object" ? obj.$preview : null;
@@ -70,7 +70,7 @@
     for (const k of Object.keys(obj)) {
       if (k[0] !== "$") rest[k] = obj[k];
     }
-    return { props: Object.keys(rest).length ? rest : null, preview };
+    return { preview, props: Object.keys(rest).length ? rest : null };
   }
   function dcNameFromPath(pathname) {
     let p = pathname || "";
@@ -213,12 +213,12 @@
       const lv = resolve(vals, expr.slice(0, eq.index));
       const rv = resolve(vals, expr.slice(eq.index + eq.op.length));
       switch (eq.op) {
-        case "===":
-          return lv === rv;
         case "!==":
           return lv !== rv;
         case "==":
           return lv == rv;
+        case "===":
+          return lv === rv;
         default:
           return lv != rv;
       }
@@ -301,60 +301,60 @@
     )
   );
   var RAW_WRAP = {
+    caption: "sc-raw-caption",
     select: "sc-raw-select",
     table: "sc-raw-table",
     tbody: "sc-raw-tbody",
-    thead: "sc-raw-thead",
-    tfoot: "sc-raw-tfoot",
-    tr: "sc-raw-tr",
     td: "sc-raw-td",
+    tfoot: "sc-raw-tfoot",
     th: "sc-raw-th",
-    caption: "sc-raw-caption"
+    thead: "sc-raw-thead",
+    tr: "sc-raw-tr"
   };
   var RAW_UNWRAP = Object.fromEntries(
     Object.entries(RAW_WRAP).map(([k, v]) => [v, k])
   );
   var EVENT_MAP = {
-    onclick: "onClick",
-    onchange: "onChange",
-    oninput: "onInput",
-    onsubmit: "onSubmit",
-    onkeydown: "onKeyDown",
-    onkeyup: "onKeyUp",
-    onkeypress: "onKeyPress",
-    onmousedown: "onMouseDown",
-    onmouseup: "onMouseUp",
-    onmouseenter: "onMouseEnter",
-    onmouseleave: "onMouseLeave",
-    onfocus: "onFocus",
+    onanimationend: "onAnimationEnd",
+    onanimationiteration: "onAnimationIteration",
+    onanimationstart: "onAnimationStart",
     onblur: "onBlur",
-    ondoubleclick: "onDoubleClick",
+    onchange: "onChange",
+    onclick: "onClick",
     oncontextmenu: "onContextMenu",
-    onmousemove: "onMouseMove",
-    onmouseover: "onMouseOver",
-    onmouseout: "onMouseOut",
-    onpointerdown: "onPointerDown",
-    onpointerup: "onPointerUp",
-    onpointermove: "onPointerMove",
-    onpointerenter: "onPointerEnter",
-    onpointerleave: "onPointerLeave",
-    onpointercancel: "onPointerCancel",
-    onpointerover: "onPointerOver",
-    onpointerout: "onPointerOut",
-    ongotpointercapture: "onGotPointerCapture",
-    onlostpointercapture: "onLostPointerCapture",
-    ontouchstart: "onTouchStart",
-    ontouchend: "onTouchEnd",
-    ontouchmove: "onTouchMove",
-    ontouchcancel: "onTouchCancel",
-    ondragstart: "onDragStart",
+    ondoubleclick: "onDoubleClick",
     ondragend: "onDragEnd",
     ondragenter: "onDragEnter",
     ondragleave: "onDragLeave",
     ondragover: "onDragOver",
-    onanimationstart: "onAnimationStart",
-    onanimationend: "onAnimationEnd",
-    onanimationiteration: "onAnimationIteration",
+    ondragstart: "onDragStart",
+    onfocus: "onFocus",
+    ongotpointercapture: "onGotPointerCapture",
+    oninput: "onInput",
+    onkeydown: "onKeyDown",
+    onkeypress: "onKeyPress",
+    onkeyup: "onKeyUp",
+    onlostpointercapture: "onLostPointerCapture",
+    onmousedown: "onMouseDown",
+    onmouseenter: "onMouseEnter",
+    onmouseleave: "onMouseLeave",
+    onmousemove: "onMouseMove",
+    onmouseout: "onMouseOut",
+    onmouseover: "onMouseOver",
+    onmouseup: "onMouseUp",
+    onpointercancel: "onPointerCancel",
+    onpointerdown: "onPointerDown",
+    onpointerenter: "onPointerEnter",
+    onpointerleave: "onPointerLeave",
+    onpointermove: "onPointerMove",
+    onpointerout: "onPointerOut",
+    onpointerover: "onPointerOver",
+    onpointerup: "onPointerUp",
+    onsubmit: "onSubmit",
+    ontouchcancel: "onTouchCancel",
+    ontouchend: "onTouchEnd",
+    ontouchmove: "onTouchMove",
+    ontouchstart: "onTouchStart",
     ontransitionend: "onTransitionEnd"
   };
   var ATTRS = `(?:[^>"']|"[^"]*"|'[^']*')*`;
@@ -440,19 +440,19 @@
       }
       propGetters.push([key, compileAttr(value)]);
     }
-    return { propGetters, pseudoClasses, hintSize };
+    return { hintSize, propGetters, pseudoClasses };
   }
   var HOST_STYLE_PROPS = /* @__PURE__ */ new Set([
-    "position",
+    "bottom",
+    "height",
+    "inset",
     "left",
+    "position",
     "right",
     "top",
-    "bottom",
-    "inset",
+    "transform",
     "width",
-    "height",
-    "z-index",
-    "transform"
+    "z-index"
   ]);
   function hostPositionStyle(style) {
     const all = typeof style === "string" ? cssToObj(style) : style != null && typeof style === "object" ? style : null;
@@ -491,7 +491,7 @@
     return el.localName === "x-import" && (el.getAttribute("component-from-global-scope") || "") === "deck-stage";
   }
   function walkDeckChildren(el, host) {
-    const pairs = [...el.childNodes].map((c) => ({ c, b: walk(c, host) })).filter((p) => p.b !== null);
+    const pairs = [...el.childNodes].map((c) => ({ b: walk(c, host), c })).filter((p) => p.b !== null);
     const kids = pairs.map((p) => p.b);
     const seen = /* @__PURE__ */ new Set();
     const wsSeen = /* @__PURE__ */ new Map();
@@ -518,7 +518,7 @@
           keys.push(n === 0 ? base : base + ":" + n);
           continue;
         }
-        return { kids, keys: null };
+        return { keys: null, kids };
       }
       if (c.nodeType !== Node.ELEMENT_NODE) {
         keys.push(j);
@@ -530,15 +530,15 @@
         keys.push(j);
         continue;
       }
-      if (DECK_CONTROL_FLOW_RE.test(tag)) return { kids, keys: null };
+      if (DECK_CONTROL_FLOW_RE.test(tag)) return { keys: null, kids };
       const v = child.getAttribute("data-om-slide-id");
       if (!v || !SLIDE_ID_VALUE_RE.test(v) || seen.has(v)) {
-        return { kids, keys: null };
+        return { keys: null, kids };
       }
       seen.add(v);
       keys.push("omid:" + v);
     }
-    return { kids, keys };
+    return { keys, kids };
   }
   function renderDeckKids(kids, kidKeys, vals, ctx) {
     return kids.map((b, j) => {
@@ -584,7 +584,7 @@
             if (document.body?.hasAttribute("data-dc-editor-on")) {
               return h(
                 "span",
-                { key: i, className: "sc-interp sc-unresolved" },
+                { className: "sc-interp sc-unresolved", key: i },
                 "{{ " + p.trim() + " }}"
               );
             }
@@ -596,7 +596,7 @@
           }
           return h(
             "span",
-            { key: i, className: "sc-interp sc-missing" },
+            { className: "sc-interp sc-missing", key: i },
             p.trim()
           );
         }
@@ -604,7 +604,7 @@
           return h(getReact().Fragment, { key: i }, v);
         }
         if (v === null || typeof v === "boolean") return null;
-        return h("span", { key: i, className: "sc-interp" }, String(v));
+        return h("span", { className: "sc-interp", key: i }, String(v));
       })
     );
   }
@@ -633,7 +633,7 @@
         getReact().Fragment,
         { key },
         list.map((item, i) => {
-          const sub = { ...vals, [asName]: item, $index: i };
+          const sub = { ...vals, $index: i, [asName]: item };
           return h(
             getReact().Fragment,
             { key: i },
@@ -666,14 +666,14 @@
     const styleRaw = el.getAttribute("style");
     el.removeAttribute("style");
     const styleGet = styleRaw != null ? compileAttr(styleRaw) : null;
-    const { propGetters, hintSize } = collectProps(el, "dc-import", host);
+    const { hintSize, propGetters } = collectProps(el, "dc-import", host);
     const kids = walkChildren(el, host);
     return (vals, ctx, key) => {
       const props = {
-        key,
         __hintSize: hintSize,
+        __hostStyle: styleGet ? hostPositionStyle(styleGet(vals)) : void 0,
         __tplId: tplId,
-        __hostStyle: styleGet ? hostPositionStyle(styleGet(vals)) : void 0
+        key
       };
       for (const [k, g] of propGetters) {
         const v = g(vals);
@@ -703,7 +703,7 @@
     el.removeAttribute("style");
     const styleGet = styleRaw != null ? compileAttr(styleRaw) : null;
     const wrap = tplId != null || styleGet != null;
-    const { propGetters, hintSize } = collectProps(el, "x-import", host);
+    const { hintSize, propGetters } = collectProps(el, "x-import", host);
     const hasContent = el.children.length > 0 || !!(el.textContent || "").trim();
     const deckKeyed = hasContent && isDeckMountTag(el) ? walkDeckChildren(el, host) : null;
     const kids = deckKeyed ? deckKeyed.kids : hasContent ? walkChildren(el, host) : [];
@@ -724,18 +724,18 @@
       const C = !name || urlBindable ? null : globalName ? host.resolveExternalGlobal(url, globalName) : host.resolveExternal(url, name);
       const hostStyle = styleGet ? hostPositionStyle(styleGet(vals)) : void 0;
       const wrapper = wrap ? {
-        key,
         className: "sc-host-x",
         "data-dc-tpl": tplId,
+        key,
         style: hostStyle || { display: "contents" }
       } : null;
       if (!C) {
         const error = urlBindable ? "x-import `from` cannot contain {{ \u2026 }} \u2014 module URLs are resolved at parse time; use a literal URL" : host.resolveExternalError(url, name);
         const ph = host.placeholder({
-          key: wrapper ? void 0 : key,
-          name,
+          error,
           hintSize,
-          error
+          key: wrapper ? void 0 : key,
+          name
         });
         return wrapper ? h("div", wrapper, ph) : ph;
       }
@@ -755,10 +755,10 @@
       }
       if (unresolvedHole && ctx?.__htmlStreamingNow) {
         const ph = host.placeholder({
-          key: wrapper ? void 0 : key,
-          name,
+          error: null,
           hintSize,
-          error: null
+          key: wrapper ? void 0 : key,
+          name
         });
         return wrapper ? h("div", wrapper, ph) : ph;
       }
@@ -795,8 +795,8 @@
     const kidKeys = deckKeyed?.keys ?? null;
     return (vals, ctx, key) => {
       const props = {
-        key: key + keySuffix,
-        "data-dc-tpl": tplId
+        "data-dc-tpl": tplId,
+        key: key + keySuffix
       };
       for (const [k, g] of propGetters) {
         let v = g(vals);
@@ -822,21 +822,21 @@
       __publicField(this, "__host");
       this.props = props || {};
     }
-    setState(update, cb) {
-      this.__host && this.__host.__setLogicState(update, cb);
-    }
-    forceUpdate() {
-      this.__host && this.__host.forceUpdate();
-    }
     componentDidMount() {
     }
     componentDidUpdate(_prevProps) {
     }
     componentWillUnmount() {
     }
+    forceUpdate() {
+      this.__host && this.__host.forceUpdate();
+    }
     /** The flat object the template renders against (merged over props). */
     renderVals() {
       return {};
+    }
+    setState(update, cb) {
+      this.__host && this.__host.__setLogicState(update, cb);
     }
   };
   function evalDcLogic(src) {
@@ -860,17 +860,17 @@
     return true;
   }
   function Placeholder({
-    name,
+    error,
     hintSize,
-    streaming,
-    error
+    name,
+    streaming
   }) {
     const [w, hgt] = (hintSize || "100%,60px").split(",");
     return h(
       "div",
       {
         className: "sc-placeholder" + (streaming ? " sc-streaming" : ""),
-        style: { width: w.trim(), height: hgt && hgt.trim() },
+        style: { height: hgt && hgt.trim(), width: w.trim() },
         title: name
       },
       error ? h(
@@ -883,7 +883,7 @@
   function hintToMin(hint) {
     if (!hint) return void 0;
     const [w, hgt] = hint.split(",");
-    return { minWidth: w.trim(), minHeight: hgt && hgt.trim() };
+    return { minHeight: hgt && hgt.trim(), minWidth: w.trim() };
   }
   function createComponentFactory(registry, ensureFetched) {
     const React = getReact();
@@ -914,7 +914,7 @@
         __publicField(this, "__ctorError", null);
         __publicField(this, "logic");
         this.__name = props.__name;
-        this.state = { __v: 0, __err: null };
+        this.state = { __err: null, __v: 0 };
         this.__sub = () => {
           if (this.state.__err) this.setState({ __err: null });
           this.forceUpdate();
@@ -927,13 +927,6 @@
        *  own deeper boundary) lands here instead of unmounting the page. */
       static getDerivedStateFromError(e) {
         return { __err: e instanceof Error && e.message ? e.message : String(e) };
-      }
-      componentDidCatch(e, info) {
-        console.error(
-          "[dc-runtime] render error in <" + this.__name + ">:",
-          e,
-          info?.componentStack || ""
-        );
       }
       /** Instantiate the logic class (or the no-op base) and adopt `prevState`
        *  over its initial state — used both at mount and on hot-swap. */
@@ -958,18 +951,6 @@
         if (prevState)
           this.logic.state = { ...this.logic.state || {}, ...prevState };
       }
-      /** The props the author's logic + template see — internal __-prefixed
-       *  wiring stripped. */
-      __userProps() {
-        const { __name, __hintSize, __tplId, __hostStyle, ...rest } = this.props;
-        return rest;
-      }
-      __setLogicState(update, cb) {
-        const prev = this.logic.state;
-        const patch = typeof update === "function" ? update(prev) : update;
-        this.logic.state = { ...prev, ...patch };
-        this.setState((s) => ({ __v: s.__v + 1 }), cb);
-      }
       /** Swap the logic instance when the registry's Logic class changed
        *  (streaming completion, hot reload). State carries over; didMount
        *  re-fires after the swap commits so refs exist. */
@@ -989,6 +970,25 @@
         }
         this.__makeLogic(Next, this.logic.state);
         this.__needsDidMount = true;
+      }
+      __setLogicState(update, cb) {
+        const prev = this.logic.state;
+        const patch = typeof update === "function" ? update(prev) : update;
+        this.logic.state = { ...prev, ...patch };
+        this.setState((s) => ({ __v: s.__v + 1 }), cb);
+      }
+      /** The props the author's logic + template see — internal __-prefixed
+       *  wiring stripped. */
+      __userProps() {
+        const { __hintSize, __hostStyle, __name, __tplId, ...rest } = this.props;
+        return rest;
+      }
+      componentDidCatch(e, info) {
+        console.error(
+          "[dc-runtime] render error in <" + this.__name + ">:",
+          e,
+          info?.componentStack || ""
+        );
       }
       componentDidMount() {
         registry.get(this.__name).subs.add(this.__sub);
@@ -1033,9 +1033,9 @@
         const hostStyle = this.props.__hostStyle || hintStyle ? { ...hintStyle || {}, ...this.props.__hostStyle || {} } : void 0;
         const hostBase = {
           className: cls,
-          style: hostStyle,
+          "data-dc-tpl": this.props.__tplId,
           "data-sc-name": this.__name,
-          "data-dc-tpl": this.props.__tplId
+          style: hostStyle
         };
         const chain = Array.isArray(this.context) ? this.context : [];
         if (chain.includes(this.__name)) {
@@ -1047,9 +1047,9 @@
             "div",
             { ...hostBase, className: cls + " sc-has-error" },
             h(Placeholder, {
-              name: this.__name,
+              error: "circular import: " + cycle,
               hintSize: this.props.__hintSize,
-              error: "circular import: " + cycle
+              name: this.__name
             })
           );
         }
@@ -1063,9 +1063,9 @@
               this.__name + ": " + this.state.__err
             ),
             h(Placeholder, {
-              name: this.__name,
+              error: this.state.__err,
               hintSize: this.props.__hintSize,
-              error: this.state.__err
+              name: this.__name
             })
           );
         }
@@ -1074,7 +1074,7 @@
           return h(
             "div",
             hostBase,
-            h(Placeholder, { name: this.__name, hintSize: this.props.__hintSize })
+            h(Placeholder, { hintSize: this.props.__hintSize, name: this.__name })
           );
         }
         const userProps = this.__userProps();
@@ -1149,7 +1149,7 @@
   function cdnScriptFor(url, sri) {
     const res = window.__resources;
     const v = res ? res[url] : void 0;
-    return typeof v === "string" && v ? { src: v } : { src: url, integrity: sri };
+    return typeof v === "string" && v ? { src: v } : { integrity: sri, src: url };
   }
 
   // src/external.ts
@@ -1227,7 +1227,7 @@
             globals[k] = window[k];
           }
         }
-        cache.set(url, { mod: module.exports, globals });
+        cache.set(url, { globals, mod: module.exports });
         console.info(
           "[dc-runtime] x-import: loaded",
           url,
@@ -1239,9 +1239,9 @@
         onResolved();
       }).catch((e) => {
         cache.set(url, {
-          mod: {},
+          error: "failed to load: " + (e instanceof Error && e.message ? e.message : String(e)),
           globals: {},
-          error: "failed to load: " + (e instanceof Error && e.message ? e.message : String(e))
+          mod: {}
         });
         console.error(
           "[dc-runtime] x-import: FAILED to load",
@@ -1257,7 +1257,7 @@
     function resolve2(url, name) {
       const entry = cache.get(url);
       if (!entry) return null;
-      const { mod, globals } = entry;
+      const { globals, mod } = entry;
       const C = mod && mod[name] || globals && globals[name] || typeof window !== "undefined" && window[name] || mod && mod.default;
       if (typeof C === "function") return C;
       const key = url + "\0" + name;
@@ -1343,7 +1343,7 @@
       if (entry?.error) return entry.error;
       return reportedMissing.get(url + "\0" + name) || null;
     }
-    return { load, resolve: resolve2, resolveGlobal, getError };
+    return { getError, load, resolve: resolve2, resolveGlobal };
   }
   function isElementClass(g) {
     try {
@@ -1384,7 +1384,7 @@
     function postDesignMode(mode) {
       if (window.parent === window) return;
       try {
-        window.parent.postMessage({ type: "__dc_design_mode", mode }, "*");
+        window.parent.postMessage({ mode, type: "__dc_design_mode" }, "*");
       } catch {
       }
     }
@@ -1593,14 +1593,14 @@
     const entries = /* @__PURE__ */ Object.create(null);
     function get(name) {
       return entries[name] || (entries[name] = {
+        fetched: false,
         html: "",
-        tpl: null,
-        Logic: null,
-        jsStreaming: false,
         htmlStreaming: false,
-        ver: 0,
+        jsStreaming: false,
+        Logic: null,
         subs: /* @__PURE__ */ new Set(),
-        fetched: false
+        tpl: null,
+        ver: 0
       });
     }
     function bump(name) {
@@ -1609,12 +1609,12 @@
       for (const fn of r.subs) fn();
     }
     return {
-      entries,
-      get,
       bump,
       bumpAll() {
         for (const n in entries) bump(n);
-      }
+      },
+      entries,
+      get
     };
   }
 
@@ -1631,13 +1631,13 @@
     const factory = createComponentFactory(registry, ensureFetched);
     const host = {
       component: (name) => factory.getDC(name),
-      placeholder: (props) => h(Placeholder, props),
       helmet: (node) => helmet.compile(node),
       loadExternal: (kind, url, after) => external.load(kind, url, after),
+      placeholder: (props) => h(Placeholder, props),
+      pseudoClass,
       resolveExternal: (url, name) => external.resolve(url, name),
-      resolveExternalGlobal: (url, name) => external.resolveGlobal(url, name),
       resolveExternalError: (url, name) => external.getError(url, name),
-      pseudoClass
+      resolveExternalGlobal: (url, name) => external.resolveGlobal(url, name)
     };
     function ensureFetched(name) {
       const r = registry.get(name);
@@ -1746,7 +1746,7 @@
         setStreaming(name, "js", !!streaming);
         if (!streaming) updateJs(name, content);
       } else if (kind === "props") {
-        const { props, preview } = parseDataProps(content);
+        const { preview, props } = parseDataProps(content);
         const r = registry.get(name);
         r.propsMeta = props ?? void 0;
         r.preview = preview;
@@ -1766,25 +1766,25 @@
       if (parsed.js) updateJs(name, parsed.js);
     }
     return {
-      registry,
-      getDC: factory.getDC,
-      updateHtml,
-      updateJs,
-      dcUpdate,
-      setProps,
       adoptParsed,
-      setRootName: (name) => {
-        rootName = name;
-      },
-      markFetched: (name) => {
-        registry.get(name).fetched = true;
-      },
       annotatedTemplate: (name) => {
         const r = registry.get(name);
         return r.tpl && r.tpl.__annotated || null;
       },
+      dcUpdate,
+      getDC: factory.getDC,
+      markFetched: (name) => {
+        registry.get(name).fetched = true;
+      },
+      registry,
+      setProps,
+      setRootName: (name) => {
+        rootName = name;
+      },
+      StreamableLogic,
       templateSource: (name) => registry.get(name).html || null,
-      StreamableLogic
+      updateHtml,
+      updateJs
     };
   }
 
@@ -1801,15 +1801,15 @@
       return true;
     };
     return {
-      push(name, streaming, viewportKey) {
-        if (viewportKey === "dc-model") return;
-        if (streaming) since.set(name, now());
-        else since.delete(name);
-      },
       live(name) {
         if (name !== void 0) return liveOne(name);
         for (const n of [...since.keys()]) if (liveOne(n)) return true;
         return false;
+      },
+      push(name, streaming, viewportKey) {
+        if (viewportKey === "dc-model") return;
+        if (streaming) since.set(name, now());
+        else since.delete(name);
       }
     };
   }
@@ -1857,10 +1857,10 @@
       try {
         window.parent.postMessage(
           {
-            type: "__dc_booted",
-            rootName,
+            preview: r && r.preview || null,
             propsMeta: r && r.propsMeta || null,
-            preview: r && r.preview || null
+            rootName,
+            type: "__dc_booted"
           },
           "*"
         );
@@ -1869,33 +1869,33 @@
     };
     const streams = createStreamTracker();
     const api = {
-      __dcUpdate: (name, kind, content, streaming, viewportKey) => {
-        streams.push(name, streaming, viewportKey);
-        runtime.dcUpdate(name, kind, content, streaming);
-        if (name === rootName && !streaming && kind === "props") notifyHost();
-      },
-      __dcStreaming: (name) => streams.live(name),
-      __dcSetProps: (name, overrides) => runtime.setProps(name, overrides),
-      /** Name of the component currently mounted as the page root — DC tools
-       *  push their template-stream here when targeting "the open page". */
-      __dcRootName: () => rootName,
       /** Editor bridge — the encoded, `data-dc-tpl`-annotated template source.
        *  The host editor parses this into its own template DOM so it can map a
        *  rendered node (carrying the same `data-dc-tpl`) back to the source
        *  node that emitted it. Returns the encoded form (`sc-camel-*` attrs,
        *  `<sc-raw-*>`/`<sc-helmet>` tags); the editor decodes on serialize. */
       __dcAnnotatedTemplate: (name) => runtime.annotatedTemplate(name),
-      /** Editor bridge — the *original* (decoded) template source. */
-      __dcTemplateSource: (name) => runtime.templateSource(name),
       __dcBoot: () => {
         rootName = boot(runtime, document) ?? rootName;
         notifyHost();
       },
       __dcRegistry: runtime.registry.entries,
-      getDC: (name) => runtime.getDC(name),
+      /** Name of the component currently mounted as the page root — DC tools
+       *  push their template-stream here when targeting "the open page". */
+      __dcRootName: () => rootName,
+      __dcSetProps: (name, overrides) => runtime.setProps(name, overrides),
+      __dcStreaming: (name) => streams.live(name),
+      /** Editor bridge — the *original* (decoded) template source. */
+      __dcTemplateSource: (name) => runtime.templateSource(name),
+      __dcUpdate: (name, kind, content, streaming, viewportKey) => {
+        streams.push(name, streaming, viewportKey);
+        runtime.dcUpdate(name, kind, content, streaming);
+        if (name === rootName && !streaming && kind === "props") notifyHost();
+      },
       // `DCLogic` is the documented base class name; `StreamableLogic` is the
       // implementation alias kept for any project that already references it.
       DCLogic: runtime.StreamableLogic,
+      getDC: (name) => runtime.getDC(name),
       StreamableLogic: runtime.StreamableLogic
     };
     Object.assign(window, api);

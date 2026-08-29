@@ -4,13 +4,12 @@ import { redirect } from "next/navigation";
 
 import { isAdminEmail } from "~/lib/admin";
 import { getCurrentUserOrRedirect } from "~/lib/auth";
+import { getInquiryStats } from "~/lib/queries/inquiries";
+import { getReviewStats } from "~/lib/queries/reviews";
 import { AdminSidebar } from "~/ui/components/admin/admin-sidebar";
-import { Separator } from "~/ui/primitives/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "~/ui/primitives/sidebar";
+import { SidebarInset, SidebarProvider } from "~/ui/primitives/sidebar";
+
+import { AdminTopbar } from "./topbar";
 
 export default async function AdminLayout({
   children,
@@ -23,21 +22,26 @@ export default async function AdminLayout({
     redirect("/");
   }
 
+  // Pending-work counts for sidebar badges. Failures fall back to zero so a
+  // stats query error can never take down the whole admin shell.
+  const [inquiryStats, reviewStats] = await Promise.all([
+    getInquiryStats().catch(() => null),
+    getReviewStats().catch(() => null),
+  ]);
+
   return (
     <SidebarProvider>
       <AdminSidebar
+        badges={{
+          "/admin/inquiries": inquiryStats?.pending ?? 0,
+          "/admin/reviews": reviewStats?.pending ?? 0,
+        }}
         userEmail={user.email}
         userImage={user.image}
         userName={user.name}
       />
       <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator className="mr-2 h-4" orientation="vertical" />
-          <span className="text-sm font-medium text-muted-foreground">
-            Admin Dashboard
-          </span>
-        </header>
+        <AdminTopbar />
         <div
           className={`
             flex-1 space-y-6 p-4

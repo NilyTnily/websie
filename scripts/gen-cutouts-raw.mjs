@@ -1,5 +1,5 @@
-import postgres from 'postgres';
 import { removeBackground } from '@imgly/background-removal-node';
+import postgres from 'postgres';
 import { UTApi } from 'uploadthing/server';
 import 'dotenv/config';
 import { fileURLToPath } from 'url';

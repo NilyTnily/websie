@@ -2,7 +2,7 @@ import { Suspense } from "react";
 
 import {
   getCategoriesWithCounts,
-  getVisibleProducts,
+  getVisibleProductsLite,
 } from "~/lib/queries/catalog";
 import { CollectionBrowser } from "~/ui/components/collection-browser";
 
@@ -17,7 +17,7 @@ export default async function ProductsPage({
     await Promise.all([
       searchParams,
       getCategoriesWithCounts(),
-      getVisibleProducts(),
+      getVisibleProductsLite(),
     ]);
   const initialCategoryId = categories.find((c) => c.slug === categorySlug)?.id;
   const houseCount = new Set(
@@ -40,7 +40,7 @@ export default async function ProductsPage({
             </p>
           </div>
 
-          <Suspense fallback={null}>
+          <Suspense fallback={<div className="h-64 animate-pulse bg-accent" />}>
             <CollectionBrowser
               categories={categories}
               initialCategoryId={initialCategoryId}

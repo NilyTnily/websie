@@ -1,11 +1,17 @@
+import { MessageCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { formatOrderNumber } from "~/lib/order-number";
 import { getInquiryById } from "~/lib/queries/inquiries";
+import { getShipmentsForInquiry } from "~/lib/queries/shipments";
+import { getWhatsAppMessagesForInquiry } from "~/lib/queries/whatsapp-messages";
+import { Button } from "~/ui/primitives/button";
 
 import { updateInquiryDeliveryAction } from "../actions";
 import { DeliveryForm } from "../delivery-form";
 import { StatusSelect } from "../status-select";
+import { ShipmentsPanel } from "./shipments-panel";
+import { WhatsAppMessagesPanel } from "./whatsapp-messages-panel";
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
   currency: "USD",
@@ -30,6 +36,11 @@ export default async function InquiryDetailPage({
 
   if (!inquiry) notFound();
 
+  const [shipments, whatsappMessages] = await Promise.all([
+    getShipmentsForInquiry(inquiry.id),
+    getWhatsAppMessagesForInquiry(inquiry.id),
+  ]);
+
   return (
     <div className="max-w-2xl space-y-8">
       <div className="flex items-center justify-between">
@@ -45,17 +56,27 @@ export default async function InquiryDetailPage({
         <StatusSelect id={inquiry.id} status={inquiry.status} />
       </div>
 
-      <div className="space-y-1 rounded-md border p-4 text-sm">
+      <div className="space-y-3 rounded-md border p-4 text-sm">
         <p>
           <span className="text-muted-foreground">Contact: </span>
           {inquiry.customerContact}
         </p>
         {inquiry.note && (
-          <p>
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-muted-foreground">Note: </span>
-            {inquiry.note}
-          </p>
+            <span>{inquiry.note}</span>
+          </div>
         )}
+        <WhatsAppButton
+          customerName={inquiry.customerName}
+          href={
+            whatsappLink(
+              inquiry.customerContact,
+              inquiry.customerName,
+              formatOrderNumber(inquiry.orderNumber),
+            ) ?? undefined
+          }
+        />
       </div>
 
       <div className="overflow-hidden rounded-md border">
@@ -104,11 +125,57 @@ export default async function InquiryDetailPage({
         </div>
         <DeliveryForm
           action={updateInquiryDeliveryAction.bind(null, inquiry.id)}
-          carrier={inquiry.carrier}
           deliveryStatus={inquiry.deliveryStatus}
-          trackingUrl={inquiry.trackingUrl}
         />
       </div>
+
+      <div className="border-t pt-6">
+        <ShipmentsPanel
+          inquiryId={inquiry.id}
+          items={inquiry.items}
+          legacyCarrier={inquiry.carrier}
+          legacyTrackingUrl={inquiry.trackingUrl}
+          shipments={shipments}
+        />
+      </div>
+
+      {whatsappMessages.length > 0 && (
+        <div className="border-t pt-6">
+          <WhatsAppMessagesPanel
+            inquiryId={inquiry.id}
+            items={inquiry.items}
+            messages={whatsappMessages}
+          />
+        </div>
+      )}
     </div>
   );
+}
+
+function WhatsAppButton({
+  customerName,
+  href,
+}: {
+  customerName: string;
+  href?: string;
+}) {
+  if (!href) return null;
+  return (
+    <Button asChild className="mt-1" size="sm" variant="outline">
+      <a href={href} rel="noopener noreferrer" target="_blank">
+        <MessageCircle className="size-4" />
+        WhatsApp {customerName.split(" ")[0]}
+      </a>
+    </Button>
+  );
+}
+
+/** A contact counts as WhatsApp-able when its digits form a plausible phone number (8–15 digits). */
+function whatsappLink(contact: string, customerName: string, orderRef: string) {
+  const digits = contact.replace(/\D/g, "");
+  if (digits.length < 8 || digits.length > 15) return null;
+  const message = encodeURIComponent(
+    `Hi ${customerName}, it's KRS regarding your order ${orderRef}.`,
+  );
+  return `https://wa.me/${digits}?text=${message}`;
 }
