@@ -238,8 +238,8 @@ export function CartClient({ className }: CartProps) {
                             </button>
                             <span
                               className={`
-                                flex h-7 w-7 items-center justify-center text-xs
-                                font-medium
+                                flex h-7 w-7 items-center justify-center rounded-md
+                                border text-muted-foreground
                               `}
                             >
                               {item.quantity}
@@ -369,7 +369,7 @@ export function CartClient({ className }: CartProps) {
       {isDesktop ? (
         <Sheet onOpenChange={handleOpenChange} open={isOpen}>
           <SheetTrigger asChild>{CartTrigger}</SheetTrigger>
-          <SheetContent className="flex w-[400px] flex-col p-0">
+          <SheetContent className="flex w-[90vw] sm:w-[400px] flex-col p-0">
             <SheetTitle className="sr-only">Your Bag</SheetTitle>
             {CartContent}
           </SheetContent>

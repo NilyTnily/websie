@@ -106,7 +106,7 @@ export function ProductCard({
 
           <div className="krs-hairline" />
 
-          <div className="flex items-baseline justify-between p-4">
+          <div className="flex items-center justify-between p-4">
             <div className="min-w-0">
               <p className="krs-meta text-[10px] text-muted-foreground">
                 {product.house} · Ref. {product.ref}

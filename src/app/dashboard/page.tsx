@@ -40,8 +40,7 @@ export default async function VaultPiecesPage() {
       {pieces.map((piece) => (
         <div
           className={`
-            grid grid-cols-1 border border-border
-            sm:grid-cols-[132px_1fr_220px_200px]
+            grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 border border-border
           `}
           key={`${piece.inquiryId}-${piece.id}`}
         >

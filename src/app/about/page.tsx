@@ -43,8 +43,7 @@ export default function AboutPage() {
   return (
     <main className="flex min-h-screen flex-col">
       <section className={`
-        relative h-[420px] overflow-hidden
-        sm:h-[620px]
+        relative min-h-[420px] overflow-hidden sm:min-h-[620px]
       `}>
         <Image
           alt="A craftsman at the workbench, hand-finishing a watch case"

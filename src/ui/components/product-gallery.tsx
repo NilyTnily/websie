@@ -88,7 +88,7 @@ export function ProductGallery({ media, name }: ProductGalleryProps) {
       </p>
 
       {entries.length > 1 && (
-        <div className="mt-4 grid grid-cols-5 gap-2">
+        <div className="mt-4 grid grid-cols-4 sm:grid-cols-5 gap-2">
           {entries.map((entry, index) => {
             const thumbUrl =
               entry.kind === "360" ? (entry.frames[0] ?? "") : entry.url;

@@ -145,7 +145,7 @@ export default async function ProductDetailPage({
             <div
               className={`
                 flex flex-col self-start
-                md:sticky
+                lg:sticky
               `}
               style={{ top: "var(--header-height)" }}
             >

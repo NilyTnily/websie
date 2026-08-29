@@ -83,8 +83,8 @@ export function OrderProgressTracker({
 
   return (
     <div className="space-y-8">
-      <div className="overflow-x-auto">
-        <ol className="flex min-w-[560px] items-start">
+      <div className="overflow-hidden">
+        <ol className="flex flex-col items-start w-full">
           {DELIVERY_STEPS.map((step, index) => {
             const Icon = STEP_ICON[step];
             const isDone = index < currentIndex;
