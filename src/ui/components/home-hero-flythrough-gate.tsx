@@ -7,7 +7,7 @@ import type { ProductWithRelations } from "~/db/schema/catalog/types";
 
 const HomeHeroFlythrough = dynamic(
   () => import("~/ui/components/home-hero-flythrough").then((m) => m.HomeHeroFlythrough),
-  { loading: () => <div className="bg-krs-onyx h-full w-full" />, ssr: false },
+  { loading: () => <div className="bg-krs-onyx h-dvh w-full" />, ssr: false },
 );
 
 interface HomeHeroFlythroughGateProps {
@@ -28,7 +28,7 @@ export function HomeHeroFlythroughGate({
   }, []);
 
   if (reduceMotion) {
-    return <div className={`bg-krs-onyx ${className ?? ""}`} />;
+    return <div className={`bg-krs-onyx h-dvh w-full ${className ?? ""}`} />;
   }
 
   return (

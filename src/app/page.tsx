@@ -9,7 +9,7 @@ export default async function HomePage() {
     <>
       <Header showAuth={true} />
       <HomeHeroFlythroughGate
-        className="bg-krs-onyx"
+        className="bg-krs-onyx h-dvh w-full"
         tableProducts={tableProducts}
       />
     </>
