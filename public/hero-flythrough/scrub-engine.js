@@ -345,21 +345,28 @@ function mountScrollWorld(container, config) {
     // the header, and other above-the-fold requests for a slow connection's
     // limited bandwidth right as the page loads.
     const start = () => {
-      fetch(url).then(r => r.ok ? r.blob() : Promise.reject(new Error('404')))
-        .then(blob => {
-          const v = document.createElement('video');
-          v.className = 'sw-scene__video';
-          v.muted = true; v.playsInline = true; v.preload = 'auto';
-          v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
-          v.src = URL.createObjectURL(blob);
-          v.addEventListener('loadedmetadata', () => { s.ready = true; read(); });
-          // Reveal the video (hide the still poster) only once a real frame has
-          // painted — on iOS a seeked-but-never-played muted video stays blank, so
-          // hiding the still on metadata alone would flash an empty scene.
-          v.addEventListener('seeked', () => { s.el.classList.add('has-clip'); }, { once: true });
-          v.addEventListener('loadeddata', () => { try { v.pause(); } catch (e) {} primeVideo(v); });
-          s.el.appendChild(v); s.video = v; s.hasClip = true;
-        }).catch(() => { s.loading = false; });
+      // Direct HTTP src, not a fetch()-as-Blob + createObjectURL() src — iOS Safari
+      // has a long-standing WebKit bug where a blob: video can report itself as
+      // loaded/seekable while never actually painting a decoded frame (the "black
+      // screen" this whole file exists to avoid). A direct src streamed over HTTP
+      // range requests (the static host here serves Accept-Ranges: bytes) goes
+      // through Safari's normal, well-tested media-streaming path instead, at the
+      // cost of depending on the host supporting range requests — an acceptable
+      // trade since every other engine that mattered has always supported the
+      // Blob path fine either way.
+      const v = document.createElement('video');
+      v.className = 'sw-scene__video';
+      v.muted = true; v.playsInline = true; v.preload = 'auto';
+      v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+      v.src = url;
+      v.addEventListener('loadedmetadata', () => { s.ready = true; read(); });
+      // Reveal the video (hide the still poster) only once a real frame has
+      // painted — on iOS a seeked-but-never-played muted video stays blank, so
+      // hiding the still on metadata alone would flash an empty scene.
+      v.addEventListener('seeked', () => { s.el.classList.add('has-clip'); }, { once: true });
+      v.addEventListener('loadeddata', () => { try { v.pause(); } catch (e) {} primeVideo(v); });
+      v.addEventListener('error', () => { s.loading = false; });
+      s.el.appendChild(v); s.video = v; s.hasClip = true;
     };
     if (typeof requestIdleCallback === 'function') {
       requestIdleCallback(start, { timeout: 1200 });
