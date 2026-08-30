@@ -101,6 +101,9 @@ const TOUCH_TRIGGER_THRESHOLD_PX = 40;
 // absorbed instead of counted. Scoped to wheel only (see handleWheel) —
 // keyboard and touch have no equivalent hardware queue behind them.
 const WHEEL_COOLDOWN_MS = 550;
+// How long to wait for scrub-engine.js to report ready before giving up and
+// showing the static poster instead — see engineFailed above.
+const FALLBACK_TIMEOUT_MS = 8000;
 
 // The table scene's clip (leg1-final.mp4, shared with section 0) native resolution and CSS
 // object-position (see .sw-scene__video in scrub-engine.js's injected CSS)
@@ -166,6 +169,15 @@ export function HomeHeroFlythrough({
     .filter((product) => product.tableCutoutUrl)
     .slice(0, TABLE_CUTOUT_SLOTS.length);
   const [engineReady, setEngineReady] = useState(false);
+  // Set if scrub-engine.js fails to load/execute (network hiccup, blocked
+  // request, or an uncaught error inside mountScrollWorld) or if it simply
+  // never reports ready within FALLBACK_TIMEOUT_MS. Without this, a failure
+  // anywhere in that pipeline left the container as nothing but its bare
+  // background color forever — no video, no poster, no copy, just a blank
+  // colored rectangle under the header. This guarantees the static poster
+  // below is shown instead, so a broken engine degrades to "a picture of the
+  // storefront" rather than "nothing."
+  const [engineFailed, setEngineFailed] = useState(false);
   // True the instant the camera has landed on the table section — see the
   // reveal note by TABLE_FADE_IN_MS above.
   const [isTableSettled, setIsTableSettled] = useState(false);
@@ -193,12 +205,29 @@ export function HomeHeroFlythrough({
     return () => window.removeEventListener("resize", updateViewportSize);
   }, []);
 
+  // Watchdog: if the engine script hasn't reported ready within this window
+  // (blocked request, stalled mobile connection, CDN hiccup), stop waiting
+  // and fall back to the static poster instead of leaving the container
+  // blank indefinitely.
+  useEffect(() => {
+    if (engineReady) return;
+    const timer = window.setTimeout(() => {
+      setEngineFailed(true);
+    }, FALLBACK_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [engineReady]);
+
   useEffect(() => {
     if (!engineReady || !containerRef.current || !window.mountScrollWorld) {
       return;
     }
 
-    window.mountScrollWorld(containerRef.current, {
+    // Wrapped: mountScrollWorld can throw partway through (bad clip config,
+    // an API the current browser lacks, etc.) — same fallback as a script
+    // that never loaded at all, so a broken engine shows the static poster
+    // instead of a half-built, possibly blank scene.
+    try {
+      window.mountScrollWorld(containerRef.current, {
       // Off — the gradient/glow sits behind every scene at z-index 0 and is
       // fully hidden as long as the active scene is at opacity 1, but during
       // a crossfade the entering/leaving scene briefly dips below 1, letting
@@ -315,7 +344,11 @@ export function HomeHeroFlythrough({
           title: "Nothing here is made twice",
         },
       ],
-    });
+      });
+    } catch {
+      setEngineFailed(true);
+      return;
+    }
 
     // scrub-engine.js's own layout() sizes the scroll track taller than our
     // last reachable landing point — it adds a full extra viewport height
@@ -591,6 +624,7 @@ export function HomeHeroFlythrough({
   return (
     <>
       <Script
+        onError={() => setEngineFailed(true)}
         onLoad={() => setEngineReady(true)}
         src={`${ASSET_BASE}/scrub-engine.js`}
         strategy="afterInteractive"
@@ -683,6 +717,27 @@ export function HomeHeroFlythrough({
           } as React.CSSProperties
         }
       />
+
+      {/* Static fallback poster — covers the same box as containerRef.
+          engine-mounted content (also inside containerRef) paints over this
+          once ready; if the engine never mounts (blocked/slow/broken
+          script), this is what keeps the hero from being a bare colored
+          rectangle with nothing on it. picture/source gives it the same
+          mobile-vs-desktop crop the engine itself uses per section. */}
+      {engineFailed && (
+        <picture className="pointer-events-none fixed inset-0 z-[5] block">
+
+          <source
+            media="(max-width: 860px)"
+            srcSet={`${ASSET_BASE}/scene1-mobile.webp`}
+          />
+          <img
+            alt=""
+            className="h-full w-full object-cover"
+            src={`${ASSET_BASE}/scene1-desktop.webp`}
+          />
+        </picture>
+      )}
 
       {tableCutouts.length > 0 && (
         <>
