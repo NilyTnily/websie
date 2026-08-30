@@ -392,8 +392,17 @@ function mountScrollWorld(container, config) {
       // Loading uses this segment's OWN natural window (unaffected by
       // grouping) purely as a "getting close, start fetching" trigger —
       // whichever member of a group you approach first kicks off the
-      // (single, shared) load.
-      if (y > s.start - 1.6 * vh && y < s.end + 1.6 * vh) loadClip(owner);
+      // (single, shared) load. Wider lead distance on phones — a slower
+      // cellular connection needs more advance notice than 1.6vh gives it,
+      // and the one seam with no connector clip to buy extra time (the
+      // direct crossfade between two completely different clips, unlike
+      // every other seam here which either shares a clip or has a
+      // connector bridging it) is exactly where a late-arriving clip on a
+      // phone reads as broken: the crossfade dissolves into a still poster
+      // instead of the moving video because raf() skips seeking anything
+      // that isn't `ready` yet.
+      const loadLead = (isMobile() ? 3.2 : 1.6) * vh;
+      if (y > s.start - loadLead && y < s.end + loadLead) loadClip(owner);
       // Local/opacity use the GROUP's combined range so a shared clip's
       // video position advances continuously across the internal seam
       // between two sections instead of resetting at each one's own start.
@@ -450,13 +459,20 @@ function mountScrollWorld(container, config) {
   }
 
   function raf() {
-    // Coarser seek step on phones = fewer decodes. A second, looser tier
-    // applies while a segment is still actively lerping toward its target
-    // (i.e. mid-scrub, not yet settled) — cuts the seek/decode rate during
-    // the fast part of a jump, which is where frequent seeking is most
-    // likely to read as stutter. Once the settle window is reached, the
-    // tight threshold takes back over so the resting frame is still exact.
-    const epsSettled = isMobile() ? 0.02 : 0.008;
+    // Coarser seek step on phones = fewer decodes while a segment is still
+    // actively lerping toward its target (i.e. mid-scrub, not yet settled)
+    // — cuts the seek/decode rate during the fast part of a jump, which is
+    // where frequent seeking is most likely to read as stutter. Once
+    // settled there is no more scrubbing left to protect against, so both
+    // platforms use the same tight tolerance for the resting frame — the
+    // old mobile-only 0.02 (2% of clip duration) let the video rest
+    // multiple visibly wrong frames short of the true target on a several-
+    // second clip: the "cuts ugly right as it arrives" bug on mobile
+    // landings. Not 0 — currentTime is quantized to actual frame
+    // boundaries by the browser, so an exact float match can't be relied
+    // on and a 0 tolerance would re-seek every single animation frame
+    // forever even at rest.
+    const epsSettled = 0.008;
     const epsScrubbing = isMobile() ? 0.05 : 0.02;
     const now = performance.now();
     for (let i = 0; i < NSEG; i++) {

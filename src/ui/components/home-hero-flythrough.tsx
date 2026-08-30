@@ -552,22 +552,31 @@ export function HomeHeroFlythrough({
       jumpTo(currentIndexRef.current + dir);
     }
 
-    // Belt-and-suspenders catch-all: anything that can move scrollY without
-    // going through jumpTo — the End/Home keys, dragging the native
-    // scrollbar thumb, browser find-in-page autoscroll — bypasses the
-    // wheel/keydown/touch handlers above entirely. Whenever a real scroll
-    // lands outside the valid [first, last] landing range and we're not
-    // mid-jump ourselves, snap it back immediately rather than leaving the
-    // user parked in that un-snapped dead zone.
+    // Hard lock: outside of our own animateScrollTo (isJumpingRef true),
+    // scrollY must always sit exactly on the CURRENT section's landing
+    // point — not just somewhere inside the overall [first, last] range.
+    // The previous version only clamped to those two outer bounds, which
+    // meant any scroll that reaches the page through a path our own
+    // handlers don't fully own — iOS's native momentum/rubber-band
+    // scrolling in particular, which keeps moving the page after the
+    // finger lifts and after handleTouchMove's preventDefault has already
+    // stopped receiving events for that gesture, since it's simulated by
+    // WebKit itself rather than driven by further touch events — could
+    // ride that momentum straight through every section in between and
+    // land on the last one, reading as "one little scroll skipped straight
+    // to the end." Snapping back to the exact current-section position on
+    // every stray scroll (not just out-of-range ones) closes that gap:
+    // the page now visibly refuses to move at all except through a
+    // deliberate jumpTo. The one exception users can still trigger is
+    // iOS's own "tap the status bar/clock to scroll to top" gesture — that
+    // still results in an immediate snap-back to the current section here,
+    // which is fine (nothing to disable; it just doesn't stick).
     function handleScrollBoundary() {
       if (isJumpingRef.current) return;
       const vh = window.innerHeight;
-      const min = sectionPositions(vh)[0];
-      const max = sectionPositions(vh)[SECTION_COUNT - 1];
-      if (window.scrollY < min) {
-        window.scrollTo(0, min);
-      } else if (window.scrollY > max) {
-        window.scrollTo(0, max);
+      const lockedY = sectionPositions(vh)[currentIndexRef.current];
+      if (Math.abs(window.scrollY - lockedY) > 1) {
+        window.scrollTo(0, lockedY);
       }
     }
 
