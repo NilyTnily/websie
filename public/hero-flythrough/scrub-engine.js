@@ -357,7 +357,7 @@ function mountScrollWorld(container, config) {
           // painted — on iOS a seeked-but-never-played muted video stays blank, so
           // hiding the still on metadata alone would flash an empty scene.
           v.addEventListener('seeked', () => { s.el.classList.add('has-clip'); }, { once: true });
-          v.addEventListener('loadeddata', () => { try { v.pause(); } catch (e) {} if (userReady) primeVideo(v); });
+          v.addEventListener('loadeddata', () => { try { v.pause(); } catch (e) {} primeVideo(v); });
           s.el.appendChild(v); s.video = v; s.hasClip = true;
         }).catch(() => { s.loading = false; });
     };
@@ -479,10 +479,12 @@ function mountScrollWorld(container, config) {
     requestAnimationFrame(raf);
   }
 
-  // iOS needs a user gesture before a muted video will decode/paint reliably. On the
-  // first touch we prime every loaded clip (muted play→pause) so the first seek is
-  // instant instead of showing a blank frame. `userReady` also makes freshly-loaded
-  // clips prime themselves (see loadClip).
+  // iOS leaves a seeked-but-never-played muted video blank, even though it's muted +
+  // playsInline (which iOS otherwise allows to autoplay with no gesture at all) — so
+  // every clip is primed (muted play→pause) the moment it loads, in loadClip, well
+  // before the raf() loop ever issues its first currentTime seek. This first-gesture
+  // priming is now just a defensive second pass for any clip that somehow loaded
+  // before its own loadeddata prime ran.
   let userReady = false;
   function primeVideo(v) {
     if (!isMobile() || !v) return;
