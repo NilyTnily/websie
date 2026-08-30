@@ -24,7 +24,8 @@ export const authClient = createAuthClient({
 });
 
 // Auth methods
-export const { signIn, signOut, signUp, useSession } = authClient;
+export const { changePassword, signIn, signOut, signUp, useSession } =
+  authClient;
 
 // Two-factor methods
 export const twoFactor = authClient.twoFactor;

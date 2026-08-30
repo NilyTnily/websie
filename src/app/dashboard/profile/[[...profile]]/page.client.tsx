@@ -6,7 +6,11 @@ import { useState } from "react";
 
 import type { Inquiry } from "~/db/schema";
 
-import { twoFactor, useCurrentUserOrRedirect } from "~/lib/auth-client";
+import {
+  changePassword,
+  twoFactor,
+  useCurrentUserOrRedirect,
+} from "~/lib/auth-client";
 import { OrderCard } from "~/ui/components/order-card";
 import { Button } from "~/ui/primitives/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/ui/primitives/card";
@@ -142,7 +146,7 @@ export function ProfilePageClient({
     setPasswordLoading(true);
 
     try {
-      const { error } = await twoFactor.changePassword?.({
+      const { error } = await changePassword({
         currentPassword,
         newPassword,
       });
