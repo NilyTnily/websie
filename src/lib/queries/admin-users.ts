@@ -18,8 +18,8 @@ export interface AdminUserRow {
 }
 
 export async function getAdminUsersWithSpending(search?: string): Promise<AdminUserRow[]> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const whereClause = search
       ? sql`(${userTable.email} ILIKE ${`%${search}%`} OR ${userTable.name} ILIKE ${`%${search}%`})`
       : undefined;

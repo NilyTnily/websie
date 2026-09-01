@@ -359,12 +359,31 @@ function mountScrollWorld(container, config) {
       v.muted = true; v.playsInline = true; v.preload = 'auto';
       v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
       v.src = url;
-      v.addEventListener('loadedmetadata', () => { s.ready = true; read(); });
+      // Desktop has no iOS priming requirement, so it's safe to mark ready
+      // (letting raf() start seeking it) as soon as duration/dimensions are
+      // known. Mobile must NOT flip ready here: loadedmetadata only proves
+      // metadata is known, not that a frame has ever been decoded — if raf()
+      // seeks before the video has been played even once, iOS leaves it
+      // permanently blank/frozen on that seek (the exact "seeked but never
+      // played" bug primeVideo below exists to avoid). Ready used to flip
+      // here unconditionally, racing against priming (which only starts on
+      // the later loadeddata event) — on a fast connection raf() could win
+      // that race and seek an unprimed video, which read as "the video just
+      // isn't playing" / a frame frozen mid-camera-move.
+      v.addEventListener('loadedmetadata', () => { if (!isMobile()) { s.ready = true; read(); } });
       // Reveal the video (hide the still poster) only once a real frame has
       // painted — on iOS a seeked-but-never-played muted video stays blank, so
       // hiding the still on metadata alone would flash an empty scene.
       v.addEventListener('seeked', () => { s.el.classList.add('has-clip'); }, { once: true });
-      v.addEventListener('loadeddata', () => { try { v.pause(); } catch (e) {} primeVideo(v); });
+      v.addEventListener('loadeddata', () => {
+        try { v.pause(); } catch (e) {}
+        if (isMobile()) {
+          // Only mark ready once the prime's play() cycle has actually
+          // resolved (or failed) — that's the real guarantee iOS needs
+          // before a seek will paint anything.
+          primeVideo(v, () => { s.ready = true; read(); });
+        }
+      });
       v.addEventListener('error', () => { s.loading = false; });
       s.el.appendChild(v); s.video = v; s.hasClip = true;
     };
@@ -509,10 +528,19 @@ function mountScrollWorld(container, config) {
   // priming is now just a defensive second pass for any clip that somehow loaded
   // before its own loadeddata prime ran.
   let userReady = false;
-  function primeVideo(v) {
-    if (!isMobile() || !v) return;
-    try { const p = v.play(); if (p && p.then) p.then(() => { try { v.pause(); } catch (e) {} }).catch(() => {}); }
-    catch (e) {}
+  // onDone (optional) fires once the priming play() cycle has actually
+  // resolved or failed — loadClip's loadeddata handler uses this to know
+  // exactly when it's safe to mark the clip ready for raf() to seek,
+  // instead of guessing that priming has "probably" happened by now.
+  function primeVideo(v, onDone) {
+    if (!isMobile() || !v) { if (onDone) onDone(); return; }
+    try {
+      const p = v.play();
+      if (p && p.then) {
+        p.then(() => { try { v.pause(); } catch (e) {} if (onDone) onDone(); })
+          .catch(() => { if (onDone) onDone(); });
+      } else if (onDone) onDone();
+    } catch (e) { if (onDone) onDone(); }
   }
   function onFirstGesture() {
     if (userReady) return;

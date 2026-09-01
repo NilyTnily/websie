@@ -9,14 +9,17 @@ import type { ProductWithRelations } from "~/db/schema";
 
 import { Button } from "~/ui/primitives/button";
 
-import { setTableOrderAction } from "./actions";
+import {
+  regenerateAllTableCutoutsAction,
+  setTableOrderAction,
+} from "./actions";
 
 interface TableOrderEditorProps {
   products: ProductWithRelations[];
 }
 
 /**
- * Drag-and-drop arrangement of the up-to-6 products currently "on the
+ * Drag-and-drop arrangement of the up-to-7 products currently "on the
  * table" (see the "On the Table" column below) — the homepage hero's table
  * scene renders them in exactly this order (see tableSortOrder in
  * getTableProducts). Draft-then-Save, same pattern as the visibility
@@ -26,6 +29,7 @@ interface TableOrderEditorProps {
 export function TableOrderEditor({ products }: TableOrderEditorProps) {
   const router = useRouter();
   const [isSaving, startSaving] = useTransition();
+  const [isRegenerating, startRegenerating] = useTransition();
   const [order, setOrder] = useState(() =>
     products.map((product) => product.id),
   );
@@ -57,6 +61,18 @@ export function TableOrderEditor({ products }: TableOrderEditorProps) {
     });
   }
 
+  function handleRegenerate() {
+    startRegenerating(async () => {
+      const result = await regenerateAllTableCutoutsAction();
+      if (!result.success) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("Backgrounds removed for all table watches.");
+      router.refresh();
+    });
+  }
+
   if (products.length === 0) {
     return (
       <div className="rounded-md border border-dashed p-4">
@@ -76,24 +92,46 @@ export function TableOrderEditor({ products }: TableOrderEditorProps) {
           <h3 className="text-sm font-medium">Table Arrangement</h3>
           <p className="text-xs text-muted-foreground">
             Drag to reorder — this is exactly the layout the homepage table
-            scene uses (3 top, 3 bottom).
+            scene uses on desktop (3 top, 4 bottom). Mobile only shows the
+            first 6.
           </p>
         </div>
-        <Button disabled={!isDirty || isSaving} onClick={handleSave} size="sm">
-          {isSaving ? "Saving…" : "Save Order"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            disabled={isRegenerating || isSaving || products.length === 0}
+            onClick={handleRegenerate}
+            size="sm"
+            title="Only if background removal failed — normally it's automatic when you toggle a watch on"
+            variant="outline"
+          >
+            {isRegenerating ? "Removing…" : "Remove Background"}
+          </Button>
+          <Button
+            disabled={!isDirty || isSaving}
+            onClick={handleSave}
+            size="sm"
+          >
+            {isSaving ? "Saving…" : "Save Order"}
+          </Button>
+        </div>
       </div>
       <div className="grid grid-cols-3 gap-4">
-        {order.map((id) => {
+        {order.map((id, index) => {
           const product = byId.get(id);
           if (!product) return null;
+          // Only the desktop cutout grid has a 7th slot (see
+          // MAX_TABLE_PRODUCTS' comment) — flagged here so it's obvious in
+          // the admin UI which product silently drops off the mobile
+          // homepage instead of that being a surprise.
+          const isSeventh = index === 6;
           return (
             <div
               className={`
-                flex cursor-grab flex-col items-center gap-2 rounded-md border
-                bg-card p-3
+                relative flex cursor-grab flex-col items-center gap-2 rounded-md
+                border bg-card p-3
                 active:cursor-grabbing
                 ${draggedId === id ? "opacity-40" : ""}
+                ${isSeventh ? "border-primary" : ""}
               `}
               draggable
               key={id}
@@ -101,6 +139,17 @@ export function TableOrderEditor({ products }: TableOrderEditorProps) {
               onDragStart={() => setDraggedId(id)}
               onDrop={() => handleDrop(id)}
             >
+              {isSeventh && (
+                <span
+                  className={`
+                    absolute -top-2 left-1/2 -translate-x-1/2 rounded-full
+                    bg-primary px-2 py-0.5 text-[10px] leading-none
+                    font-semibold whitespace-nowrap text-primary-foreground
+                  `}
+                >
+                  7th watch (won&apos;t appear on mobile)
+                </span>
+              )}
               <div
                 className={`relative h-16 w-16 overflow-hidden rounded bg-muted`}
               >

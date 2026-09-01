@@ -1,0 +1,12 @@
+import "dotenv/config";
+import postgres from "postgres";
+const sql = postgres(process.env.DATABASE_URL, {prepare:false, max:1});
+const visible = await sql`SELECT count(*) FROM product WHERE subcategory_id='rolex' AND visible=true`;
+console.log("visible rolex", visible[0].count);
+const total = await sql`SELECT count(*) FROM product WHERE subcategory_id='rolex'`;
+console.log("total rolex", total[0].count);
+const sample = await sql`SELECT id, name, subcategory_id, visible FROM product WHERE subcategory_id='rolex' LIMIT 5`;
+console.table(sample);
+const allVisible = await sql`SELECT count(*) FROM product WHERE visible=true`;
+console.log("all visible", allVisible[0].count);
+await sql.end();

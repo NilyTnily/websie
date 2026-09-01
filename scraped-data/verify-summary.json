@@ -1,20 +1,20 @@
 {
-  "Patek Philippe": {
-    "totalSeen": 278,
-    "alreadyHad": 274,
-    "newlyAdded": 4,
-    "pages": 4
+  "Rolex": {
+    "totalSeen": 322,
+    "alreadyHad": 311,
+    "newlyAdded": 11,
+    "pages": 5
   },
   "Richard Mille": {
     "totalSeen": 182,
-    "alreadyHad": 69,
-    "newlyAdded": 112,
+    "alreadyHad": 181,
+    "newlyAdded": 1,
     "pages": 3
   },
   "Panerai": {
     "totalSeen": 331,
-    "alreadyHad": 79,
-    "newlyAdded": 251,
+    "alreadyHad": 330,
+    "newlyAdded": 1,
     "pages": 5
   }
 }

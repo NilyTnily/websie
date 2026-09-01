@@ -19,10 +19,11 @@ export function HomeLoupeBand({ alt, src }: HomeLoupeBandProps) {
         alt={alt}
         className="h-full w-full"
         lensSize={200}
+        objectFit="cover"
         onHoverChange={setIsActive}
         sizes="(max-width: 1024px) 100vw, 55vw"
         src={src}
-        zoom={2.7}
+        zoom={2}
       />
       <p
         className={`

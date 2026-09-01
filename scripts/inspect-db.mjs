@@ -1,0 +1,15 @@
+import "dotenv/config";
+import postgres from "postgres";
+const sql = postgres(process.env.DATABASE_URL, {prepare:false, max:1});
+const count = await sql`SELECT count(*) FROM product`;
+console.log("total products", count[0].count);
+const onTable = await sql`SELECT id, name, metal, case_material, on_table, table_sort_order FROM product WHERE on_table = true ORDER BY table_sort_order`;
+console.log("on_table now:", onTable.length);
+console.table(onTable);
+const sample = await sql`SELECT id, name, metal, case_material, subcategory_id, category_id FROM product ORDER BY created_at LIMIT 10`;
+console.table(sample);
+const neondbd = await sql`SELECT id, name FROM category`;
+console.table(neondbd);
+const subs = await sql`SELECT id, name FROM subcategory LIMIT 20`;
+console.table(subs);
+await sql.end();

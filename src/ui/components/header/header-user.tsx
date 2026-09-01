@@ -12,6 +12,7 @@ import {
 } from "~/ui/primitives/dropdown-menu";
 
 interface HeaderUserDropdownProps {
+  isAdmin?: boolean;
   isDashboard: boolean;
   userEmail: string;
   userImage?: null | string;
@@ -19,6 +20,7 @@ interface HeaderUserDropdownProps {
 }
 
 export function HeaderUserDropdown({
+  isAdmin = false,
   isDashboard = false,
   userEmail,
   userImage,
@@ -106,12 +108,14 @@ export function HeaderUserDropdown({
             Favorites
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link className="cursor-pointer" href="/admin/summary">
-            <Shield className="mr-2 h-4 w-4" />
-            Admin
-          </Link>
-        </DropdownMenuItem>
+        {isAdmin && (
+          <DropdownMenuItem asChild>
+            <Link className="cursor-pointer" href="/admin/summary">
+              <Shield className="mr-2 h-4 w-4" />
+              Admin
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           asChild

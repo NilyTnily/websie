@@ -11,6 +11,8 @@ import type {
 import {
   createProduct,
   deleteProduct,
+  regenerateAllTableCutouts,
+  regenerateTableCutoutForProduct,
   setProductOnTable,
   setProductsVisibility,
   setTableOrder,
@@ -43,6 +45,16 @@ export async function setProductOnTableAction(
   onTable: boolean,
 ): Promise<MutationResult> {
   return setProductOnTable(id, onTable);
+}
+
+export async function regenerateTableCutoutAction(
+  id: string,
+): Promise<MutationResult> {
+  return regenerateTableCutoutForProduct(id);
+}
+
+export async function regenerateAllTableCutoutsAction(): Promise<MutationResult> {
+  return regenerateAllTableCutouts();
 }
 
 export async function setProductsVisibilityAction(

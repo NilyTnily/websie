@@ -37,8 +37,8 @@ export async function createStockNotification(
 export async function getAllStockNotificationsForAdmin(): Promise<
   StockNotificationWithProduct[]
 > {
-  await requireAdmin();
   try {
+    await requireAdmin();
     return await db.query.stockNotificationTable.findMany({
       orderBy: [desc(stockNotificationTable.createdAt)],
       with: { product: { columns: { image: true, name: true } } },

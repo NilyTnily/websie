@@ -172,11 +172,79 @@ export async function deleteSubcategory(id: string): Promise<MutationResult> {
   }
 }
 
+// Ensures a product has a fresh transparent cutout — used both automatically
+// when a product is put on the table and manually via the admin's
+// "Remove Background" fallback button (TableOrderEditor). Always re-derives
+// from the current `image` so a re-uploaded photo is reflected without the
+// admin needing to toggle off/on.
+export async function regenerateTableCutoutForProduct(
+  id: string,
+): Promise<MutationResult> {
+  await requireAdmin();
+  try {
+    const product = await db.query.productTable.findFirst({
+      columns: { image: true },
+      where: eq(productTable.id, id),
+    });
+    if (!product) return { error: "Product not found.", success: false };
+    const cutout = await generateTableCutout(id, product.image);
+    if (!cutout.success) return { error: cutout.error, success: false };
+    await db
+      .update(productTable)
+      .set({ tableCutoutUrl: cutout.data.url, updatedAt: new Date() })
+      .where(eq(productTable.id, id));
+    revalidateStorefront();
+    return { data: undefined, success: true };
+  } catch (error) {
+    return {
+      error: errorMessage(error, "Could not regenerate the cutout."),
+      success: false,
+    };
+  }
+}
+
+export async function regenerateAllTableCutouts(): Promise<MutationResult> {
+  await requireAdmin();
+  try {
+    const onTableProducts = await db.query.productTable.findMany({
+      columns: { id: true, image: true },
+      where: eq(productTable.onTable, true),
+    });
+    if (onTableProducts.length === 0) {
+      return { error: "No products are on the table.", success: false };
+    }
+    for (const product of onTableProducts) {
+      const cutout = await generateTableCutout(product.id, product.image);
+      if (!cutout.success) {
+        return {
+          error: `Failed on ${product.id}: ${cutout.error}`,
+          success: false,
+        };
+      }
+      await db
+        .update(productTable)
+        .set({ tableCutoutUrl: cutout.data.url, updatedAt: new Date() })
+        .where(eq(productTable.id, product.id));
+    }
+    revalidateStorefront();
+    return { data: undefined, success: true };
+  } catch (error) {
+    return {
+      error: errorMessage(error, "Could not regenerate cutouts."),
+      success: false,
+    };
+  }
+}
+
 // Flips a product's onTable flag, enforcing the MAX_TABLE_PRODUCTS cap and
 // generating its cutout (background-removed PNG, see table-cutout.ts) on
 // first enable — the admin only ever picks a product, never runs a separate
 // "generate" step. tableCutoutUrl is cached on the product row and reused on
 // later toggles, so turning a product on and off again doesn't regenerate it.
+// WILL ALWAYS be automatic: if onTable is true and the cutout is missing or
+// still the original image (fallback), it regenerates before saving — so even
+// if the DB was edited directly, the next toggle/visibility change repairs it
+// without manual steps.
 export async function setProductOnTable(
   id: string,
   onTable: boolean,

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BellRing,
   ExternalLink,
   FolderTree,
   Inbox,
@@ -9,7 +8,6 @@ import {
   LogOut,
   Package,
   Plus,
-  Quote,
   Search,
   Settings,
   Star,
@@ -41,12 +39,6 @@ const NAV_ITEMS = [
   { href: "/admin/products", icon: Package, name: "Products" },
   { href: "/admin/inquiries", icon: Inbox, name: "Inquiries" },
   { href: "/admin/reviews", icon: Star, name: "Reviews" },
-  {
-    href: "/admin/stock-notifications",
-    icon: BellRing,
-    name: "Stock Alerts",
-  },
-  { href: "/admin/testimonials", icon: Quote, name: "Testimonials" },
   { href: "/admin/settings", icon: Settings, name: "Settings" },
 ];
 
@@ -60,11 +52,6 @@ const CREATE_ACTIONS = [
     href: "/admin/categories/new",
     icon: FolderTree,
     name: "New category",
-  },
-  {
-    href: "/admin/testimonials/new",
-    icon: Quote,
-    name: "New testimonial",
   },
 ];
 

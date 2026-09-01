@@ -89,9 +89,9 @@ const collectionSearchParams = {
   caseMat: parseAsArrayOf(parseAsString).withDefault([]),
   gem: parseAsArrayOf(parseAsString).withDefault([]),
   house: parseAsArrayOf(parseAsString).withDefault([]),
-  model: parseAsArrayOf(parseAsString).withDefault([]),
   inStock: parseAsString.withDefault(""),
   metal: parseAsArrayOf(parseAsString).withDefault([]),
+  model: parseAsArrayOf(parseAsString).withDefault([]),
   movement: parseAsArrayOf(parseAsString).withDefault([]),
   page: parseAsInteger.withDefault(1),
   price: parseAsArrayOf(parseAsString).withDefault([]),
@@ -121,9 +121,9 @@ export function CollectionBrowser({
       caseMat: selectedCaseMats,
       gem: selectedGems,
       house: selectedHouses,
-      model: selectedModels,
       inStock: inStockFilter,
       metal: selectedMetals,
+      model: selectedModels,
       movement: selectedMovements,
       page,
       price: selectedPriceKeys,
@@ -289,13 +289,24 @@ export function CollectionBrowser({
 
   const filteredProducts = React.useMemo(() => {
     const list = categoryScopedProducts.filter((p) => {
-      if (
-        normalizedQuery &&
-        !p.name.toLowerCase().includes(normalizedQuery) &&
-        !p.ref.toLowerCase().includes(normalizedQuery) &&
-        !p.description.toLowerCase().includes(normalizedQuery)
-      ) {
-        return false;
+      if (normalizedQuery) {
+        const haystack = [
+          p.name,
+          p.ref,
+          p.description,
+          p.subcategory?.name ?? "",
+          p.model?.name ?? "",
+          p.category.name,
+          p.category.slug,
+          p.movement ?? "",
+          p.caseMaterial ?? "",
+          p.strapMaterial ?? "",
+          p.metal ?? "",
+          p.gemstone ?? "",
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(normalizedQuery)) return false;
       }
       if (inStockFilter === "1" && !p.inStock) return false;
 
@@ -433,9 +444,9 @@ export function CollectionBrowser({
       caseMat: [],
       gem: [],
       house: [],
-      model: [],
       inStock: "",
       metal: [],
+      model: [],
       movement: [],
       page: 1,
       price: [],
@@ -448,6 +459,14 @@ export function CollectionBrowser({
   const houseLabel = isJewelryContext ? "Type" : isWatchesContext ? "Brand" : "House";
   const showWatchFacets = !isJewelryContext;
   const showJewelryFacets = !isWatchesContext;
+  const secondaryFacetCount =
+    (showWatchFacets ? movementFacet.length : 0) +
+    (showWatchFacets ? caseMatFacet.length : 0) +
+    (showWatchFacets ? strapFacet.length : 0) +
+    (showWatchFacets ? waterFacet.length : 0) +
+    (showJewelryFacets ? metalFacet.length : 0) +
+    (showJewelryFacets ? gemFacet.length : 0) +
+    (showWatchFacets && caseSizeBounds ? 1 : 0);
 
   const filterPanel = (
     <div className="divide-y divide-border">
@@ -589,136 +608,153 @@ export function CollectionBrowser({
         </FilterSection>
       )}
 
-      {/* WATCH FACETS */}
-      {showWatchFacets && movementFacet.length > 0 && (
-        <FilterSection count={movementFacet.length} title="Movement">
-          <FacetList
-            idPrefix="movement"
-            onToggle={(v) => toggleArray("movement", v, selectedMovements)}
-            options={movementFacet}
-            selected={selectedMovements}
-          />
-        </FilterSection>
-      )}
-      {showWatchFacets && caseMatFacet.length > 0 && (
-        <FilterSection count={caseMatFacet.length} title="Case Material">
-          <FacetList
-            idPrefix="caseMat"
-            onToggle={(v) => toggleArray("caseMat", v, selectedCaseMats)}
-            options={caseMatFacet}
-            selected={selectedCaseMats}
-          />
-        </FilterSection>
-      )}
-      {showWatchFacets && strapFacet.length > 0 && (
-        <FilterSection count={strapFacet.length} title="Strap">
-          <FacetList
-            idPrefix="strap"
-            onToggle={(v) => toggleArray("strap", v, selectedStraps)}
-            options={strapFacet}
-            selected={selectedStraps}
-          />
-        </FilterSection>
-      )}
-      {showWatchFacets && waterFacet.length > 0 && (
-        <FilterSection count={waterFacet.length} title="Water Resistance">
-          <ul className="space-y-2">
-            {waterFacet.map((opt) => (
-              <li key={opt.value}>
-                <label
-                  className={`
-                    flex cursor-pointer items-center gap-2 text-sm
-                    text-foreground
-                  `}
-                  htmlFor={`water-${opt.value}`}
-                >
-                  <Checkbox
-                    checked={selectedWaters.includes(opt.value)}
-                    id={`water-${opt.value}`}
-                    onCheckedChange={() => toggleArray("water", opt.value, selectedWaters)}
+      {/* Secondary facets, collapsed under one section by default — having
+          Movement/Case Material/Strap/Water/Metal/Gemstone/Case Size each
+          as their own always-visible top-level section was the "too
+          cluttered" complaint: a wall of filter headings before you even
+          reach the product grid. Category/House/Availability/Price above
+          stay primary (defaultOpen); everything less commonly used lives
+          one click away here instead. */}
+      {(secondaryFacetCount > 0) && (
+        <FilterSection defaultOpen={false} title="More Filters">
+          <div className="-mt-3 divide-y divide-border">
+            {/* WATCH FACETS */}
+            {showWatchFacets && movementFacet.length > 0 && (
+              <FilterSection count={movementFacet.length} title="Movement">
+                <FacetList
+                  idPrefix="movement"
+                  onToggle={(v) => toggleArray("movement", v, selectedMovements)}
+                  options={movementFacet}
+                  selected={selectedMovements}
+                />
+              </FilterSection>
+            )}
+            {showWatchFacets && caseMatFacet.length > 0 && (
+              <FilterSection count={caseMatFacet.length} title="Case Material">
+                <FacetList
+                  idPrefix="caseMat"
+                  onToggle={(v) => toggleArray("caseMat", v, selectedCaseMats)}
+                  options={caseMatFacet}
+                  selected={selectedCaseMats}
+                />
+              </FilterSection>
+            )}
+            {showWatchFacets && strapFacet.length > 0 && (
+              <FilterSection count={strapFacet.length} title="Strap">
+                <FacetList
+                  idPrefix="strap"
+                  onToggle={(v) => toggleArray("strap", v, selectedStraps)}
+                  options={strapFacet}
+                  selected={selectedStraps}
+                />
+              </FilterSection>
+            )}
+            {showWatchFacets && waterFacet.length > 0 && (
+              <FilterSection count={waterFacet.length} title="Water Resistance">
+                <ul className="space-y-2">
+                  {waterFacet.map((opt) => (
+                    <li key={opt.value}>
+                      <label
+                        className={`
+                          flex cursor-pointer items-center gap-2 text-sm
+                          text-foreground
+                        `}
+                        htmlFor={`water-${opt.value}`}
+                      >
+                        <Checkbox
+                          checked={selectedWaters.includes(opt.value)}
+                          id={`water-${opt.value}`}
+                          onCheckedChange={() => toggleArray("water", opt.value, selectedWaters)}
+                        />
+                        <span className="flex-1">{opt.label}</span>
+                        <span className={`
+                          krs-meta text-[10px] text-muted-foreground
+                        `}>
+                          {opt.count}
+                        </span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </FilterSection>
+            )}
+
+            {/* JEWELRY FACETS */}
+            {showJewelryFacets && metalFacet.length > 0 && (
+              <FilterSection count={metalFacet.length} title="Metal">
+                <FacetList
+                  idPrefix="metal"
+                  onToggle={(v) => toggleArray("metal", v, selectedMetals)}
+                  options={metalFacet}
+                  selected={selectedMetals}
+                />
+              </FilterSection>
+            )}
+            {showJewelryFacets && gemFacet.length > 0 && (
+              <FilterSection count={gemFacet.length} title="Gemstone">
+                <FacetList
+                  idPrefix="gem"
+                  onToggle={(v) => toggleArray("gem", v, selectedGems)}
+                  options={gemFacet}
+                  selected={selectedGems}
+                />
+              </FilterSection>
+            )}
+
+            {caseSizeBounds && caseSizeRange && showWatchFacets && (
+              <FilterSection title="Case Size">
+                <div className="space-y-3">
+                  <Slider
+                    max={caseSizeBounds[1]}
+                    min={caseSizeBounds[0]}
+                    onValueChange={(v) => setCaseSizeRange(v as [number, number])}
+                    step={1}
+                    value={caseSizeRange}
                   />
-                  <span className="flex-1">{opt.label}</span>
-                  <span className="krs-meta text-[10px] text-muted-foreground">
-                    {opt.count}
-                  </span>
-                </label>
-              </li>
-            ))}
-          </ul>
-        </FilterSection>
-      )}
-
-      {/* JEWELRY FACETS */}
-      {showJewelryFacets && metalFacet.length > 0 && (
-        <FilterSection count={metalFacet.length} defaultOpen={isJewelryContext} title="Metal">
-          <FacetList
-            idPrefix="metal"
-            onToggle={(v) => toggleArray("metal", v, selectedMetals)}
-            options={metalFacet}
-            selected={selectedMetals}
-          />
-        </FilterSection>
-      )}
-      {showJewelryFacets && gemFacet.length > 0 && (
-        <FilterSection count={gemFacet.length} defaultOpen={isJewelryContext} title="Gemstone">
-          <FacetList
-            idPrefix="gem"
-            onToggle={(v) => toggleArray("gem", v, selectedGems)}
-            options={gemFacet}
-            selected={selectedGems}
-          />
-        </FilterSection>
-      )}
-
-      {caseSizeBounds && caseSizeRange && showWatchFacets && (
-        <FilterSection defaultOpen={false} title="Case Size">
-          <div className="space-y-3">
-            <Slider
-              max={caseSizeBounds[1]}
-              min={caseSizeBounds[0]}
-              onValueChange={(v) => setCaseSizeRange(v as [number, number])}
-              step={1}
-              value={caseSizeRange}
-            />
-            <div className="flex items-center gap-2">
-              <div className="flex flex-1 items-center gap-1.5">
-                <Input
-                  aria-label="Min case size"
-                  className="h-8 rounded-none text-center text-xs"
-                  max={caseSizeBounds[1]}
-                  min={caseSizeBounds[0]}
-                  onChange={(e) => {
-                    const n = Number(e.target.value);
-                    if (!Number.isNaN(n))
-                      setCaseSizeRange([Math.max(caseSizeBounds[0], Math.min(n, caseSizeRange[1])), caseSizeRange[1]]);
-                  }}
-                  type="number"
-                  value={caseSizeRange[0]}
-                />
-                <span className="krs-meta text-[10px] text-muted-foreground">—</span>
-                <Input
-                  aria-label="Max case size"
-                  className="h-8 rounded-none text-center text-xs"
-                  max={caseSizeBounds[1]}
-                  min={caseSizeBounds[0]}
-                  onChange={(e) => {
-                    const n = Number(e.target.value);
-                    if (!Number.isNaN(n))
-                      setCaseSizeRange([caseSizeRange[0], Math.min(caseSizeBounds[1], Math.max(n, caseSizeRange[0]))]);
-                  }}
-                  type="number"
-                  value={caseSizeRange[1]}
-                />
-              </div>
-              <span className={`
-                krs-meta shrink-0 text-[10px] text-muted-foreground
-              `}>mm</span>
-            </div>
-            <p className={`
-              krs-meta text-center text-[10px] text-muted-foreground
-            `}>
-              {caseSizeRange[0]}mm – {caseSizeRange[1]}mm · {categoryScopedProducts.filter((p) => p.caseSizeMm != null && p.caseSizeMm >= caseSizeRange[0] && p.caseSizeMm <= caseSizeRange[1]).length} pieces
-            </p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-1 items-center gap-1.5">
+                      <Input
+                        aria-label="Min case size"
+                        className="h-8 rounded-none text-center text-xs"
+                        max={caseSizeBounds[1]}
+                        min={caseSizeBounds[0]}
+                        onChange={(e) => {
+                          const n = Number(e.target.value);
+                          if (!Number.isNaN(n))
+                            setCaseSizeRange([Math.max(caseSizeBounds[0], Math.min(n, caseSizeRange[1])), caseSizeRange[1]]);
+                        }}
+                        type="number"
+                        value={caseSizeRange[0]}
+                      />
+                      <span className={`
+                        krs-meta text-[10px] text-muted-foreground
+                      `}>—</span>
+                      <Input
+                        aria-label="Max case size"
+                        className="h-8 rounded-none text-center text-xs"
+                        max={caseSizeBounds[1]}
+                        min={caseSizeBounds[0]}
+                        onChange={(e) => {
+                          const n = Number(e.target.value);
+                          if (!Number.isNaN(n))
+                            setCaseSizeRange([caseSizeRange[0], Math.min(caseSizeBounds[1], Math.max(n, caseSizeRange[0]))]);
+                        }}
+                        type="number"
+                        value={caseSizeRange[1]}
+                      />
+                    </div>
+                    <span className={`
+                      krs-meta shrink-0 text-[10px] text-muted-foreground
+                    `}>mm</span>
+                  </div>
+                  <p className={`
+                    krs-meta text-center text-[10px] text-muted-foreground
+                  `}>
+                    {caseSizeRange[0]}mm – {caseSizeRange[1]}mm · {categoryScopedProducts.filter((p) => p.caseSizeMm != null && p.caseSizeMm >= caseSizeRange[0] && p.caseSizeMm <= caseSizeRange[1]).length} pieces
+                  </p>
+                </div>
+              </FilterSection>
+            )}
           </div>
         </FilterSection>
       )}
@@ -784,46 +820,57 @@ export function CollectionBrowser({
       </aside>
 
       <div className="min-w-0 flex-1">
+        {/* Full-width, high-contrast search — the default --border token is
+            a 16%-opacity brown hairline (fine for section dividers) which
+            read as "the search bar doesn't even exist" when it was also
+            the ONLY visual cue for this input, squeezed into a shared row
+            with the filter/sort controls. A solid border + its own row
+            makes it unmistakably a search field first, and its own eyebrow
+            label removes any doubt about what it's for. */}
+        <div className="mb-5">
+          <p className="krs-eyebrow mb-2 text-krs-tobacco">Search</p>
+          <div className="relative w-full">
+            <Search className={`
+              pointer-events-none absolute top-1/2 left-4 h-4 w-4
+              -translate-y-1/2 text-muted-foreground
+            `} />
+            <Input
+              aria-label="Search the collection"
+              className={`
+                h-[52px] rounded-none border-2 border-foreground/25 pr-11 pl-11
+                text-base
+                focus-visible:border-primary
+              `}
+              onChange={(e) => void setQuery({ page: 1, search: e.target.value })}
+              placeholder="Search by name, brand, or reference number…"
+              type="text"
+              value={searchQuery}
+            />
+            {searchQuery && (
+              <button
+                aria-label="Clear search"
+                className={`
+                  absolute top-1/2 right-4 -translate-y-1/2
+                  text-muted-foreground
+                  hover:text-foreground
+                `}
+                onClick={() => void setQuery({ page: 1, search: "" })}
+                type="button"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
         <div className={`
           mb-6 flex flex-col gap-3
           sm:gap-4
         `}>
           <div className={`
             flex flex-col gap-3
-            sm:flex-row sm:items-center sm:justify-between
+            sm:flex-row sm:items-center sm:justify-end
           `}>
-            <div className={`
-              relative w-full
-              sm:max-w-[360px] sm:flex-1
-            `}>
-              <Search className={`
-                pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5
-                -translate-y-1/2 text-muted-foreground
-              `} />
-              <Input
-                aria-label="Search the collection"
-                className="h-[42px] rounded-none pr-9 pl-9 text-sm"
-                onChange={(e) => void setQuery({ page: 1, search: e.target.value })}
-                placeholder="Name, brand or reference"
-                type="text"
-                value={searchQuery}
-              />
-              {searchQuery && (
-                <button
-                  aria-label="Clear search"
-                  className={`
-                    absolute top-1/2 right-3 -translate-y-1/2
-                    text-muted-foreground
-                    hover:text-foreground
-                  `}
-                  onClick={() => void setQuery({ page: 1, search: "" })}
-                  type="button"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </div>
-
             <div className={`
               grid grid-cols-2 gap-2
               sm:flex sm:items-center

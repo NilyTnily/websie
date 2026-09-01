@@ -7,6 +7,8 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { extractRouterConfig } from "uploadthing/server";
 
 import { ourFileRouter } from "~/app/api/uploadthing/core";
+import { isAdminEmail } from "~/lib/admin";
+import { getCurrentUser } from "~/lib/auth";
 import { CartProvider } from "~/lib/hooks/use-cart";
 import { SiteSettingsProvider } from "~/lib/hooks/use-site-settings";
 import { WishlistProvider } from "~/lib/hooks/use-wishlist";
@@ -44,7 +46,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSiteSettings();
+  const [settings, user] = await Promise.all([
+    getSiteSettings(),
+    getCurrentUser(),
+  ]);
+  const isAdmin = isAdminEmail(user?.email);
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -67,7 +73,12 @@ export default async function RootLayout({
             <SiteSettingsProvider settings={settings}>
               <CartProvider>
                 <WishlistProvider>
-                  <SiteChrome>{children}</SiteChrome>
+                  <SiteChrome
+                    isAdmin={isAdmin}
+                    user={user && { email: user.email, image: user.image, name: user.name }}
+                  >
+                    {children}
+                  </SiteChrome>
                   <Toaster />
                 </WishlistProvider>
               </CartProvider>

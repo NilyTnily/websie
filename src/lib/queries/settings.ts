@@ -11,6 +11,12 @@ import { siteSettingsTable } from "~/db/schema";
 import { requireAdmin } from "~/lib/admin";
 
 export interface UpdateSiteSettingsInput {
+  collectionSpotlightBody: null | string;
+  collectionSpotlightCtaLabel: null | string;
+  collectionSpotlightEyebrow: null | string;
+  collectionSpotlightHref: null | string;
+  collectionSpotlightImageUrl: null | string;
+  collectionSpotlightTitle: null | string;
   description: string;
   facebookUrl: null | string;
   faviconUrl: null | string;
@@ -23,6 +29,12 @@ export interface UpdateSiteSettingsInput {
 }
 
 const DEFAULT_SETTINGS: SiteSettings = {
+  collectionSpotlightBody: null,
+  collectionSpotlightCtaLabel: null,
+  collectionSpotlightEyebrow: null,
+  collectionSpotlightHref: null,
+  collectionSpotlightImageUrl: null,
+  collectionSpotlightTitle: null,
   description: SEO_CONFIG.description,
   facebookUrl: SOCIAL_LINKS.facebook || null,
   faviconUrl: null,

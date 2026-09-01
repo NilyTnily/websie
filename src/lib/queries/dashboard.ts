@@ -67,8 +67,8 @@ export interface RevenueDelta {
 }
 
 export async function getAwaitingDispatchCount(): Promise<number> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const [row] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(inquiryTable)
@@ -86,8 +86,8 @@ export async function getAwaitingDispatchCount(): Promise<number> {
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const [productStats] = await db
       .select({
         featured: sql<number>`count(*) filter (where ${productTable.featured} = true)::int`,
@@ -160,8 +160,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 }
 
 export async function getInquiriesAging(): Promise<InquiriesAging> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const [row] = await db
       .select({
         count: sql<number>`count(*)::int`,
@@ -177,8 +177,8 @@ export async function getInquiriesAging(): Promise<InquiriesAging> {
 }
 
 export async function getRevenueDelta(): Promise<RevenueDelta> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const [row] = await db
       .select({
         current: sql<number>`coalesce(sum(${inquiryTable.subtotal}) filter (where ${inquiryTable.status} = 'approved' and ${inquiryTable.createdAt} >= now() - interval '30 days'), 0)::int`,
@@ -207,8 +207,8 @@ const QUEUE_TAG_COLOR = {
 
 /** Real, derivable "needs attention" items only — no fabricated bench/certificate rows without a system to back them. */
 export async function getNeedsYouFirstQueue(): Promise<QueueItem[]> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const [agingInquiries, pendingReviews, restockProducts] =
       await Promise.all([
         db.query.inquiryTable.findMany({

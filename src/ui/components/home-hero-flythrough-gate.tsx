@@ -8,7 +8,7 @@ import type { ProductWithRelations } from "~/db/schema/catalog/types";
 
 const HomeHeroFlythrough = dynamic(
   () => import("~/ui/components/home-hero-flythrough").then((m) => m.HomeHeroFlythrough),
-  { loading: () => <div className="bg-krs-onyx h-dvh w-full" />, ssr: false },
+  { loading: () => <div className="h-dvh w-full bg-krs-onyx" />, ssr: false },
 );
 
 interface HomeHeroFlythroughGateProps {
@@ -61,7 +61,10 @@ function StaticHero({
 
   return (
     <div
-      className={`bg-krs-onyx relative h-dvh w-full overflow-hidden ${className ?? ""}`}
+      className={`
+        relative overflow-hidden
+        ${className ?? ""}
+      `}
     >
       <picture>
         <source
@@ -82,27 +85,46 @@ function StaticHero({
             "linear-gradient(90deg, rgba(13,13,13,0.88) 0%, rgba(13,13,13,0.55) 40%, rgba(13,13,13,0.15) 70%, transparent 100%)",
         }}
       />
-      <div className="relative flex h-full items-center px-6 sm:px-14">
+      <div className={`
+        relative flex h-full items-center px-6
+        sm:px-14
+      `}>
         <div className="max-w-[460px]">
-          <span className="font-display text-xs font-bold tracking-[0.16em] text-[#c8a97e] uppercase">
+          <span className={`
+            font-display text-xs font-bold tracking-[0.16em] text-[#c8a97e]
+            uppercase
+          `}>
             Fine watches & jewelry
           </span>
-          <h1 className="font-display mt-3 text-4xl leading-[1.03] font-bold text-[#f5f2eb] sm:text-6xl">
+          <h1 className={`
+            mt-3 font-display text-4xl leading-[1.03] font-bold text-[#f5f2eb]
+            sm:text-6xl
+          `}>
             Step into KRS
           </h1>
-          <p className="mt-4 max-w-[40ch] text-base leading-relaxed text-[#f5f2eb]/80">
+          <p className={`
+            mt-4 max-w-[40ch] text-base leading-relaxed text-[#f5f2eb]/80
+          `}>
             A small house on a quiet street — every piece serviced in-house,
             every case fitted before it leaves the bench.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              className="rounded-full bg-[#c8a97e] px-6 py-3 text-sm font-semibold text-[#0d0d0d] transition-transform hover:-translate-y-0.5"
+              className={`
+                rounded-full bg-[#c8a97e] px-6 py-3 text-sm font-semibold
+                text-[#0d0d0d] transition-transform
+                hover:-translate-y-0.5
+              `}
               href="/watches"
             >
               View all watches
             </Link>
             <Link
-              className="rounded-full border border-[#f5f2eb]/40 px-6 py-3 text-sm font-semibold text-[#f5f2eb] transition-transform hover:-translate-y-0.5"
+              className={`
+                rounded-full border border-[#f5f2eb]/40 px-6 py-3 text-sm
+                font-semibold text-[#f5f2eb] transition-transform
+                hover:-translate-y-0.5
+              `}
               href="/jewelry"
             >
               Shop the collection
@@ -112,7 +134,10 @@ function StaticHero({
       </div>
 
       {featuredCutouts.length > 0 && (
-        <div className="absolute right-6 bottom-6 z-10 hidden gap-4 sm:right-14 sm:bottom-10 sm:flex">
+        <div className={`
+          absolute right-6 bottom-6 z-10 hidden gap-4
+          sm:right-14 sm:bottom-10 sm:flex
+        `}>
           {featuredCutouts.map((product) => (
             <Link
               className="block w-20"

@@ -68,12 +68,12 @@ export function ProductGallery({ media, name }: ProductGalleryProps) {
           <LoupeImage
             alt={name}
             className="h-full w-full"
-            lensSize={200}
+            lensSize={180}
             onHoverChange={setIsLoupeActive}
             priority
             sizes="(max-width: 768px) 100vw, 50vw"
             src={selected?.url ?? ""}
-            zoom={10}
+            zoom={2.2}
           />
         )}
       </div>

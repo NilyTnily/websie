@@ -84,8 +84,8 @@ export async function deleteShipment(
 export async function getShipmentsForInquiry(
   inquiryId: string,
 ): Promise<InquiryShipment[]> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     return await db.query.inquiryShipmentTable.findMany({
       orderBy: (shipments, { asc }) => [asc(shipments.createdAt)],
       where: eq(inquiryShipmentTable.inquiryId, inquiryId),

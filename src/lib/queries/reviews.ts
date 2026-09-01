@@ -112,8 +112,8 @@ export async function createReview(
 }
 
 export async function getAllReviewsForAdmin(): Promise<ReviewWithProduct[]> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     return await db.query.productReviewTable.findMany({
       orderBy: [desc(productReviewTable.createdAt)],
       with: { product: { columns: { image: true, name: true } } },
@@ -146,7 +146,7 @@ async function fetchApprovedReviewsForProduct(
     return { averageRating: 0, reviews: [], totalCount: 0 };
   }
 }
-const cachedApprovedReviews = unstable_cache(fetchApprovedReviewsForProduct, ["approved-reviews"], { tags: ["reviews"], revalidate: 60 });
+const cachedApprovedReviews = unstable_cache(fetchApprovedReviewsForProduct, ["approved-reviews"], { revalidate: 60, tags: ["reviews"] });
 export async function getApprovedReviewsForProduct(
   productId: string,
 ): Promise<ProductReviewSummary> {
@@ -154,8 +154,8 @@ export async function getApprovedReviewsForProduct(
 }
 
 export async function getReviewStats(): Promise<ReviewStats> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const [row] = await db
       .select({
         approved: sql<number>`count(*) filter (where ${productReviewTable.approved} = true)::int`,

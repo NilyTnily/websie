@@ -20,24 +20,35 @@ export function Footer({ className }: { className?: string }) {
     <footer className={cn("bg-krs-navy text-krs-navy-foreground", className)}>
       <div
         className={`
-          container mx-auto max-w-7xl px-4 py-12
-          sm:px-6
+          container mx-auto max-w-7xl px-4 py-8
+          sm:px-6 sm:py-12
           lg:px-8
         `}
       >
         <div
           className={`
-            grid grid-cols-1 gap-8
+            grid grid-cols-1 gap-6
+            sm:gap-8
             md:grid-cols-[1.4fr_1fr_1fr_1.2fr]
           `}
         >
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <Link className="flex items-center gap-2" href="/">
-              <span className="krs-brand-mark font-display text-xl">
+              <span
+                className={`
+                  krs-brand-mark font-display text-lg
+                  sm:text-xl
+                `}
+              >
                 {settings.name}
               </span>
             </Link>
-            <p className="text-sm text-krs-navy-foreground/70">
+            <p
+              className={`
+                text-xs text-krs-navy-foreground/70
+                sm:text-sm
+              `}
+            >
               Fine watches and jewelry, serviced in-house and shipped insured.
               Nothing on the shelf is made twice.
             </p>
@@ -109,10 +120,20 @@ export function Footer({ className }: { className?: string }) {
             )}
           </div>
           <div>
-            <h3 className={`krs-meta mb-4 text-xs text-krs-navy-foreground/50`}>
+            <h3
+              className={`
+                krs-meta mb-3 text-xs text-krs-navy-foreground/50
+                sm:mb-4
+              `}
+            >
               Collections
             </h3>
-            <ul className="space-y-2 text-sm">
+            <ul
+              className={`
+                space-y-1.5 text-xs
+                sm:space-y-2 sm:text-sm
+              `}
+            >
               <li>
                 <Link
                   className={`
@@ -149,10 +170,20 @@ export function Footer({ className }: { className?: string }) {
             </ul>
           </div>
           <div>
-            <h3 className={`krs-meta mb-4 text-xs text-krs-navy-foreground/50`}>
+            <h3
+              className={`
+                krs-meta mb-3 text-xs text-krs-navy-foreground/50
+                sm:mb-4
+              `}
+            >
               The House
             </h3>
-            <ul className="space-y-2 text-sm">
+            <ul
+              className={`
+                space-y-1.5 text-xs
+                sm:space-y-2 sm:text-sm
+              `}
+            >
               <li>
                 <Link
                   className={`
@@ -189,29 +220,51 @@ export function Footer({ className }: { className?: string }) {
             </ul>
           </div>
           <div>
-            <h3 className={`krs-meta mb-4 text-xs text-krs-navy-foreground/50`}>
+            <h3
+              className={`
+                krs-meta mb-3 text-xs text-krs-navy-foreground/50
+                sm:mb-4
+              `}
+            >
               The Dossier
             </h3>
-            <p className="mb-4 text-sm text-krs-navy-foreground/70">
+            <p
+              className={`
+                mb-3 text-xs text-krs-navy-foreground/70
+                sm:mb-4 sm:text-sm
+              `}
+            >
               New arrivals and archive finds, once a month.
             </p>
             <NewsletterForm />
           </div>
         </div>
-        <div className="mt-12 border-t border-krs-navy-border pt-8">
+        <div
+          className={`
+            mt-8 border-t border-krs-navy-border pt-6
+            sm:mt-12 sm:pt-8
+          `}
+        >
           <div
             className={`
-              flex flex-col items-center justify-between gap-4
+              flex flex-col items-center justify-between gap-3
+              sm:gap-4
               md:flex-row
             `}
           >
-            <p className="text-sm text-krs-navy-foreground/60">
+            <p
+              className={`
+                text-xs text-krs-navy-foreground/60
+                sm:text-sm
+              `}
+            >
               &copy; {new Date().getFullYear()} {settings.name}. All rights
               reserved.
             </p>
             <div
               className={`
-                flex items-center gap-4 text-sm text-krs-navy-foreground/60
+                flex items-center gap-3 text-xs text-krs-navy-foreground/60
+                sm:gap-4 sm:text-sm
               `}
             >
               <Link className="hover:text-primary" href="/privacy">
@@ -258,9 +311,10 @@ function NewsletterForm() {
         <input
           aria-label="Email address"
           className={`
-            h-11 flex-1 bg-transparent text-sm text-krs-navy-foreground
+            h-9 flex-1 bg-transparent text-xs text-krs-navy-foreground
             outline-none
             placeholder:text-krs-navy-foreground/50
+            sm:h-11 sm:text-sm
           `}
           disabled={isPending}
           name="email"
@@ -271,8 +325,9 @@ function NewsletterForm() {
         <button
           aria-label="Subscribe"
           className={`
-            shrink-0 p-2 text-krs-champagne transition-colors
+            shrink-0 p-1.5 text-krs-champagne transition-colors
             hover:text-krs-champagne-light
+            sm:p-2
           `}
           disabled={isPending}
           type="submit"

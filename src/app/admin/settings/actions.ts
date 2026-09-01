@@ -15,6 +15,8 @@ export async function updateIntegrationSettingsAction(
   formData: FormData,
 ): Promise<SettingsFormState> {
   const result = await updateIntegrationSettings({
+    googleClientId: optionalText(formData, "googleClientId"),
+    googleClientSecret: optionalText(formData, "googleClientSecret"),
     whatsappAccessToken: optionalText(formData, "whatsappAccessToken"),
     whatsappAppSecret: optionalText(formData, "whatsappAppSecret"),
     whatsappPhoneNumberId: optionalText(formData, "whatsappPhoneNumberId"),
@@ -40,6 +42,12 @@ export async function updateSiteSettingsAction(
   }
 
   const result = await updateSiteSettings({
+    collectionSpotlightBody: optionalText(formData, "collectionSpotlightBody"),
+    collectionSpotlightCtaLabel: optionalText(formData, "collectionSpotlightCtaLabel"),
+    collectionSpotlightEyebrow: optionalText(formData, "collectionSpotlightEyebrow"),
+    collectionSpotlightHref: optionalText(formData, "collectionSpotlightHref"),
+    collectionSpotlightImageUrl: optionalText(formData, "collectionSpotlightImageUrl"),
+    collectionSpotlightTitle: optionalText(formData, "collectionSpotlightTitle"),
     description,
     facebookUrl: optionalText(formData, "facebookUrl"),
     faviconUrl: optionalText(formData, "faviconUrl"),

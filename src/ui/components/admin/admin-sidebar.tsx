@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BellRing,
   ExternalLink,
   FolderTree,
   Inbox,
@@ -9,7 +8,6 @@ import {
   LogOut,
   MessageCircle,
   Package,
-  Quote,
   Settings,
   Star,
   Users,
@@ -43,8 +41,6 @@ const ADMIN_NAV = [
   { href: "/admin/inquiries", icon: Inbox, name: "Inquiries" },
   { href: "/admin/whatsapp", icon: MessageCircle, name: "WhatsApp" },
   { href: "/admin/reviews", icon: Star, name: "Reviews" },
-  { href: "/admin/stock-notifications", icon: BellRing, name: "Stock Alerts" },
-  { href: "/admin/testimonials", icon: Quote, name: "Testimonials" },
   { href: "/admin/settings", icon: Settings, name: "Settings" },
 ];
 

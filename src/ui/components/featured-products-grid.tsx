@@ -1,6 +1,6 @@
 import type { ProductWithRelations } from "~/db/schema";
 
-import { ProductCard } from "~/ui/components/product-card";
+import { ProductCard, type ProductCardData } from "~/ui/components/product-card";
 
 interface FeaturedProductsGridProps {
   products: ProductWithRelations[];
@@ -18,17 +18,21 @@ export function FeaturedProductsGrid({ products }: FeaturedProductsGridProps) {
       {products.map((product) => (
         <ProductCard
           key={product.id}
-          product={{
-            house: product.subcategory?.name ?? product.category.name,
-            id: product.id,
-            image: product.image,
-            inStock: product.inStock,
-            name: product.name,
-            price: product.price,
-            ref: product.ref,
-          }}
+          product={toProductCardData(product)}
         />
       ))}
     </div>
   );
+}
+
+export function toProductCardData(product: ProductWithRelations): ProductCardData {
+  return {
+    house: product.subcategory?.name ?? product.category.name,
+    id: product.id,
+    image: product.image,
+    inStock: product.inStock,
+    name: product.name,
+    price: product.price,
+    ref: product.ref,
+  };
 }

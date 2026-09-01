@@ -55,15 +55,20 @@ export async function deleteTestimonial(id: string): Promise<MutationResult> {
 }
 
 export async function getAllTestimonialsForAdmin(): Promise<Testimonial[]> {
-  await requireAdmin();
-  return getTestimonials();
+  try {
+    await requireAdmin();
+    return await getTestimonials();
+  } catch (error) {
+    console.error("Failed to fetch testimonials for admin:", error);
+    return [];
+  }
 }
 
 export async function getTestimonialById(
   id: string,
 ): Promise<null | Testimonial> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     return (
       (await db.query.testimonialTable.findFirst({
         where: eq(testimonialTable.id, id),

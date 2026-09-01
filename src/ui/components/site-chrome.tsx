@@ -9,9 +9,11 @@ const CHROMELESS_PREFIXES = ["/admin", "/auth"];
 
 interface SiteChromeProps {
   children: React.ReactNode;
+  isAdmin: boolean;
+  user: null | { email: string; image?: null | string; name: string };
 }
 
-export function SiteChrome({ children }: SiteChromeProps) {
+export function SiteChrome({ children, isAdmin, user }: SiteChromeProps) {
   const pathname = usePathname();
   // The homepage is the scroll-jacked hero flythrough — it renders its own
   // Header (see app/page.tsx) and never lets scroll reach a Footer below it,
@@ -27,7 +29,7 @@ export function SiteChrome({ children }: SiteChromeProps) {
 
   return (
     <>
-      <Header showAuth={true} />
+      <Header isAdmin={isAdmin} showAuth={true} user={user} />
       <main className="flex min-h-screen flex-col">{children}</main>
       <Footer />
     </>

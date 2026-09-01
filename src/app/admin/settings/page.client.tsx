@@ -58,6 +58,9 @@ export function SettingsPageClient({
   const [logoUrl, setLogoUrl] = useState(settings.logoUrl ?? "");
   const [faviconUrl, setFaviconUrl] = useState(settings.faviconUrl ?? "");
   const [noMoneyMode, setNoMoneyMode] = useState(settings.noMoneyMode);
+  const [collectionSpotlightImageUrl, setCollectionSpotlightImageUrl] = useState(
+    settings.collectionSpotlightImageUrl ?? "",
+  );
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -210,6 +213,92 @@ export function SettingsPageClient({
 
         <Card>
           <CardHeader>
+            <CardTitle>Homepage — Collection Spotlight</CardTitle>
+            <CardDescription>
+              The single full-bleed banner between "New Pieces" and "Shop by
+              type" on the homepage. Leave any field blank to keep the
+              default KRS Standard copy and image.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ImageField
+              currentUrl={collectionSpotlightImageUrl || null}
+              helperText="Defaults to the workshop still if left blank."
+              label="Banner image"
+              name="collectionSpotlightImageUrl"
+              onChange={setCollectionSpotlightImageUrl}
+              previewShape="square"
+            />
+            <div
+              className={`
+                grid grid-cols-1 gap-4
+                sm:grid-cols-2
+              `}
+            >
+              <div className="space-y-1.5">
+                <Label htmlFor="collectionSpotlightEyebrow">Eyebrow</Label>
+                <Input
+                  defaultValue={settings.collectionSpotlightEyebrow ?? ""}
+                  id="collectionSpotlightEyebrow"
+                  name="collectionSpotlightEyebrow"
+                  placeholder="The KRS standard"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="collectionSpotlightTitle">Title</Label>
+                <Input
+                  defaultValue={settings.collectionSpotlightTitle ?? ""}
+                  id="collectionSpotlightTitle"
+                  name="collectionSpotlightTitle"
+                  placeholder="Every piece, held to one bar"
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="collectionSpotlightBody">Body</Label>
+              <textarea
+                className={`
+                  ${textareaClassName}
+                  min-h-20
+                `}
+                defaultValue={settings.collectionSpotlightBody ?? ""}
+                id="collectionSpotlightBody"
+                name="collectionSpotlightBody"
+                placeholder="Graded under the loupe, serviced in-house, and fitted before it ever leaves the bench — no exceptions made for the shelf."
+              />
+            </div>
+            <div
+              className={`
+                grid grid-cols-1 gap-4
+                sm:grid-cols-2
+              `}
+            >
+              <div className="space-y-1.5">
+                <Label htmlFor="collectionSpotlightHref">Link</Label>
+                <Input
+                  defaultValue={settings.collectionSpotlightHref ?? ""}
+                  id="collectionSpotlightHref"
+                  name="collectionSpotlightHref"
+                  placeholder="/about#standard"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="collectionSpotlightCtaLabel">
+                  Link label
+                </Label>
+                <Input
+                  defaultValue={settings.collectionSpotlightCtaLabel ?? ""}
+                  id="collectionSpotlightCtaLabel"
+                  name="collectionSpotlightCtaLabel"
+                  placeholder="See the standard"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle>Storefront Behavior</CardTitle>
             <CardDescription>
               Switches that change how the public site works.
@@ -324,6 +413,44 @@ function IntegrationSettingsForm({
     <form action={formAction} className="space-y-6">
       <Card>
         <CardHeader>
+          <CardTitle>Google Sign-In</CardTitle>
+          <CardDescription>
+            Lets customers sign in with Google on the sign-in page. Leave
+            blank to fall back to the matching environment variable instead.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="googleClientId">Client ID</Label>
+            <Input
+              defaultValue={integrationSettings?.googleClientId ?? ""}
+              id="googleClientId"
+              name="googleClientId"
+              placeholder="From Google Cloud Console → Credentials"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="googleClientSecret">Client Secret</Label>
+            <Input
+              autoComplete="off"
+              defaultValue={integrationSettings?.googleClientSecret ?? ""}
+              id="googleClientSecret"
+              name="googleClientSecret"
+              placeholder="From Google Cloud Console → Credentials"
+              type="password"
+            />
+            <p className="text-xs text-muted-foreground">
+              Authorized redirect URI:{" "}
+              <code className="text-foreground">
+                {"{your domain}"}/api/auth/callback/google
+              </code>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>WhatsApp Integration</CardTitle>
           <CardDescription>
             Connects your WhatsApp Business number to the site so tracking
@@ -387,11 +514,11 @@ function IntegrationSettingsForm({
         <p className="text-sm text-destructive">{state.error}</p>
       )}
       {state.success && (
-        <p className="text-sm text-green-600">WhatsApp settings saved.</p>
+        <p className="text-sm text-green-600">Integration settings saved.</p>
       )}
 
       <Button disabled={isPending} type="submit" variant="outline">
-        {isPending ? "Saving…" : "Save WhatsApp Settings"}
+        {isPending ? "Saving…" : "Save Integration Settings"}
       </Button>
     </form>
   );

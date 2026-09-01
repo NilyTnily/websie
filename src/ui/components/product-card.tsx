@@ -18,19 +18,26 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
   style: "currency",
 });
 
+// Shared minimal shape for anything that renders a product card — pass
+// this (mapped once, server-side) into client components instead of the
+// full ProductWithRelations, which drags nested images[]/category/
+// subcategory/model objects across the server→client boundary for no
+// reason: none of that renders here.
+export interface ProductCardData {
+  house: string;
+  id: string;
+  image: string;
+  inStock?: boolean;
+  name: string;
+  price: number;
+  ref: string;
+}
+
 type ProductCardProps = Omit<
   React.HTMLAttributes<HTMLDivElement>,
   "onError"
 > & {
-  product: {
-    house: string;
-    id: string;
-    image: string;
-    inStock?: boolean;
-    name: string;
-    price: number;
-    ref: string;
-  };
+  product: ProductCardData;
 };
 
 export function ProductCard({

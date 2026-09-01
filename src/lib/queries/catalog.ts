@@ -12,6 +12,7 @@ import type {
 
 import { db } from "~/db";
 import { categoryTable, productTable, subcategoryTable, watchModelTable } from "~/db/schema";
+import { MAX_TABLE_PRODUCTS } from "~/lib/table-constants";
 
 async function fetchAllProducts(): Promise<ProductWithRelations[]> {
   try {
@@ -31,8 +32,31 @@ async function fetchAllProducts(): Promise<ProductWithRelations[]> {
     return [];
   }
 }
-const cachedAllProducts = unstable_cache(fetchAllProducts, ["all-products"], { revalidate: 60, tags: ["products"] });
-export const getAllProducts = cache(async (): Promise<ProductWithRelations[]> => cachedAllProducts());
+// Deliberately NOT wrapped in unstable_cache — the full catalog with every
+// product's images/category/model/subcategory relations serializes well
+// past Next's 2MB per-item data-cache limit (13MB+ observed), which made
+// every single call throw "Failed to set Next.js data cache" instead of
+// ever returning data. React's cache() below still dedupes repeat calls
+// within one request; it just doesn't persist/serialize across requests,
+// so it has no size ceiling. Only used by admin (wants fresh data anyway)
+// and sitemap.ts (see getAllProductsLite for that — same size problem,
+// smaller shape).
+export const getAllProducts = cache(fetchAllProducts);
+
+async function fetchAllProductsLite(): Promise<
+  { id: string; updatedAt: Date }[]
+> {
+  try {
+    return await db.query.productTable.findMany({
+      columns: { id: true, updatedAt: true },
+    });
+  } catch (error) {
+    console.error("Failed to fetch product ids:", error);
+    return [];
+  }
+}
+const cachedAllProductsLite = unstable_cache(fetchAllProductsLite, ["all-products-lite"], { revalidate: 60, tags: ["products"] });
+export const getAllProductsLite = cache(async () => cachedAllProductsLite());
 
 async function fetchAllSubcategories() {
   try {
@@ -319,7 +343,7 @@ export const getSubcategoriesWithCounts = cache(
 async function fetchTableProducts(): Promise<ProductWithRelations[]> {
   try {
     return await db.query.productTable.findMany({
-      limit: 6,
+      limit: MAX_TABLE_PRODUCTS,
       orderBy: [asc(productTable.tableSortOrder), asc(productTable.updatedAt)],
       where: and(
         eq(productTable.onTable, true),

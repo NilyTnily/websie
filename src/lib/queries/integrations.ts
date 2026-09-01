@@ -7,7 +7,14 @@ import { db } from "~/db";
 import { integrationSettingsTable } from "~/db/schema";
 import { requireAdmin } from "~/lib/admin";
 
+export interface GoogleOAuthCredentials {
+  clientId: null | string;
+  clientSecret: null | string;
+}
+
 export interface UpdateIntegrationSettingsInput {
+  googleClientId: null | string;
+  googleClientSecret: null | string;
   whatsappAccessToken: null | string;
   whatsappAppSecret: null | string;
   whatsappPhoneNumberId: null | string;
@@ -21,10 +28,28 @@ export interface WhatsAppCredentials {
   verifyToken: null | string;
 }
 
+/**
+ * Not gated by requireAdmin — see getWhatsAppCredentials above for why.
+ * DB value wins when set, otherwise falls back to the matching env var.
+ */
+export async function getGoogleOAuthCredentials(): Promise<GoogleOAuthCredentials> {
+  const row = await fetchIntegrationSettings();
+  return {
+    clientId: row?.googleClientId || process.env.GOOGLE_CLIENT_ID || null,
+    clientSecret:
+      row?.googleClientSecret || process.env.GOOGLE_CLIENT_SECRET || null,
+  };
+}
+
 /** Admin-only read for the settings form — masked/full values shown only to the signed-in admin. */
 export async function getIntegrationSettings(): Promise<IntegrationSettings | null> {
-  await requireAdmin();
-  return fetchIntegrationSettings();
+  try {
+    await requireAdmin();
+    return await fetchIntegrationSettings();
+  } catch (error) {
+    console.error("Failed to fetch integration settings:", error);
+    return null;
+  }
 }
 
 /**

@@ -54,8 +54,8 @@ export async function applyMessageAsShipment(
 export async function getWhatsAppMessages(
   filters: WhatsAppMessageFilters = {},
 ): Promise<WhatsappMessage[]> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     return await db.query.whatsappMessageTable.findMany({
       orderBy: (messages, { desc: byDesc }) => [byDesc(messages.receivedAt)],
       where: (messages, { and, eq: isEq }) => {
@@ -76,8 +76,8 @@ export async function getWhatsAppMessages(
 export async function getWhatsAppMessagesForInquiry(
   inquiryId: string,
 ): Promise<WhatsappMessage[]> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     return await db.query.whatsappMessageTable.findMany({
       orderBy: (messages, { desc: byDesc }) => [byDesc(messages.receivedAt)],
       where: eq(whatsappMessageTable.inquiryId, inquiryId),

@@ -139,8 +139,8 @@ export async function getDeliveredItemsForUser(
 }
 
 export async function getInquiries(): Promise<Inquiry[]> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     return await db.query.inquiryTable.findMany({
       orderBy: [desc(inquiryTable.createdAt)],
     });
@@ -164,8 +164,8 @@ export async function getInquiriesForUser(userId: string): Promise<Inquiry[]> {
 }
 
 export async function getInquiryById(id: string): Promise<Inquiry | null> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     return (
       (await db.query.inquiryTable.findFirst({
         where: eq(inquiryTable.id, id),
@@ -195,8 +195,8 @@ export async function getInquiryByIdForUser(
 }
 
 export async function getInquiryStats(): Promise<InquiryStats> {
-  await requireAdmin();
   try {
+    await requireAdmin();
     const rows = await db
       .select({
         count: sql<number>`count(*)::int`,
