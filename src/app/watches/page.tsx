@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { getProductsByCategorySlugLite } from "~/lib/queries/catalog";
+import { getSiteSettings } from "~/lib/queries/settings";
 import { CollectionBrowser } from "~/ui/components/collection-browser";
 
-const HERO_IMAGE =
+const FALLBACK_HERO_IMAGE =
   "https://images.unsplash.com/photo-1628608570910-5ba45093d2c2?q=80&w=2000&auto=format&fit=crop";
 
 export const revalidate = 60;
@@ -16,15 +17,19 @@ export const metadata = {
 };
 
 export default async function WatchesPage() {
-  const result = await getProductsByCategorySlugLite("timepieces");
+  const [result, settings] = await Promise.all([
+    getProductsByCategorySlugLite("timepieces"),
+    getSiteSettings(),
+  ]);
   if (!result) notFound();
   const { category, products } = result;
+  const heroImage = settings.homeWatchesHeroImageUrl || FALLBACK_HERO_IMAGE;
 
   return (
     <div className="flex min-h-screen flex-col">
       <section className="relative overflow-hidden">
         <div className="relative aspect-[16/7] w-full sm:aspect-[16/5] lg:aspect-[16/4.5] 2xl:aspect-[21/6]">
-          <Image alt="A man in a black suit wearing a gold analog watch, beside a vintage Aston Martin" className="object-cover" fill priority sizes="100vw" src={HERO_IMAGE} />
+          <Image alt="A man in a black suit wearing a gold analog watch, beside a vintage Aston Martin" className="object-cover" fill priority sizes="100vw" src={heroImage} />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
         </div>
         <div className="absolute inset-x-0 bottom-0 px-4 pb-6 sm:px-6 sm:pb-8 lg:px-8 lg:pb-10 2xl:px-10">

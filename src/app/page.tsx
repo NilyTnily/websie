@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 
-import { isAdminEmail } from "~/lib/admin";
 import { getCurrentUser } from "~/lib/auth";
+import { isAdminEmail } from "~/lib/is-admin";
 import {
   getCategoriesWithCounts,
   getFeaturedProducts,
@@ -72,8 +72,6 @@ export default async function HomePage() {
       />
       <HomeHeroFlythroughGate
         className="h-[calc(100dvh-var(--header-height))] w-full bg-krs-onyx"
-        desktopImageUrl={settings.homeHeroDesktopImageUrl}
-        mobileImageUrl={settings.homeHeroMobileImageUrl}
         tableProducts={tableProducts}
       />
 

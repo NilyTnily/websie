@@ -1,14 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import type { IntegrationSettings, SiteSettings } from "~/db/schema";
 
 import { UploadButton } from "~/lib/uploadthing";
 import { DEFAULT_TEMPLATE_BODIES } from "~/lib/whatsapp-template-vars";
-import { Search } from "lucide-react";
+import { ImageOff, Search } from "lucide-react";
 
 import { Button } from "~/ui/primitives/button";
 import { Checkbox } from "~/ui/primitives/checkbox";
@@ -51,16 +51,18 @@ interface ImageFieldProps {
   previewShape: "circle" | "square";
 }
 
-import type { ProductWithRelations } from "~/db/schema";
+import type { CategoryWithCount, ProductWithRelations } from "~/db/schema";
 
 interface SettingsPageClientProps {
   allProducts: ProductWithRelations[];
+  categories: CategoryWithCount[];
   integrationSettings: IntegrationSettings | null;
   settings: SiteSettings;
 }
 
 export function SettingsPageClient({
   allProducts,
+  categories,
   integrationSettings,
   settings,
 }: SettingsPageClientProps) {
@@ -72,16 +74,16 @@ export function SettingsPageClient({
   const [logoUrl, setLogoUrl] = useState(settings.logoUrl ?? "");
   const [faviconUrl, setFaviconUrl] = useState(settings.faviconUrl ?? "");
   const [noMoneyMode, setNoMoneyMode] = useState(settings.noMoneyMode);
-  const [homeHeroDesktopImageUrl, setHomeHeroDesktopImageUrl] = useState(
-    settings.homeHeroDesktopImageUrl ?? "",
-  );
-  const [homeHeroMobileImageUrl, setHomeHeroMobileImageUrl] = useState(
-    settings.homeHeroMobileImageUrl ?? "",
-  );
   const [homeSpotlightImageUrl, setHomeSpotlightImageUrl] = useState(
     settings.homeSpotlightImageUrl ?? "",
   );
   const [homeLoupeImageUrl, setHomeLoupeImageUrl] = useState(settings.homeLoupeImageUrl ?? "");
+  const [homeWatchesHeroImageUrl, setHomeWatchesHeroImageUrl] = useState(
+    settings.homeWatchesHeroImageUrl ?? "",
+  );
+  const [homeJewelryHeroImageUrl, setHomeJewelryHeroImageUrl] = useState(
+    settings.homeJewelryHeroImageUrl ?? "",
+  );
   const [newPiecesIds, setNewPiecesIds] = useState<string[]>(settings.homeNewPiecesIds ?? []);
   const [shopTheLookIds, setShopTheLookIds] = useState<string[]>(settings.homeShopTheLookIds ?? []);
 
@@ -155,33 +157,48 @@ export function SettingsPageClient({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-3">
             <CardTitle>Brand Assets</CardTitle>
+            <CardDescription>Logo and favicon shown across the site and browser tab.</CardDescription>
           </CardHeader>
           <CardContent>
             <div
               className={`
-                grid grid-cols-1 gap-6
-                sm:grid-cols-2
+                grid grid-cols-1 gap-4
+                sm:grid-cols-2 sm:gap-6
               `}
             >
-              <ImageField
-                currentUrl={logoUrl || null}
-                helperText="Shown in the header next to the site name."
-                label="Logo"
-                name="logoUrl"
-                onChange={setLogoUrl}
-                previewShape="square"
-              />
-              <ImageField
-                currentUrl={faviconUrl || null}
-                helperText="Shown in the browser tab. Square image works best."
-                label="Favicon"
-                name="faviconUrl"
-                onChange={setFaviconUrl}
-                previewShape="circle"
-              />
+              <div
+                className={`
+                  rounded-xl border bg-muted/20 p-4
+                  sm:border-0 sm:bg-transparent sm:p-0
+                `}
+              >
+                <ImageField
+                  currentUrl={logoUrl || null}
+                  helperText="Shown in the header next to the site name."
+                  label="Logo"
+                  name="logoUrl"
+                  onChange={setLogoUrl}
+                  previewShape="square"
+                />
+              </div>
+              <div
+                className={`
+                  rounded-xl border bg-muted/20 p-4
+                  sm:border-0 sm:bg-transparent sm:p-0
+                `}
+              >
+                <ImageField
+                  currentUrl={faviconUrl || null}
+                  helperText="Shown in the browser tab. Square image works best."
+                  label="Favicon"
+                  name="faviconUrl"
+                  onChange={setFaviconUrl}
+                  previewShape="circle"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -241,26 +258,11 @@ export function SettingsPageClient({
               All homepage photos with names. Hover a thumbnail to Add / Change / Delete. Leave blank to keep default.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-              <ImageField
-                currentUrl={homeHeroDesktopImageUrl || null}
-                helperText="Hero — Desktop (scene1-desktop) 1920×1080"
-                label="Hero — Desktop"
-                name="homeHeroDesktopImageUrl"
-                onChange={setHomeHeroDesktopImageUrl}
-                previewShape="square"
-              />
-              <ImageField
-                currentUrl={homeHeroMobileImageUrl || null}
-                helperText="Hero — Mobile (scene1-mobile) 800×1200"
-                label="Hero — Mobile"
-                name="homeHeroMobileImageUrl"
-                onChange={setHomeHeroMobileImageUrl}
-                previewShape="square"
-              />
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-2 gap-6">
               <ImageField
                 currentUrl={homeSpotlightImageUrl || null}
+                fallbackUrl="/hero-flythrough/scene4-desktop.webp"
                 helperText="Spotlight Banner — full-bleed between New Pieces and Shop by type"
                 label="Spotlight Banner"
                 name="homeSpotlightImageUrl"
@@ -269,12 +271,53 @@ export function SettingsPageClient({
               />
               <ImageField
                 currentUrl={homeLoupeImageUrl || null}
+                fallbackUrl="/hero-flythrough/scene3-desktop.webp"
                 helperText="Loupe Band — Under the loupe (scene3) 1200×900"
                 label="Loupe Band"
                 name="homeLoupeImageUrl"
                 onChange={setHomeLoupeImageUrl}
                 previewShape="square"
               />
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              <ImageField
+                currentUrl={homeWatchesHeroImageUrl || null}
+                fallbackUrl="https://images.unsplash.com/photo-1628608570910-5ba45093d2c2?q=80&w=2000&auto=format&fit=crop"
+                helperText="Watches hero — background for /watches"
+                label="Watches — Hero"
+                name="homeWatchesHeroImageUrl"
+                onChange={setHomeWatchesHeroImageUrl}
+                previewShape="square"
+              />
+              <ImageField
+                currentUrl={homeJewelryHeroImageUrl || null}
+                fallbackUrl="https://images.unsplash.com/photo-1514612497953-05d1e5e171fa?q=80&w=2000&auto=format&fit=crop"
+                helperText="Jewelry hero — background for /jewelry"
+                label="Jewelry — Hero"
+                name="homeJewelryHeroImageUrl"
+                onChange={setHomeJewelryHeroImageUrl}
+                previewShape="square"
+              />
+            </div>
+            {/* Shop by type tiles — also homepage photos (the 2 big buttons from Image 1) — kept as single source, no duplication */}
+            <div className="border-t pt-6">
+              <h4 className="text-sm font-medium">Shop by type — Homepage Tiles (2 photos)</h4>
+              <p className="mt-1 text-xs text-muted-foreground">
+                The two big “Watches / Jewelry” buttons on homepage — same images as Categories. Shown here as homepage photos per request.
+              </p>
+              <div className="mt-4 grid grid-cols-2 gap-6">
+                {categories.map((cat) => (
+                  <div
+                    key={`home-${cat.id}`}
+                    className={`
+                      rounded-xl border bg-muted/20 p-3
+                      sm:border-0 sm:bg-transparent sm:p-0
+                    `}
+                  >
+                    <CategoryImageField category={cat} />
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -353,35 +396,87 @@ export function SettingsPageClient({
 
 function ImageField({
   currentUrl,
+  fallbackUrl,
   helperText,
   label,
   name,
   onChange,
   previewShape,
-}: ImageFieldProps) {
+}: ImageFieldProps & { fallbackUrl?: string | null }) {
+  const displayUrl = currentUrl || fallbackUrl || null;
+  const isFallback = !currentUrl && !!fallbackUrl;
+  const hasImage = !!displayUrl;
+  const hasRealImage = !!currentUrl;
   return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
-      <div
-        className={`
-          group relative flex h-24 w-24 items-center justify-center overflow-hidden border-2 border-dashed bg-muted
-          ${previewShape === "circle" ? "rounded-full" : "rounded-md"}
-          ${currentUrl ? "border-solid" : "border-muted-foreground/20"}
-        `}
-      >
-        {currentUrl ? (
-          <Image alt={label} className="object-cover" fill sizes="96px" src={currentUrl} />
-        ) : (
-          <span className="text-xs text-muted-foreground">No image</span>
-        )}
-        <div className="absolute inset-0 hidden items-center justify-center gap-1 bg-black/50 group-hover:flex">
+    <div className="space-y-2.5">
+      <Label className="text-sm font-medium">{label}</Label>
+      {/* Thumbnail — never a button itself. Empty shows "No photo" placeholder, actions are hover (desktop) or below (mobile). */}
+      <div className="flex flex-col items-center gap-3 sm:items-start">
+        <div
+          className={`
+            group relative flex h-24 w-24 items-center justify-center overflow-hidden border bg-muted shadow-sm
+            ${previewShape === "circle" ? "rounded-full" : "rounded-xl"}
+            ${hasImage ? "border-border" : "border-dashed border-border/60 bg-muted/40"}
+          `}
+        >
+          {hasImage ? (
+            <>
+              <Image alt={label} className="object-cover" fill sizes="96px" src={displayUrl!} />
+              {isFallback && (
+                <span className="absolute bottom-0 left-0 right-0 bg-black/60 py-0.5 text-center text-[9px] font-medium tracking-wide text-white">
+                  Default
+                </span>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-1.5 px-2 text-center">
+              <ImageOff className="h-5 w-5 text-muted-foreground/60" />
+              <span className="text-[11px] font-medium leading-none text-muted-foreground">
+                No photo
+              </span>
+            </div>
+          )}
+          {/* Desktop hover overlay — Add / Change / Delete appear on hover, not on thumbnail itself */}
+          <div className="absolute inset-0 hidden items-center justify-center gap-1.5 bg-black/55 backdrop-blur-[1px] sm:group-hover:flex">
+            <UploadButton
+              appearance={{
+                button: "h-7 rounded-full bg-white px-3 text-xs font-medium text-black shadow hover:bg-white/90",
+                container: "w-auto",
+                allowedContent: "hidden",
+              }}
+              content={{ button: hasRealImage ? "Change" : "Add" }}
+              endpoint="imageUploader"
+              onClientUploadComplete={(res) => {
+                const uploaded = res[0]?.ufsUrl;
+                if (uploaded) onChange(uploaded);
+              }}
+              onUploadError={(uploadError: Error) => {
+                toast.error(`Upload failed: ${uploadError.message}`);
+              }}
+            />
+            {hasRealImage && (
+              <Button
+                size="sm"
+                variant="destructive"
+                className="h-7 rounded-full px-3 text-xs shadow"
+                type="button"
+                onClick={() => onChange("")}
+              >
+                Delete
+              </Button>
+            )}
+          </div>
+        </div>
+        {/* Mobile: beautiful pill buttons below thumbnail, not large blue squares */}
+        <div className="flex w-full max-w-[200px] gap-2 sm:hidden">
           <UploadButton
             appearance={{
-              button: "h-7 px-2 text-xs bg-white text-black hover:bg-white/90",
-              container: "w-auto",
+              button:
+                "h-9 flex-1 rounded-full border bg-white px-3 text-xs font-medium shadow-sm hover:bg-accent",
+              container: "flex-1",
               allowedContent: "hidden",
             }}
-            content={{ button: currentUrl ? "Change" : "Add" }}
+            content={{ button: hasRealImage ? "Change" : "Add" }}
             endpoint="imageUploader"
             onClientUploadComplete={(res) => {
               const uploaded = res[0]?.ufsUrl;
@@ -391,21 +486,220 @@ function ImageField({
               toast.error(`Upload failed: ${uploadError.message}`);
             }}
           />
-          {currentUrl && (
-            <Button
-              size="sm"
-              variant="destructive"
-              className="h-7 px-2 text-xs"
-              type="button"
-              onClick={() => onChange("")}
-            >
-              Delete
-            </Button>
-          )}
+          <Button
+            size="sm"
+            variant={hasRealImage ? "destructive" : "outline"}
+            className="h-9 flex-1 rounded-full text-xs font-medium shadow-sm"
+            type="button"
+            disabled={!hasRealImage}
+            onClick={() => hasRealImage && onChange("")}
+          >
+            Delete
+          </Button>
         </div>
       </div>
       <input type="hidden" name={name} value={currentUrl ?? ""} />
-      <p className="text-xs text-muted-foreground">{helperText}</p>
+      <p className="text-center text-xs leading-tight text-muted-foreground sm:text-left">
+        {helperText}
+      </p>
+    </div>
+  );
+}
+
+function VideoField({
+  currentUrl,
+  fallbackUrl,
+  helperText,
+  label,
+  name,
+  onChange,
+}: {
+  currentUrl: string | null;
+  fallbackUrl?: string | null;
+  helperText: string;
+  label: string;
+  name: string;
+  onChange: (url: string) => void;
+}) {
+  const displayUrl = currentUrl || fallbackUrl || null;
+  const isFallback = !currentUrl && !!fallbackUrl;
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs font-medium">{label}</Label>
+      <div className="group relative h-24 w-24 overflow-hidden rounded-md border border-border bg-black">
+        {displayUrl ? (
+          <video src={displayUrl} className="h-full w-full object-cover" muted playsInline preload="metadata" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-muted">
+            <span className="text-xs text-muted-foreground">No video</span>
+          </div>
+        )}
+        {isFallback && (
+          <span className="absolute bottom-0 left-0 right-0 bg-black/60 py-0.5 text-center text-[9px] font-medium tracking-wide text-white">
+            Default
+          </span>
+        )}
+        <UploadButton
+          appearance={{
+            button: "absolute inset-0 h-full w-full rounded-md bg-black/0 opacity-0 hover:bg-black/10",
+            container: "absolute inset-0",
+            allowedContent: "hidden",
+          }}
+          content={{ button: "" }}
+          endpoint="videoUploader"
+          onClientUploadComplete={(res) => {
+            const uploaded = res[0]?.ufsUrl;
+            if (uploaded) onChange(uploaded);
+          }}
+          onUploadError={(uploadError: Error) => {
+            toast.error(`Upload failed: ${uploadError.message}`);
+          }}
+        />
+        {currentUrl && (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="absolute right-1 top-1 hidden h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm hover:bg-black/80 sm:group-hover:flex"
+            aria-label="Delete"
+          >
+            ×
+          </button>
+        )}
+        {currentUrl && (
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white sm:hidden"
+            aria-label="Delete"
+          >
+            ×
+          </button>
+        )}
+      </div>
+      {currentUrl && (
+        <div className="flex gap-1 sm:hidden">
+          <UploadButton
+            appearance={{
+              button: "h-8 flex-1 rounded-md bg-white border text-xs shadow-sm",
+              container: "flex-1",
+              allowedContent: "hidden",
+            }}
+            content={{ button: "Change" }}
+            endpoint="videoUploader"
+            onClientUploadComplete={(res) => {
+              const uploaded = res[0]?.ufsUrl;
+              if (uploaded) onChange(uploaded);
+            }}
+            onUploadError={(uploadError: Error) => {
+              toast.error(`Upload failed: ${uploadError.message}`);
+            }}
+          />
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 flex-1 rounded-md border text-xs bg-white shadow-sm"
+            type="button"
+            onClick={() => onChange("")}
+          >
+            Delete
+          </Button>
+        </div>
+      )}
+      {!currentUrl && (
+        <div className="sm:hidden">
+          <UploadButton
+            appearance={{
+              button: "h-8 w-full rounded-md bg-white border text-xs shadow-sm",
+              container: "w-full",
+              allowedContent: "hidden",
+            }}
+            content={{ button: "Add video" }}
+            endpoint="videoUploader"
+            onClientUploadComplete={(res) => {
+              const uploaded = res[0]?.ufsUrl;
+              if (uploaded) onChange(uploaded);
+            }}
+            onUploadError={(uploadError: Error) => {
+              toast.error(`Upload failed: ${uploadError.message}`);
+            }}
+          />
+        </div>
+      )}
+      <input type="hidden" name={name} value={currentUrl ?? ""} />
+      <p className="text-xs leading-tight text-muted-foreground">{helperText}</p>
+    </div>
+  );
+}
+
+function CategoryImageField({ category }: { category: { id: string; image: string; name: string } }) {
+  const [url, setUrl] = useState(category.image);
+  const [isSaving, startSaving] = useTransition();
+  const handleSave = (nextUrl: string) => {
+    setUrl(nextUrl);
+    startSaving(async () => {
+      const { updateCategoryImage } = await import("./actions");
+      const res = await updateCategoryImage(category.id, nextUrl);
+      if (!res.success) {
+        toast.error(res.error ?? "Failed to update image");
+        return;
+      }
+      toast.success(`${category.name} image updated`);
+    });
+  };
+  return (
+    <div className="space-y-2.5">
+      <Label className="text-sm font-medium">{category.name}</Label>
+      <div className="flex flex-col items-center gap-3 sm:items-start">
+        <div className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
+          <Image alt={category.name} className="object-cover" fill sizes="96px" src={url} />
+          {/* Desktop hover — Change */}
+          <div className="absolute inset-0 hidden items-center justify-center gap-1 bg-black/55 backdrop-blur-[1px] sm:group-hover:flex">
+            <UploadButton
+              appearance={{
+                button: "h-7 rounded-full bg-white px-3 text-xs font-medium text-black shadow hover:bg-white/90",
+                container: "w-auto",
+                allowedContent: "hidden",
+              }}
+              content={{ button: "Change" }}
+              endpoint="imageUploader"
+              onClientUploadComplete={(res) => {
+                const uploaded = res[0]?.ufsUrl;
+                if (uploaded) handleSave(uploaded);
+              }}
+              onUploadError={(e) => {
+                toast.error(e.message);
+              }}
+            />
+          </div>
+          {isSaving && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/70">
+              <span className="text-[11px] font-medium text-foreground">Saving…</span>
+            </div>
+          )}
+        </div>
+        {/* Mobile: pill Change button below thumbnail — beautiful, not overlay */}
+        <div className="flex w-full justify-center sm:hidden">
+          <UploadButton
+            appearance={{
+              button: "h-8 rounded-full border bg-white px-4 text-xs font-medium shadow-sm hover:bg-accent",
+              container: "w-auto",
+              allowedContent: "hidden",
+            }}
+            content={{ button: "Change" }}
+            endpoint="imageUploader"
+            onClientUploadComplete={(res) => {
+              const uploaded = res[0]?.ufsUrl;
+              if (uploaded) handleSave(uploaded);
+            }}
+            onUploadError={(e) => {
+              toast.error(e.message);
+            }}
+          />
+        </div>
+      </div>
+      <p className="text-center text-xs leading-tight text-muted-foreground sm:text-left">
+        Background for Shop by type — {category.name}
+      </p>
     </div>
   );
 }

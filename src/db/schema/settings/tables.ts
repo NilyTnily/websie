@@ -8,11 +8,11 @@ export const siteSettingsTable = pgTable("site_settings", {
   description: text("description").notNull(),
   facebookUrl: text("facebook_url"),
   faviconUrl: text("favicon_url"),
-  // Homepage — named thumbnails, from scratch (PREMIUM)
-  homeHeroDesktopImageUrl: text("home_hero_desktop_image_url"),
-  homeHeroMobileImageUrl: text("home_hero_mobile_image_url"),
+  // Homepage — named thumbnails, from scratch (PREMIUM) — hero images/videos removed per request, keep only spotlight/loupe + watches/jewelry bg
+  homeJewelryHeroImageUrl: text("home_jewelry_hero_image_url"),
   homeLoupeImageUrl: text("home_loupe_image_url"),
   homeSpotlightImageUrl: text("home_spotlight_image_url"),
+  homeWatchesHeroImageUrl: text("home_watches_hero_image_url"),
   // Featured selections — PREMIUM: New Pieces up to 10, Shop The Look 2 (ordered ids)
   homeNewPiecesIds: jsonb("home_new_pieces_ids").$type<string[]>(),
   homeShopTheLookIds: jsonb("home_shop_the_look_ids").$type<string[]>(),

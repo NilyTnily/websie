@@ -2,8 +2,8 @@ import type React from "react";
 
 import { redirect } from "next/navigation";
 
-import { isAdminEmail } from "~/lib/admin";
 import { getCurrentUserOrRedirect } from "~/lib/auth";
+import { isAdminEmail } from "~/lib/is-admin";
 import { getInquiryStats } from "~/lib/queries/inquiries";
 import { getReviewStats } from "~/lib/queries/reviews";
 import { AdminSidebar } from "~/ui/components/admin/admin-sidebar";

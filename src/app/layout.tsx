@@ -7,8 +7,8 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { extractRouterConfig } from "uploadthing/server";
 
 import { ourFileRouter } from "~/app/api/uploadthing/core";
-import { isAdminEmail } from "~/lib/admin";
 import { getCurrentUser } from "~/lib/auth";
+import { isAdminEmail } from "~/lib/is-admin";
 import { CartProvider } from "~/lib/hooks/use-cart";
 import { SiteSettingsProvider } from "~/lib/hooks/use-site-settings";
 import { WishlistProvider } from "~/lib/hooks/use-wishlist";

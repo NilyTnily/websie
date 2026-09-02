@@ -1,18 +1,9 @@
 import "server-only";
 
 import { getCurrentUser } from "~/lib/auth";
+import { isAdminEmail } from "~/lib/is-admin";
 
-const adminEmails = new Set(
-  (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((email) => email.trim().toLowerCase())
-    .filter(Boolean),
-);
-
-export function isAdminEmail(email: null | string | undefined): boolean {
-  if (!email) return false;
-  return adminEmails.has(email.toLowerCase());
-}
+export { isAdminEmail } from "~/lib/is-admin";
 
 /**
  * Re-verifies admin access at the mutation boundary. The /admin layout already

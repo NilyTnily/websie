@@ -1,7 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { eq } from "drizzle-orm";
+import { revalidatePath, revalidateTag } from "next/cache";
 
+import { db } from "~/db";
+import { categoryTable } from "~/db/schema";
+import { requireAdmin } from "~/lib/admin";
 import { updateIntegrationSettings } from "~/lib/queries/integrations";
 import { updateSiteSettings } from "~/lib/queries/settings";
 
@@ -98,12 +102,12 @@ export async function updateSiteSettingsAction(
     description,
     facebookUrl: optionalText(formData, "facebookUrl"),
     faviconUrl: optionalText(formData, "faviconUrl"),
-    homeHeroDesktopImageUrl: optionalText(formData, "homeHeroDesktopImageUrl"),
-    homeHeroMobileImageUrl: optionalText(formData, "homeHeroMobileImageUrl"),
+    homeJewelryHeroImageUrl: optionalText(formData, "homeJewelryHeroImageUrl"),
     homeLoupeImageUrl: optionalText(formData, "homeLoupeImageUrl"),
     homeNewPiecesIds: parseIds("homeNewPiecesIds", 10),
     homeShopTheLookIds: parseIds("homeShopTheLookIds", 2),
     homeSpotlightImageUrl: optionalText(formData, "homeSpotlightImageUrl"),
+    homeWatchesHeroImageUrl: optionalText(formData, "homeWatchesHeroImageUrl"),
     instagramUrl: optionalText(formData, "instagramUrl"),
     logoUrl: optionalText(formData, "logoUrl"),
     name,
@@ -120,6 +124,45 @@ export async function updateSiteSettingsAction(
 
 function optionalText(formData: FormData, key: string): null | string {
   return textField(formData, key) || null;
+}
+
+export async function updateCategoryImage(
+  id: string,
+  image: string,
+): Promise<{ error?: string; success: boolean }> {
+  await requireAdmin();
+  if (!id || !image) return { error: "Missing id or image", success: false };
+  try {
+    await db.update(categoryTable).set({ image, updatedAt: new Date() }).where(eq(categoryTable.id, id));
+    revalidateTag("categories");
+    revalidateTag("site-settings");
+    revalidatePath("/", "layout");
+    revalidatePath("/admin/settings");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update category image:", error);
+    return { error: "Could not update the category image.", success: false };
+  }
+}
+
+export async function updateCategoryImageAction(
+  formData: FormData,
+): Promise<{ error?: string; success: boolean }> {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "").trim();
+  const image = String(formData.get("image") ?? "").trim();
+  if (!id || !image) return { error: "Missing id or image", success: false };
+  try {
+    await db.update(categoryTable).set({ image, updatedAt: new Date() }).where(eq(categoryTable.id, id));
+    revalidateTag("categories");
+    revalidateTag("site-settings");
+    revalidatePath("/", "layout");
+    revalidatePath("/admin/settings");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update category image:", error);
+    return { error: "Could not update the category image.", success: false };
+  }
 }
 
 function textField(formData: FormData, key: string): string {

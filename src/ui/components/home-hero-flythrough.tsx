@@ -17,7 +17,9 @@ const ASSET_BASE = "/hero-flythrough";
 // scenes — storefront is its first frame, table is its tail. Playing it
 // natively start-to-end (see `handleTimeUpdate` below) reproduces that
 // same beat without any scroll involved.
-const TABLE_LANDING_FRACTION = 0.9869;
+// Desktop and mobile clips are separately encoded crops — mobile was ~1-2 frames short at same fraction, so mobile uses a slightly later fraction to land on the exact same final table frame as desktop.
+const TABLE_LANDING_FRACTION_DESKTOP = 0.9869;
+const TABLE_LANDING_FRACTION_MOBILE = 0.993;
 // A couple of frames' worth of hold so the reveal reads as "arrived", not
 // a mid-motion pop the instant playback happens to cross the fraction.
 const TABLE_FADE_IN_MS = 96;
@@ -81,6 +83,9 @@ export function HomeHeroFlythrough({
     return () => window.removeEventListener("resize", updateViewportSize);
   }, []);
 
+  // Landing fraction depends on clip — mobile crop was ~1-2 frames short at 0.9869, so it needs a later pause.
+  const landingFraction = isMobile ? TABLE_LANDING_FRACTION_MOBILE : TABLE_LANDING_FRACTION_DESKTOP;
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -91,7 +96,7 @@ export function HomeHeroFlythrough({
     // tuning deliberately stopped just short of).
     function handleTimeUpdate() {
       if (!video || hasSettledRef.current) return;
-      if (video.duration && video.currentTime / video.duration >= TABLE_LANDING_FRACTION) {
+      if (video.duration && video.currentTime / video.duration >= landingFraction) {
         hasSettledRef.current = true;
         video.pause();
         setIsTableSettled(true);
@@ -108,7 +113,7 @@ export function HomeHeroFlythrough({
     });
 
     return () => video.removeEventListener("timeupdate", handleTimeUpdate);
-  }, [isMobile]);
+  }, [landingFraction]);
 
   function handleSkip() {
     const video = videoRef.current;
@@ -117,7 +122,7 @@ export function HomeHeroFlythrough({
     if (video) {
       try {
         if (video.duration && Number.isFinite(video.duration)) {
-          video.currentTime = video.duration * TABLE_LANDING_FRACTION;
+          video.currentTime = video.duration * landingFraction;
         }
       } catch {
         // seek may throw if metadata not yet loaded — still settle visually

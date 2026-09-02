@@ -14,12 +14,12 @@ export interface UpdateSiteSettingsInput {
   description: string;
   facebookUrl: null | string;
   faviconUrl: null | string;
-  homeHeroDesktopImageUrl: null | string;
-  homeHeroMobileImageUrl: null | string;
+  homeJewelryHeroImageUrl: null | string;
   homeLoupeImageUrl: null | string;
   homeNewPiecesIds: string[] | null;
   homeShopTheLookIds: string[] | null;
   homeSpotlightImageUrl: null | string;
+  homeWatchesHeroImageUrl: null | string;
   instagramUrl: null | string;
   logoUrl: null | string;
   name: string;
@@ -32,12 +32,12 @@ const DEFAULT_SETTINGS: SiteSettings = {
   description: SEO_CONFIG.description,
   facebookUrl: SOCIAL_LINKS.facebook || null,
   faviconUrl: null,
-  homeHeroDesktopImageUrl: null,
-  homeHeroMobileImageUrl: null,
+  homeJewelryHeroImageUrl: null,
   homeLoupeImageUrl: null,
   homeNewPiecesIds: null,
   homeShopTheLookIds: null,
   homeSpotlightImageUrl: null,
+  homeWatchesHeroImageUrl: null,
   id: "default",
   instagramUrl: SOCIAL_LINKS.instagram || null,
   logoUrl: null,

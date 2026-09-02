@@ -13,15 +13,11 @@ const HomeHeroFlythrough = dynamic(
 
 interface HomeHeroFlythroughGateProps {
   className?: string;
-  desktopImageUrl?: string | null;
-  mobileImageUrl?: string | null;
   tableProducts: ProductWithRelations[];
 }
 
 export function HomeHeroFlythroughGate({
   className,
-  desktopImageUrl,
-  mobileImageUrl,
   tableProducts,
 }: HomeHeroFlythroughGateProps) {
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -42,8 +38,6 @@ export function HomeHeroFlythroughGate({
     return (
       <StaticHero
         className={className}
-        desktopImageUrl={desktopImageUrl}
-        mobileImageUrl={mobileImageUrl}
         tableProducts={tableProducts}
       />
     );
@@ -62,10 +56,8 @@ export function HomeHeroFlythroughGate({
 // shot and copy as a normal, static page.
 function StaticHero({
   className,
-  desktopImageUrl,
-  mobileImageUrl,
   tableProducts,
-}: HomeHeroFlythroughGateProps & { desktopImageUrl?: string | null; mobileImageUrl?: string | null }) {
+}: HomeHeroFlythroughGateProps) {
   const featuredCutouts = tableProducts
     .filter((product) => product.tableCutoutUrl)
     .slice(0, 4);
@@ -80,12 +72,12 @@ function StaticHero({
       <picture>
         <source
           media="(max-width: 860px)"
-          srcSet={mobileImageUrl || "/hero-flythrough/scene1-mobile.webp"}
+          srcSet="/hero-flythrough/scene1-mobile.webp"
         />
         <img
           alt="KRS storefront"
           className="absolute inset-0 h-full w-full object-cover"
-          src={desktopImageUrl || "/hero-flythrough/scene1-desktop.webp"}
+          src="/hero-flythrough/scene1-desktop.webp"
         />
       </picture>
       <div
