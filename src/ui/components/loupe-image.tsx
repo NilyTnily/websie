@@ -47,7 +47,7 @@ export function LoupeImage({
   sizes,
   src,
   vignette = true,
-  zoom = 2,
+  zoom = 1.6,
 }: LoupeImageProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [isActive, setIsActive] = React.useState(false);

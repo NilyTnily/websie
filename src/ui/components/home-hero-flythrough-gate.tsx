@@ -86,8 +86,8 @@ function StaticHero({
         }}
       />
       <div className={`
-        relative flex h-full items-center px-6
-        sm:px-14
+        absolute bottom-6 left-6
+        sm:bottom-10 sm:left-14
       `}>
         <div className="max-w-[460px]">
           <span className={`

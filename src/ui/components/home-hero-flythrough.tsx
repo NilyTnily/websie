@@ -110,6 +110,23 @@ export function HomeHeroFlythrough({
     return () => video.removeEventListener("timeupdate", handleTimeUpdate);
   }, [isMobile]);
 
+  function handleSkip() {
+    const video = videoRef.current;
+    if (hasSettledRef.current) return;
+    hasSettledRef.current = true;
+    if (video) {
+      try {
+        if (video.duration && Number.isFinite(video.duration)) {
+          video.currentTime = video.duration * TABLE_LANDING_FRACTION;
+        }
+      } catch {
+        // seek may throw if metadata not yet loaded — still settle visually
+      }
+      video.pause();
+    }
+    setIsTableSettled(true);
+  }
+
   const clip = isMobile
     ? `${ASSET_BASE}/leg1-mobile.mp4`
     : `${ASSET_BASE}/leg1-final.mp4`;
@@ -147,11 +164,30 @@ export function HomeHeroFlythrough({
         }}
       />
 
+      <button
+        aria-label="Skip video"
+        className={`
+          absolute top-6 right-6 z-20 rounded-full border border-krs-ivory/40
+          px-6 py-3 text-sm font-semibold text-krs-ivory transition-transform
+          hover:-translate-y-0.5
+          sm:top-10 sm:right-14
+        `}
+        onClick={handleSkip}
+        style={{
+          opacity: isTableSettled ? 0 : 1,
+          pointerEvents: isTableSettled ? "none" : "auto",
+          transition: "opacity 300ms ease",
+        }}
+        type="button"
+      >
+        Skip
+      </button>
+
       <div
         className={cn(
           `
-            relative flex h-full items-center px-6
-            sm:px-14
+            absolute right-6 bottom-6 left-6
+            sm:right-14 sm:bottom-10 sm:left-14
           `,
           // krs-hero-in's `animation: … both` pins opacity at 1 for the
           // life of the element (CSS animations win over inline styles on
@@ -162,7 +198,11 @@ export function HomeHeroFlythrough({
           // once instead of one cleanly replacing the other.
           !isTableSettled && "krs-hero-in",
         )}
-        style={{ opacity: isTableSettled ? 0 : 1, transition: "opacity 400ms ease" }}
+        style={{
+          opacity: isTableSettled ? 0 : 1,
+          pointerEvents: isTableSettled ? "none" : "auto",
+          transition: "opacity 400ms ease",
+        }}
       >
         <div className="max-w-[460px]">
           <span className="krs-eyebrow text-krs-champagne">

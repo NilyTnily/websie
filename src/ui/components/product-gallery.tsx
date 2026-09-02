@@ -73,7 +73,7 @@ export function ProductGallery({ media, name }: ProductGalleryProps) {
             priority
             sizes="(max-width: 768px) 100vw, 50vw"
             src={selected?.url ?? ""}
-            zoom={2.2}
+            zoom={1.5}
           />
         )}
       </div>
@@ -83,7 +83,7 @@ export function ProductGallery({ media, name }: ProductGalleryProps) {
           : selected?.kind === "video"
             ? "Video"
             : isLoupeActive
-              ? "10× — dial, hallmark, setting"
+              ? "2× — dial, hallmark, setting"
               : "Hover to inspect with the loupe"}
       </p>
 

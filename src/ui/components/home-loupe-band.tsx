@@ -23,7 +23,7 @@ export function HomeLoupeBand({ alt, src }: HomeLoupeBandProps) {
         onHoverChange={setIsActive}
         sizes="(max-width: 1024px) 100vw, 55vw"
         src={src}
-        zoom={2}
+        zoom={1.5}
       />
       <p
         className={`
@@ -31,7 +31,7 @@ export function HomeLoupeBand({ alt, src }: HomeLoupeBandProps) {
           text-krs-ivory/60
         `}
       >
-        {isActive ? "10× — dial, hallmark, setting" : "Move across the image"}
+        {isActive ? "2× — dial, hallmark, setting" : "Move across the image"}
       </p>
     </div>
   );

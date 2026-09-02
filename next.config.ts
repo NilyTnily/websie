@@ -26,6 +26,12 @@ export default {
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30,
+    // Vercel's Image Optimization has a monthly transformation quota; once
+    // exhausted, /_next/image returns 402 and every next/image breaks
+    // (OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED). Bypassing optimization
+    // serves the original files directly so images keep loading regardless
+    // of quota state, at the cost of no on-the-fly resize/format conversion.
+    unoptimized: true,
     remotePatterns: [
       { hostname: "**.githubassets.com", protocol: "https" },
       { hostname: "**.githubusercontent.com", protocol: "https" },
