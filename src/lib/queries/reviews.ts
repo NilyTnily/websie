@@ -7,9 +7,10 @@ import type { ProductReview } from "~/db/schema";
 import { db } from "~/db";
 import { inquiryTable, productReviewTable } from "~/db/schema";
 import { requireAdmin } from "~/lib/admin";
-
-export const REVIEW_COMMENT_MIN_LENGTH = 20;
-export const REVIEW_COMMENT_MAX_LENGTH = 1000;
+import {
+  REVIEW_COMMENT_MAX_LENGTH,
+  REVIEW_COMMENT_MIN_LENGTH,
+} from "~/lib/review-constants";
 
 export interface CreateReviewInput {
   comment: string;

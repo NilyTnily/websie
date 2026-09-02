@@ -6,10 +6,12 @@ import { getCurrentUser } from "~/lib/auth";
 import {
   createReview,
   deleteReviewForUser,
-  REVIEW_COMMENT_MAX_LENGTH,
-  REVIEW_COMMENT_MIN_LENGTH,
   updateReviewForUser,
 } from "~/lib/queries/reviews";
+import {
+  REVIEW_COMMENT_MAX_LENGTH,
+  REVIEW_COMMENT_MIN_LENGTH,
+} from "~/lib/review-constants";
 import { checkRateLimit, getClientIp } from "~/lib/rate-limit";
 
 export interface ReviewFormState {

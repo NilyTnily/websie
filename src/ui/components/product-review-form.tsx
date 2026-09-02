@@ -5,7 +5,10 @@ import { useActionState, useState } from "react";
 
 import type { ReviewFormState } from "~/app/actions/reviews";
 
-import { REVIEW_COMMENT_MAX_LENGTH, REVIEW_COMMENT_MIN_LENGTH } from "~/lib/queries/reviews";
+import {
+  REVIEW_COMMENT_MAX_LENGTH,
+  REVIEW_COMMENT_MIN_LENGTH,
+} from "~/lib/review-constants";
 import { cn } from "~/lib/cn";
 import { Button } from "~/ui/primitives/button";
 
