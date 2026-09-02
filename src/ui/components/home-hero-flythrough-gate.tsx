@@ -13,11 +13,15 @@ const HomeHeroFlythrough = dynamic(
 
 interface HomeHeroFlythroughGateProps {
   className?: string;
+  desktopImageUrl?: string | null;
+  mobileImageUrl?: string | null;
   tableProducts: ProductWithRelations[];
 }
 
 export function HomeHeroFlythroughGate({
   className,
+  desktopImageUrl,
+  mobileImageUrl,
   tableProducts,
 }: HomeHeroFlythroughGateProps) {
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -36,7 +40,12 @@ export function HomeHeroFlythroughGate({
 
   if (reduceMotion) {
     return (
-      <StaticHero className={className} tableProducts={tableProducts} />
+      <StaticHero
+        className={className}
+        desktopImageUrl={desktopImageUrl}
+        mobileImageUrl={mobileImageUrl}
+        tableProducts={tableProducts}
+      />
     );
   }
 
@@ -47,14 +56,16 @@ export function HomeHeroFlythroughGate({
 
 // Non-animated equivalent of the storefront scene shown to anyone with
 // prefers-reduced-motion enabled — previously this branch rendered a bare
-// empty div (just the background color, no image, no copy, no way in), which
+// empty div (just the background color, no image, no way in), which
 // read as "the site is broken" rather than "the site skipped the motion."
 // No video, no scroll hijacking, no JS scrub engine — just the same opening
 // shot and copy as a normal, static page.
 function StaticHero({
   className,
+  desktopImageUrl,
+  mobileImageUrl,
   tableProducts,
-}: HomeHeroFlythroughGateProps) {
+}: HomeHeroFlythroughGateProps & { desktopImageUrl?: string | null; mobileImageUrl?: string | null }) {
   const featuredCutouts = tableProducts
     .filter((product) => product.tableCutoutUrl)
     .slice(0, 4);
@@ -69,12 +80,12 @@ function StaticHero({
       <picture>
         <source
           media="(max-width: 860px)"
-          srcSet="/hero-flythrough/scene1-mobile.webp"
+          srcSet={mobileImageUrl || "/hero-flythrough/scene1-mobile.webp"}
         />
         <img
           alt="KRS storefront"
           className="absolute inset-0 h-full w-full object-cover"
-          src="/hero-flythrough/scene1-desktop.webp"
+          src={desktopImageUrl || "/hero-flythrough/scene1-desktop.webp"}
         />
       </picture>
       <div

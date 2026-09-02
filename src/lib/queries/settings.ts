@@ -11,15 +11,15 @@ import { siteSettingsTable } from "~/db/schema";
 import { requireAdmin } from "~/lib/admin";
 
 export interface UpdateSiteSettingsInput {
-  collectionSpotlightBody: null | string;
-  collectionSpotlightCtaLabel: null | string;
-  collectionSpotlightEyebrow: null | string;
-  collectionSpotlightHref: null | string;
-  collectionSpotlightImageUrl: null | string;
-  collectionSpotlightTitle: null | string;
   description: string;
   facebookUrl: null | string;
   faviconUrl: null | string;
+  homeHeroDesktopImageUrl: null | string;
+  homeHeroMobileImageUrl: null | string;
+  homeLoupeImageUrl: null | string;
+  homeNewPiecesIds: string[] | null;
+  homeShopTheLookIds: string[] | null;
+  homeSpotlightImageUrl: null | string;
   instagramUrl: null | string;
   logoUrl: null | string;
   name: string;
@@ -29,15 +29,15 @@ export interface UpdateSiteSettingsInput {
 }
 
 const DEFAULT_SETTINGS: SiteSettings = {
-  collectionSpotlightBody: null,
-  collectionSpotlightCtaLabel: null,
-  collectionSpotlightEyebrow: null,
-  collectionSpotlightHref: null,
-  collectionSpotlightImageUrl: null,
-  collectionSpotlightTitle: null,
   description: SEO_CONFIG.description,
   facebookUrl: SOCIAL_LINKS.facebook || null,
   faviconUrl: null,
+  homeHeroDesktopImageUrl: null,
+  homeHeroMobileImageUrl: null,
+  homeLoupeImageUrl: null,
+  homeNewPiecesIds: null,
+  homeShopTheLookIds: null,
+  homeSpotlightImageUrl: null,
   id: "default",
   instagramUrl: SOCIAL_LINKS.instagram || null,
   logoUrl: null,

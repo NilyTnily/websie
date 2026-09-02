@@ -9,6 +9,7 @@ import {
   Eye,
   Layers,
   LayoutGrid,
+  Search,
   Star,
   Tag,
 } from "lucide-react";
@@ -27,6 +28,7 @@ import { StatCardGrid } from "~/ui/components/admin/stat-card";
 import { Badge } from "~/ui/primitives/badge";
 import { Button } from "~/ui/primitives/button";
 import { Checkbox } from "~/ui/primitives/checkbox";
+import { Input } from "~/ui/primitives/input";
 import { DataTable } from "~/ui/primitives/data-table/data-table";
 import { DataTableColumnHeader } from "~/ui/primitives/data-table/data-table-column-header";
 
@@ -51,6 +53,15 @@ export function ProductsPageClient({
 }: ProductsPageClientProps) {
   const router = useRouter();
   const [isSaving, startSaving] = useTransition();
+  const [searchQuery, setSearchQuery] = useState("");
+  const filteredProducts = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return products;
+    return products.filter((p) => {
+      const haystack = `${p.name} ${p.ref} ${p.category.name} ${p.subcategory?.name ?? ""}`.toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [products, searchQuery]);
   // Draft visibility state — checkboxes only edit this locally; nothing is
   // persisted until "Save Changes" is clicked (see setProductsVisibilityAction).
   const [draft, setDraft] = useState<Record<string, boolean>>(() =>
@@ -344,9 +355,30 @@ export function ProductsPageClient({
 
       <DataTable
         columns={columns}
-        data={products}
+        data={filteredProducts}
         initialPageSize={100}
         initialSorting={[{ desc: false, id: "brand" }]}
+        toolbarExtra={
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="h-7 w-[260px] pl-8 text-sm"
+                placeholder="Search name, ref, category…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <span className="hidden text-xs text-muted-foreground sm:block">
+              {filteredProducts.length}/{products.length}
+            </span>
+            {searchQuery && (
+              <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => setSearchQuery("")}>
+                Clear
+              </Button>
+            )}
+          </div>
+        }
       />
     </div>
   );

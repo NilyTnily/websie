@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import type { Inquiry } from "~/db/schema";
 
 import {
+  getInquiryById,
   updateInquiryDelivery,
   updateInquiryStatus,
 } from "~/lib/queries/inquiries";
@@ -19,12 +20,17 @@ import {
   markMessageIgnored,
   matchMessageToInquiry,
 } from "~/lib/queries/whatsapp-messages";
+import { sendAdminReply } from "~/lib/queries/whatsapp-notify";
 
 export interface DeliveryFormState {
   error?: string;
 }
 
 export interface ShipmentFormState {
+  error?: string;
+}
+
+export interface WhatsAppReplyFormState {
   error?: string;
 }
 
@@ -75,6 +81,25 @@ export async function matchMessageToOrderAction(
   await matchMessageToInquiry(messageId, inquiryId);
   revalidatePath("/admin/whatsapp");
   revalidatePath(`/admin/inquiries/${inquiryId}`);
+}
+
+export async function sendWhatsAppReplyAction(
+  inquiryId: string,
+  toPhone: string,
+  _prevState: WhatsAppReplyFormState,
+  formData: FormData,
+): Promise<WhatsAppReplyFormState> {
+  const body = String(formData.get("body") ?? "").trim();
+  if (!body) return { error: "Message can't be empty." };
+
+  const inquiry = await getInquiryById(inquiryId);
+  if (!inquiry) return { error: "Order not found." };
+
+  const result = await sendAdminReply(inquiry, toPhone, body);
+  if (!result.success) return { error: result.error };
+
+  revalidatePath(`/admin/inquiries/${inquiryId}`);
+  return {};
 }
 
 export async function updateInquiryDeliveryAction(

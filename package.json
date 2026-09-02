@@ -48,6 +48,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.43.1",
+    "emoji-picker-react": "^4.19.4",
     "framer-motion": "^12.10.1",
     "fs-extra": "^11.3.0",
     "lucide-react": "^0.508.0",

@@ -50,9 +50,11 @@ export function AuthForm({ initialMode }: AuthFormProps) {
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [nameError, setNameError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -73,6 +75,7 @@ export function AuthForm({ initialMode }: AuthFormProps) {
     setError("");
     setEmailError("");
     setNameError("");
+    setPhoneError("");
     setPasswordError("");
     const url = next === "sign-in" ? "/auth/sign-in" : "/auth/sign-up";
     window.history.replaceState(null, "", url);
@@ -82,6 +85,14 @@ export function AuthForm({ initialMode }: AuthFormProps) {
     const v = value.trim();
     if (!v) return "Email is required.";
     if (!EMAIL_RE.test(v)) return "Please enter a valid email address.";
+    return "";
+  };
+
+  const validatePhone = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    if (!value.trim()) return ""; // optional
+    if (digits.length < 7) return "Please enter a valid phone number (at least 7 digits).";
+    if (digits.length > 15) return "Phone number is too long.";
     return "";
   };
 
@@ -160,23 +171,27 @@ export function AuthForm({ initialMode }: AuthFormProps) {
     e.preventDefault();
     const trimmedEmail = email.trim().toLowerCase();
     const trimmedName = name.trim();
+    const trimmedPhone = phone.trim();
     const eErr = validateEmail(trimmedEmail);
     const nErr = trimmedName ? "" : "Name is required.";
+    const phErr = validatePhone(trimmedPhone);
     const pErr = !password
       ? "Password is required."
       : password.length < 8
         ? "Password must be at least 8 characters."
         : "";
 
-    if (eErr || nErr || pErr) {
+    if (eErr || nErr || phErr || pErr) {
       setEmailError(eErr);
       setNameError(nErr);
+      setPhoneError(phErr);
       setPasswordError(pErr);
       return;
     }
 
     setEmailError("");
     setNameError("");
+    setPhoneError("");
     setPasswordError("");
     setError("");
     setLoading(true);
@@ -185,6 +200,8 @@ export function AuthForm({ initialMode }: AuthFormProps) {
       const { error: signUpError } = await signUp.email({
         email: trimmedEmail,
         name: trimmedName,
+        // @ts-expect-error - better-auth additionalFields: phone is defined in src/lib/auth.ts
+        phone: trimmedPhone || undefined,
         password,
       });
 
@@ -310,23 +327,45 @@ export function AuthForm({ initialMode }: AuthFormProps) {
                 }}
               >
                 {!isSignIn && (
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input
-                      autoComplete="name"
-                      id="name"
-                      onChange={(e) => {
-                        setName(e.target.value);
-                        if (nameError) setNameError("");
-                      }}
-                      placeholder="John Doe"
-                      type="text"
-                      value={name}
-                    />
-                    {nameError ? (
-                      <p className="text-sm text-destructive">{nameError}</p>
-                    ) : null}
-                  </div>
+                  <>
+                    <div className="grid gap-2">
+                      <Label htmlFor="name">Full Name</Label>
+                      <Input
+                        autoComplete="name"
+                        id="name"
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          if (nameError) setNameError("");
+                        }}
+                        placeholder="John Doe"
+                        type="text"
+                        value={name}
+                      />
+                      {nameError ? (
+                        <p className="text-sm text-destructive">{nameError}</p>
+                      ) : null}
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="phone">Phone (for WhatsApp updates)</Label>
+                      <Input
+                        autoComplete="tel"
+                        id="phone"
+                        inputMode="tel"
+                        onBlur={() => setPhoneError(validatePhone(phone))}
+                        onChange={(e) => {
+                          setPhone(e.target.value);
+                          if (phoneError) setPhoneError(validatePhone(e.target.value));
+                        }}
+                        placeholder="+1 555 123 4567"
+                        type="tel"
+                        value={phone}
+                      />
+                      {phoneError ? (
+                        <p className="text-sm text-destructive">{phoneError}</p>
+                      ) : null}
+                      <p className="text-xs text-muted-foreground">Optional — used for order updates via WhatsApp.</p>
+                    </div>
+                  </>
                 )}
 
                 <div className="grid gap-2">

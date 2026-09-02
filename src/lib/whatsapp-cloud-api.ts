@@ -66,11 +66,13 @@ export function parseWebhookPayload(
 }
 
 /**
- * Sends a text message via the WhatsApp Cloud API Graph endpoint. Not
- * wired into any UI yet — anticipates outbound notification/logging work
- * building on the same `whatsapp_message` table (direction: "outbound").
- * Credentials are passed in rather than read from env directly, since an
- * admin can override them via /admin/settings — see
+ * Sends a free-form text message via the WhatsApp Cloud API Graph endpoint.
+ * Only valid within Meta's 24h customer-service window (i.e. replying to a
+ * message the customer sent us) — see ~/lib/queries/whatsapp-notify for the
+ * admin-reply use of this. Business-initiated messages (order status
+ * changes, staff alerts) must use sendWhatsAppTemplate instead. Credentials
+ * are passed in rather than read from env directly, since an admin can
+ * override them via /admin/settings — see
  * ~/lib/queries/integrations#getWhatsAppCredentials.
  */
 export async function sendWhatsAppMessage(
@@ -102,6 +104,55 @@ export async function sendWhatsAppMessage(
   } catch (error) {
     console.error("Failed to send WhatsApp message:", error);
     return { error: "Failed to send WhatsApp message.", success: false };
+  }
+}
+
+/**
+ * Sends a pre-approved WhatsApp template message. Required for any
+ * business-initiated message (order confirmations, status updates, staff
+ * alerts) — Meta rejects free-form `sendWhatsAppMessage` text outside the
+ * 24h window following a customer's own message, so anything the app sends
+ * on its own initiative must go through an approved template instead.
+ */
+export async function sendWhatsAppTemplate(
+  to: string,
+  templateName: string,
+  bodyParams: string[],
+  credentials: { accessToken: null | string; phoneNumberId: null | string },
+): Promise<SendWhatsAppMessageResult> {
+  const { accessToken, phoneNumberId } = credentials;
+  if (!phoneNumberId || !accessToken) {
+    return { error: "WhatsApp Cloud API is not configured.", success: false };
+  }
+
+  try {
+    const response = await axios.post<{ messages?: { id: string }[] }>(
+      `https://graph.facebook.com/${GRAPH_API_VERSION}/${phoneNumberId}/messages`,
+      {
+        messaging_product: "whatsapp",
+        template: {
+          components: [
+            {
+              parameters: bodyParams.map((text) => ({ text, type: "text" })),
+              type: "body",
+            },
+          ],
+          language: { code: "en_US" },
+          name: templateName,
+        },
+        to,
+        type: "template",
+      },
+      { headers: { Authorization: `Bearer ${accessToken}` } },
+    );
+    const waMessageId = response.data.messages?.[0]?.id;
+    if (!waMessageId) {
+      return { error: "WhatsApp API returned no message id.", success: false };
+    }
+    return { success: true, waMessageId };
+  } catch (error) {
+    console.error(`Failed to send WhatsApp template "${templateName}":`, error);
+    return { error: "Failed to send WhatsApp template message.", success: false };
   }
 }
 

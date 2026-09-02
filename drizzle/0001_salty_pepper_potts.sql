@@ -1,0 +1,20 @@
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "google_client_id" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "google_client_secret" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "whatsapp_staff_numbers" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "whatsapp_template_order_cancelled_refunded" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "whatsapp_template_order_cancelled_refunded_body" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "whatsapp_template_order_confirmed" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "whatsapp_template_order_confirmed_body" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "whatsapp_template_order_shipped" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "whatsapp_template_order_shipped_body" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "whatsapp_template_order_status_update" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "whatsapp_template_order_status_update_body" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "whatsapp_template_staff_new_order" text;--> statement-breakpoint
+ALTER TABLE "integration_settings" ADD COLUMN IF NOT EXISTS "whatsapp_template_staff_new_order_body" text;--> statement-breakpoint
+ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "collection_spotlight_body" text;--> statement-breakpoint
+ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "collection_spotlight_cta_label" text;--> statement-breakpoint
+ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "collection_spotlight_eyebrow" text;--> statement-breakpoint
+ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "collection_spotlight_href" text;--> statement-breakpoint
+ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "collection_spotlight_image_url" text;--> statement-breakpoint
+ALTER TABLE "site_settings" ADD COLUMN IF NOT EXISTS "collection_spotlight_title" text;--> statement-breakpoint
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "phone" text;

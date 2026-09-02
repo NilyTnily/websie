@@ -86,6 +86,11 @@ export const auth = betterAuth({
         required: false,
         type: "string",
       },
+      phone: {
+        input: true,
+        required: false,
+        type: "string",
+      },
     },
   },
 });

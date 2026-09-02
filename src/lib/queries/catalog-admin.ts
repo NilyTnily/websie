@@ -367,6 +367,91 @@ export async function setTableOrder(
   }
 }
 
+// Toggle a single product's New Arrival flag. Sets newArrivalAt when enabling so
+// getNewArrivals can sort "newest first" without relying on createdAt.
+export async function setNewArrival(
+  id: string,
+  isNewArrival: boolean,
+): Promise<MutationResult> {
+  await requireAdmin();
+  try {
+    await db
+      .update(productTable)
+      .set({
+        isNewArrival,
+        newArrivalAt: isNewArrival ? new Date() : null,
+        // clear sort order when removing from new arrivals so it doesn't linger
+        newArrivalSortOrder: isNewArrival ? undefined : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(productTable.id, id));
+    revalidateStorefront();
+    return { data: undefined, success: true };
+  } catch (error) {
+    return {
+      error: errorMessage(error, "Could not update new arrival."),
+      success: false,
+    };
+  }
+}
+
+// Bulk save for the New Arrivals tab — mirrors setProductsVisibility
+export async function setNewArrivals(
+  changes: { id: string; isNewArrival: boolean }[],
+): Promise<MutationResult> {
+  await requireAdmin();
+  if (changes.length === 0) return { data: undefined, success: true };
+  try {
+    await db.transaction(async (tx) => {
+      for (const change of changes) {
+        await tx
+          .update(productTable)
+          .set({
+            isNewArrival: change.isNewArrival,
+            newArrivalAt: change.isNewArrival ? new Date() : null,
+            newArrivalSortOrder: change.isNewArrival ? undefined : null,
+            updatedAt: new Date(),
+          })
+          .where(eq(productTable.id, change.id));
+      }
+    });
+    revalidateStorefront();
+    return { data: undefined, success: true };
+  } catch (error) {
+    return {
+      error: errorMessage(error, "Could not update new arrivals."),
+      success: false,
+    };
+  }
+}
+
+// Drag-and-drop order for New Arrivals — mirrors setTableOrder
+export async function setNewArrivalsOrder(
+  orderedIds: string[],
+): Promise<MutationResult> {
+  await requireAdmin();
+  if (orderedIds.length === 0) return { data: undefined, success: true };
+  try {
+    await db.transaction(async (tx) => {
+      await Promise.all(
+        orderedIds.map((id, index) =>
+          tx
+            .update(productTable)
+            .set({ newArrivalSortOrder: index, updatedAt: new Date() })
+            .where(eq(productTable.id, id)),
+        ),
+      );
+    });
+    revalidateStorefront();
+    return { data: undefined, success: true };
+  } catch (error) {
+    return {
+      error: errorMessage(error, "Could not save new arrivals order."),
+      success: false,
+    };
+  }
+}
+
 export async function updateCategory(
   id: string,
   input: CategoryInput & { sortOrder?: number },

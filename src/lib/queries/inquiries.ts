@@ -1,8 +1,14 @@
 import "server-only";
 import { createId } from "@paralleldrive/cuid2";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 
 import type { Inquiry, InquiryDeliveryAddress, InquiryItem } from "~/db/schema";
+
+import {
+  isPendingDeliveryStatus,
+  MAX_PENDING_ORDERS,
+  PENDING_DELIVERY_STATUSES,
+} from "~/lib/delivery-status";
 
 import { db } from "~/db";
 import { inquiryTable, userTable } from "~/db/schema";
@@ -10,6 +16,11 @@ import { requireAdmin } from "~/lib/admin";
 import { sendEmail } from "~/lib/email";
 import { formatOrderNumber } from "~/lib/order-number";
 import { createNotification, notifyAdmins } from "~/lib/queries/notifications";
+import {
+  notifyCustomerOfDeliveryChange,
+  notifyCustomerOfStatusChange as notifyCustomerOfStatusChangeWhatsApp,
+  notifyCustomerOrderConfirmed,
+} from "~/lib/queries/whatsapp-notify";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -50,9 +61,70 @@ export interface UpdateDeliveryInput {
   deliveryStatus: Inquiry["deliveryStatus"];
 }
 
+export async function countPendingInquiriesForUser(
+  userId: string,
+): Promise<number> {
+  const [row] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(inquiryTable)
+    .where(
+      and(
+        eq(inquiryTable.userId, userId),
+        inArray(inquiryTable.deliveryStatus, PENDING_DELIVERY_STATUSES),
+      ),
+    );
+  return row?.count ?? 0;
+}
+
+export async function cancelInquiryForUser(
+  inquiryId: string,
+  userId: string,
+): Promise<{ error: string; success: false } | { success: true }> {
+  const existing = await db.query.inquiryTable.findFirst({
+    where: and(
+      eq(inquiryTable.id, inquiryId),
+      eq(inquiryTable.userId, userId),
+    ),
+  });
+  if (!existing) {
+    return { error: "Order not found.", success: false };
+  }
+  if (!isPendingDeliveryStatus(existing.deliveryStatus)) {
+    return {
+      error: "Only pending orders can be cancelled.",
+      success: false,
+    };
+  }
+  await db
+    .update(inquiryTable)
+    .set({ deliveryStatus: "cancelled", updatedAt: new Date() })
+    .where(eq(inquiryTable.id, inquiryId));
+
+  // Refresh order for notifications
+  const [updated] = await db
+    .select()
+    .from(inquiryTable)
+    .where(eq(inquiryTable.id, inquiryId));
+  if (updated) {
+    await notifyCustomerOfDeliveryChange(updated as Inquiry);
+  }
+
+  return { success: true };
+}
+
 export async function createInquiry(
   input: CreateInquiryInput,
 ): Promise<Inquiry> {
+  // Enforce per-user pending limit (applies only to authenticated users).
+  if (input.userId) {
+    const pendingCount = await countPendingInquiriesForUser(input.userId);
+    if (pendingCount >= MAX_PENDING_ORDERS) {
+      throw new Error(
+        `You already have ${MAX_PENDING_ORDERS} pending orders. Cancel a pending order or wait for processing before placing a new one.`,
+      );
+    }
+  }
+
   const subtotal = input.items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
@@ -109,6 +181,12 @@ export async function createInquiry(
       to: input.customerContact,
     });
   }
+
+  // Best-effort — a WhatsApp send failure (e.g. template not yet approved,
+  // credentials unset) must never block inquiry creation. Errors are
+  // logged inside whatsapp-notify and surfaced via the outbound message
+  // log, not thrown here.
+  await notifyCustomerOrderConfirmed(inquiry);
 
   return inquiry;
 }
@@ -231,13 +309,17 @@ export async function updateInquiryDelivery(
 ): Promise<{ error: string; success: false } | { success: true }> {
   await requireAdmin();
   try {
-    await db
+    const [inquiry] = await db
       .update(inquiryTable)
       .set({
         deliveryStatus: input.deliveryStatus,
         updatedAt: new Date(),
       })
-      .where(eq(inquiryTable.id, id));
+      .where(eq(inquiryTable.id, id))
+      .returning();
+
+    if (inquiry) await notifyCustomerOfDeliveryChange(inquiry);
+
     return { success: true };
   } catch (error) {
     console.error("Failed to update delivery info:", error);
@@ -307,4 +389,6 @@ async function notifyCustomerOfStatusChange(inquiry: Inquiry): Promise<void> {
       to: email,
     });
   }
+
+  await notifyCustomerOfStatusChangeWhatsApp(inquiry);
 }

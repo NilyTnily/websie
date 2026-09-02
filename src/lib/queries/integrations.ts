@@ -6,6 +6,10 @@ import type { IntegrationSettings } from "~/db/schema";
 import { db } from "~/db";
 import { integrationSettingsTable } from "~/db/schema";
 import { requireAdmin } from "~/lib/admin";
+import {
+  DEFAULT_TEMPLATE_BODIES,
+  type WhatsAppTemplateBodies,
+} from "~/lib/whatsapp-template-vars";
 
 export interface GoogleOAuthCredentials {
   clientId: null | string;
@@ -18,6 +22,16 @@ export interface UpdateIntegrationSettingsInput {
   whatsappAccessToken: null | string;
   whatsappAppSecret: null | string;
   whatsappPhoneNumberId: null | string;
+  whatsappTemplateNewArrivals: null | string;
+  whatsappTemplateNewArrivalsBody: null | string;
+  whatsappTemplateOrderCancelledRefunded: null | string;
+  whatsappTemplateOrderCancelledRefundedBody: null | string;
+  whatsappTemplateOrderConfirmed: null | string;
+  whatsappTemplateOrderConfirmedBody: null | string;
+  whatsappTemplateOrderShipped: null | string;
+  whatsappTemplateOrderShippedBody: null | string;
+  whatsappTemplateOrderStatusUpdate: null | string;
+  whatsappTemplateOrderStatusUpdateBody: null | string;
   whatsappVerifyToken: null | string;
 }
 
@@ -26,6 +40,14 @@ export interface WhatsAppCredentials {
   appSecret: null | string;
   phoneNumberId: null | string;
   verifyToken: null | string;
+}
+
+export interface WhatsAppTemplateNames {
+  newArrivals: string;
+  orderCancelledRefunded: string;
+  orderConfirmed: string;
+  orderShipped: string;
+  orderStatusUpdate: string;
 }
 
 /**
@@ -68,6 +90,67 @@ export async function getWhatsAppCredentials(): Promise<WhatsAppCredentials> {
       row?.whatsappPhoneNumberId || process.env.WHATSAPP_PHONE_NUMBER_ID || null,
     verifyToken:
       row?.whatsappVerifyToken || process.env.WHATSAPP_VERIFY_TOKEN || null,
+  };
+}
+
+/**
+ * Reference wording for the 5 templates, edited from the admin UI's
+ * WhatsApp-style body editor. DB value wins when set, otherwise falls back
+ * to a sensible default — see DEFAULT_TEMPLATE_BODIES above. Used to derive
+ * the positional params sent to Meta (~/lib/whatsapp-template-vars), not
+ * sent to Meta directly.
+ */
+export async function getWhatsAppTemplateBodies(): Promise<WhatsAppTemplateBodies> {
+  const row = await fetchIntegrationSettings();
+  return {
+    newArrivals:
+      (row as unknown as { whatsappTemplateNewArrivalsBody?: string | null })
+        ?.whatsappTemplateNewArrivalsBody || DEFAULT_TEMPLATE_BODIES.newArrivals,
+    orderCancelledRefunded:
+      row?.whatsappTemplateOrderCancelledRefundedBody ||
+      DEFAULT_TEMPLATE_BODIES.orderCancelledRefunded,
+    orderConfirmed:
+      row?.whatsappTemplateOrderConfirmedBody ||
+      DEFAULT_TEMPLATE_BODIES.orderConfirmed,
+    orderShipped:
+      row?.whatsappTemplateOrderShippedBody || DEFAULT_TEMPLATE_BODIES.orderShipped,
+    orderStatusUpdate:
+      row?.whatsappTemplateOrderStatusUpdateBody ||
+      DEFAULT_TEMPLATE_BODIES.orderStatusUpdate,
+  };
+}
+
+/**
+ * Names of the 5 approved Meta message templates this app sends. DB value
+ * wins when set, otherwise falls back to the matching WHATSAPP_TEMPLATE_*
+ * env var, then a hardcoded default name — see the WhatsApp tutorial dialog
+ * on /admin/settings (~/app/admin/settings/tutorial-dialog) for what each
+ * template's approved body must say and how many {{n}} params it needs.
+ */
+export async function getWhatsAppTemplateNames(): Promise<WhatsAppTemplateNames> {
+  const row = await fetchIntegrationSettings();
+  return {
+    newArrivals:
+      (row as unknown as { whatsappTemplateNewArrivals?: string | null })
+        ?.whatsappTemplateNewArrivals ||
+      process.env.WHATSAPP_TEMPLATE_NEW_ARRIVALS ||
+      "new_arrivals",
+    orderCancelledRefunded:
+      row?.whatsappTemplateOrderCancelledRefunded ||
+      process.env.WHATSAPP_TEMPLATE_ORDER_CANCELLED_REFUNDED ||
+      "order_cancelled_refunded",
+    orderConfirmed:
+      row?.whatsappTemplateOrderConfirmed ||
+      process.env.WHATSAPP_TEMPLATE_ORDER_CONFIRMED ||
+      "order_confirmed",
+    orderShipped:
+      row?.whatsappTemplateOrderShipped ||
+      process.env.WHATSAPP_TEMPLATE_ORDER_SHIPPED ||
+      "order_shipped",
+    orderStatusUpdate:
+      row?.whatsappTemplateOrderStatusUpdate ||
+      process.env.WHATSAPP_TEMPLATE_ORDER_STATUS_UPDATE ||
+      "order_status_update",
   };
 }
 

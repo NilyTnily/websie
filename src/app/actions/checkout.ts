@@ -9,6 +9,7 @@ import {
   PRESENTATION_OPTIONS,
 } from "~/lib/checkout-options";
 import { createInquiry } from "~/lib/queries/inquiries";
+import { ensureUserPhoneFromContact } from "~/lib/queries/user-phone";
 import { checkRateLimit, getClientIp } from "~/lib/rate-limit";
 import { buildInquiryMessage, buildWhatsAppLink } from "~/lib/whatsapp";
 
@@ -91,6 +92,8 @@ export async function checkoutAction(
       presentationOption: presentation.value,
       userId: user?.id,
     });
+    // any auth method (email or Google): if inquiry contact is phone and user has no phone, save it
+    await ensureUserPhoneFromContact(user?.id, customerContact);
     const message = buildInquiryMessage({
       customerContact,
       customerName: address.name,
@@ -101,6 +104,11 @@ export async function checkoutAction(
     return { success: true, whatsappUrl: await buildWhatsAppLink(message) };
   } catch (error) {
     console.error("Failed to submit checkout:", error);
+    const message =
+      error instanceof Error ? error.message : "";
+    if (message.includes("pending orders")) {
+      return { error: message, success: false };
+    }
     return {
       error: "Something went wrong — please try again.",
       success: false,

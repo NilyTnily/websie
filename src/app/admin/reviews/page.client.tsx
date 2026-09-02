@@ -2,15 +2,16 @@
 
 import type { ColumnDef, ColumnMeta } from "@tanstack/react-table";
 
-import { Check, MessageSquare, Star, X } from "lucide-react";
+import { Check, Mail, MessageSquare, Phone, Search, Star, X } from "lucide-react";
 import Image from "next/image";
-import { useMemo, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import type { ReviewStats, ReviewWithProduct } from "~/lib/queries/reviews";
 
 import { defineMeta, filterFn } from "~/lib/filters";
 import { StatCardGrid } from "~/ui/components/admin/stat-card";
 import { Button } from "~/ui/primitives/button";
+import { Input } from "~/ui/primitives/input";
 import { DataTable } from "~/ui/primitives/data-table/data-table";
 import { DataTableColumnHeader } from "~/ui/primitives/data-table/data-table-column-header";
 
@@ -26,6 +27,17 @@ interface ReviewsPageClientProps {
 }
 
 export function ReviewsPageClient({ reviews, stats }: ReviewsPageClientProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredReviews = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return reviews;
+    return reviews.filter((r) => {
+      const haystack = `${r.customerName} ${r.user?.email ?? ""} ${r.user?.phone ?? ""} ${r.product.name} ${r.comment}`.toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [reviews, searchQuery]);
+
   const columns = useMemo(
     (): ColumnDef<ReviewWithProduct>[] => [
       {
@@ -72,6 +84,36 @@ export function ReviewsPageClient({ reviews, stats }: ReviewsPageClientProps) {
         meta: defineMeta((row: ReviewWithProduct) => row.customerName, {
           displayName: "Customer",
           icon: MessageSquare,
+          type: "text",
+        }) as ColumnMeta<ReviewWithProduct, unknown>,
+      },
+      {
+        accessorKey: "user.email",
+        accessorFn: (row) => row.user?.email ?? "—",
+        cell: ({ row }) => <span className="text-sm">{row.original.user?.email ?? "—"}</span>,
+        filterFn: filterFn("text"),
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Email" />
+        ),
+        id: "email",
+        meta: defineMeta((row: ReviewWithProduct) => row.user?.email ?? "", {
+          displayName: "Email",
+          icon: Mail,
+          type: "text",
+        }) as ColumnMeta<ReviewWithProduct, unknown>,
+      },
+      {
+        accessorKey: "user.phone",
+        accessorFn: (row) => row.user?.phone ?? "—",
+        cell: ({ row }) => <span className="text-sm">{row.original.user?.phone ?? "—"}</span>,
+        filterFn: filterFn("text"),
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Phone" />
+        ),
+        id: "phone",
+        meta: defineMeta((row: ReviewWithProduct) => row.user?.phone ?? "", {
+          displayName: "Phone",
+          icon: Phone,
           type: "text",
         }) as ColumnMeta<ReviewWithProduct, unknown>,
       },
@@ -146,7 +188,31 @@ export function ReviewsPageClient({ reviews, stats }: ReviewsPageClientProps) {
         ]}
       />
 
-      <DataTable columns={columns} data={reviews} />
+      <DataTable
+        columns={columns}
+        data={filteredReviews}
+        toolbarExtra={
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="h-7 w-[240px] pl-8 text-sm"
+                placeholder="Search name, email, phone…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <span className="hidden text-xs text-muted-foreground sm:block">
+              {filteredReviews.length}/{reviews.length}
+            </span>
+            {searchQuery && (
+              <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => setSearchQuery("")}>
+                Clear
+              </Button>
+            )}
+          </div>
+        }
+      />
     </div>
   );
 }

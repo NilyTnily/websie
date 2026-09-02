@@ -39,6 +39,8 @@ interface DataTableProps<TData, TValue> {
   initialPageSize?: number;
   /** Sort the table starts with, e.g. `[{ id: "brand", desc: false }]`. Defaults to insertion order. */
   initialSorting?: SortingState;
+  /** Optional search slot rendered on the same line as the Filter button (left side). */
+  toolbarExtra?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -46,6 +48,7 @@ export function DataTable<TData, TValue>({
   data,
   initialPageSize = DEFAULT_PAGE_SIZE,
   initialSorting = DEFAULT_SORTING,
+  toolbarExtra,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -82,10 +85,19 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      {/* Filtering and View Options */}
-      <div className="flex items-center justify-between py-4">
-        <DataTableFilter table={table} />
-        <DataTableViewOptions table={table} />
+      {/* Filtering and View Options — Filter left, Search centered, View right */}
+      <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex shrink-0 items-center">
+          <DataTableFilter table={table} />
+        </div>
+        {toolbarExtra ? (
+          <div className="flex flex-1 justify-center px-4">{toolbarExtra}</div>
+        ) : (
+          <div className="hidden flex-1 sm:block" />
+        )}
+        <div className="flex shrink-0 items-center">
+          <DataTableViewOptions table={table} />
+        </div>
       </div>
 
       {/* Table */}

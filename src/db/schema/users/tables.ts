@@ -26,6 +26,7 @@ export const userTable = pgTable("user", {
   image: text("image"),
   lastName: text("last_name"),
   name: text("name").notNull(),
+  phone: text("phone"),
   twoFactorEnabled: boolean("two_factor_enabled"),
   updatedAt: timestamp("updated_at").notNull(),
 });

@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowRight, Package, Shield, User } from "lucide-react";
+import { ArrowRight, Package, Phone, Shield, User } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { toast } from "sonner";
 
 import type { Inquiry } from "~/db/schema";
 
@@ -12,6 +13,7 @@ import {
   useCurrentUserOrRedirect,
 } from "~/lib/auth-client";
 import { OrderCard } from "~/ui/components/order-card";
+import { updatePhoneValueAction } from "~/app/actions/user";
 import { Button } from "~/ui/primitives/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/ui/primitives/card";
 import { Input } from "~/ui/primitives/input";
@@ -43,6 +45,14 @@ export function ProfilePageClient({
   const [passwordError, setPasswordError] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [phoneDraft, setPhoneDraft] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [phoneMessage, setPhoneMessage] = useState("");
+  const [isPhoneSaving, startPhoneSaving] = useTransition();
+  const userPhone = (user as unknown as { phone?: string | null })?.phone ?? "";
+  useEffect(() => {
+    if (!isPending && user) setPhoneDraft(userPhone);
+  }, [isPending, userPhone, user]);
 
   if (isPending) {
     return (
@@ -166,8 +176,39 @@ export function ProfilePageClient({
     }
   };
 
+  const handleSavePhone = () => {
+    setPhoneError("");
+    setPhoneMessage("");
+    const trimmed = phoneDraft.trim();
+    if (trimmed && trimmed.replace(/\D/g, "").length < 7) {
+      setPhoneError("Phone must be at least 7 digits.");
+      return;
+    }
+    startPhoneSaving(async () => {
+      const res = await updatePhoneValueAction(trimmed);
+      if (!res.success) {
+        setPhoneError(res.error || "Could not save phone.");
+        toast.error(res.error || "Could not save phone.");
+        return;
+      }
+      setPhoneMessage(trimmed ? "Phone saved. You'll get New Arrivals on WhatsApp." : "Phone removed.");
+      toast.success(trimmed ? "Phone saved." : "Phone removed.");
+    });
+  };
+
+  const isPhoneMissing = !isPending && user && !(user as unknown as { phone?: string | null }).phone;
+
   return (
     <div className="space-y-6">
+      {isPhoneMissing && (
+        <div className="flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm">
+          <Phone className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+          <div className="space-y-1">
+            <p className="font-medium text-amber-900">Add your WhatsApp number</p>
+            <p className="text-amber-700">We use your phone for order updates and New Arrivals broadcasts. Works the same whether you signed up with email or Google.</p>
+          </div>
+        </div>
+      )}
       <div className="space-y-0.5">
         <h2 className="font-display text-2xl text-foreground">Details</h2>
         <p className="text-muted-foreground">
@@ -213,6 +254,28 @@ export function ProfilePageClient({
                   </p>
                 </div>
               )}
+              <div className="grid gap-1.5">
+                <Label htmlFor="phone">WhatsApp Phone</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="phone"
+                    inputMode="tel"
+                    placeholder="+1 555 123 4567"
+                    value={phoneDraft}
+                    onChange={(e) => {
+                      setPhoneDraft(e.target.value);
+                      if (phoneError) setPhoneError("");
+                      if (phoneMessage) setPhoneMessage("");
+                    }}
+                  />
+                  <Button disabled={isPhoneSaving} onClick={handleSavePhone} variant="outline">
+                    {isPhoneSaving ? "Saving…" : "Save"}
+                  </Button>
+                </div>
+                {phoneError && <p className="text-sm text-destructive">{phoneError}</p>}
+                {phoneMessage && <p className="text-sm text-krs-mocha">{phoneMessage}</p>}
+                <p className="text-xs text-muted-foreground">For order updates & New Arrivals. Works for email or Google sign-in. Leave blank to remove.</p>
+              </div>
               <Link
                 className={`
                   inline-flex items-center gap-1 text-sm text-primary

@@ -59,13 +59,14 @@ export function ProductCard({
   };
 
   return (
-    <div className={cn("group relative", className)} {...props}>
+    <div
+      className={cn("group relative", className)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      {...props}
+    >
       <Link className="block" href={`/products/${product.id}`}>
-        <div
-          className="relative overflow-hidden bg-card"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
+        <div className="relative overflow-hidden bg-card">
           <div
             className={`
               relative aspect-[4/5] overflow-hidden bg-gradient-to-b from-accent

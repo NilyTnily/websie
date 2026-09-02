@@ -20,6 +20,46 @@ export async function updateIntegrationSettingsAction(
     whatsappAccessToken: optionalText(formData, "whatsappAccessToken"),
     whatsappAppSecret: optionalText(formData, "whatsappAppSecret"),
     whatsappPhoneNumberId: optionalText(formData, "whatsappPhoneNumberId"),
+    whatsappTemplateNewArrivals: optionalText(
+      formData,
+      "whatsappTemplateNewArrivals",
+    ),
+    whatsappTemplateNewArrivalsBody: optionalText(
+      formData,
+      "whatsappTemplateNewArrivalsBody",
+    ),
+    whatsappTemplateOrderCancelledRefunded: optionalText(
+      formData,
+      "whatsappTemplateOrderCancelledRefunded",
+    ),
+    whatsappTemplateOrderCancelledRefundedBody: optionalText(
+      formData,
+      "whatsappTemplateOrderCancelledRefundedBody",
+    ),
+    whatsappTemplateOrderConfirmed: optionalText(
+      formData,
+      "whatsappTemplateOrderConfirmed",
+    ),
+    whatsappTemplateOrderConfirmedBody: optionalText(
+      formData,
+      "whatsappTemplateOrderConfirmedBody",
+    ),
+    whatsappTemplateOrderShipped: optionalText(
+      formData,
+      "whatsappTemplateOrderShipped",
+    ),
+    whatsappTemplateOrderShippedBody: optionalText(
+      formData,
+      "whatsappTemplateOrderShippedBody",
+    ),
+    whatsappTemplateOrderStatusUpdate: optionalText(
+      formData,
+      "whatsappTemplateOrderStatusUpdate",
+    ),
+    whatsappTemplateOrderStatusUpdateBody: optionalText(
+      formData,
+      "whatsappTemplateOrderStatusUpdateBody",
+    ),
     whatsappVerifyToken: optionalText(formData, "whatsappVerifyToken"),
   });
 
@@ -41,16 +81,29 @@ export async function updateSiteSettingsAction(
     return { error: "Name, slogan, and description are required." };
   }
 
+  const parseIds = (key: string, max: number): string[] | null => {
+    const raw = String(formData.get(key) ?? "").trim();
+    if (!raw) return null;
+    try {
+      const arr = JSON.parse(raw) as unknown;
+      if (!Array.isArray(arr)) return null;
+      const ids = arr.filter((x): x is string => typeof x === "string").slice(0, max);
+      return ids.length > 0 ? ids : null;
+    } catch {
+      return null;
+    }
+  };
+
   const result = await updateSiteSettings({
-    collectionSpotlightBody: optionalText(formData, "collectionSpotlightBody"),
-    collectionSpotlightCtaLabel: optionalText(formData, "collectionSpotlightCtaLabel"),
-    collectionSpotlightEyebrow: optionalText(formData, "collectionSpotlightEyebrow"),
-    collectionSpotlightHref: optionalText(formData, "collectionSpotlightHref"),
-    collectionSpotlightImageUrl: optionalText(formData, "collectionSpotlightImageUrl"),
-    collectionSpotlightTitle: optionalText(formData, "collectionSpotlightTitle"),
     description,
     facebookUrl: optionalText(formData, "facebookUrl"),
     faviconUrl: optionalText(formData, "faviconUrl"),
+    homeHeroDesktopImageUrl: optionalText(formData, "homeHeroDesktopImageUrl"),
+    homeHeroMobileImageUrl: optionalText(formData, "homeHeroMobileImageUrl"),
+    homeLoupeImageUrl: optionalText(formData, "homeLoupeImageUrl"),
+    homeNewPiecesIds: parseIds("homeNewPiecesIds", 10),
+    homeShopTheLookIds: parseIds("homeShopTheLookIds", 2),
+    homeSpotlightImageUrl: optionalText(formData, "homeSpotlightImageUrl"),
     instagramUrl: optionalText(formData, "instagramUrl"),
     logoUrl: optionalText(formData, "logoUrl"),
     name,

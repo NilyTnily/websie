@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, count, eq, inArray, ne } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, ne } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 
@@ -262,6 +262,16 @@ export async function getProductsByIds(
   }
 }
 
+/** Same as getProductsByIds but preserves the order of the input ids (for homepage PREMIUM ordering). */
+export async function getProductsByIdsOrdered(ids: string[]): Promise<ProductWithRelations[]> {
+  if (ids.length === 0) return [];
+  const products = await getProductsByIds(ids);
+  const order = new Map(ids.map((id, idx) => [id, idx]));
+  return products
+    .filter((p) => p.visible)
+    .sort((a, b) => (order.get(a.id) ?? 999) - (order.get(b.id) ?? 999));
+}
+
 async function fetchRelatedProducts(
   categoryId: string,
   excludeId: string,
@@ -367,6 +377,77 @@ const cachedTableProducts = unstable_cache(fetchTableProducts, ["table-products"
 export const getTableProducts = cache(
   async (): Promise<ProductWithRelations[]> => cachedTableProducts(),
 );
+
+// New Arrivals — admin toggles isNewArrival in /admin/new-arrivals, storefront shows via getNewArrivals/getNewArrivalsLite
+async function fetchNewArrivals(): Promise<ProductWithRelations[]> {
+  try {
+    return await db.query.productTable.findMany({
+      orderBy: [asc(productTable.newArrivalSortOrder), desc(productTable.newArrivalAt), desc(productTable.createdAt)],
+      where: and(eq(productTable.isNewArrival, true), eq(productTable.visible, true)),
+      with: {
+        category: true,
+        images: {
+          orderBy: (image, { asc: ascImage }) => ascImage(image.sortOrder),
+        },
+        model: true,
+        subcategory: true,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch new arrivals:", error);
+    return [];
+  }
+}
+const cachedNewArrivals = unstable_cache(fetchNewArrivals, ["new-arrivals"], { revalidate: 60, tags: ["products"] });
+export const getNewArrivals = cache(async (): Promise<ProductWithRelations[]> => cachedNewArrivals());
+
+async function fetchNewArrivalsLite(): Promise<ProductListItem[]> {
+  try {
+    const rows = await db.query.productTable.findMany({
+      columns: {
+        caseMaterial: true,
+        caseSizeMm: true,
+        categoryId: true,
+        createdAt: false,
+        description: true,
+        featured: false,
+        features: false,
+        gemstone: true,
+        id: true,
+        image: true,
+        inStock: true,
+        metal: true,
+        movement: true,
+        name: true,
+        onTable: false,
+        price: true,
+        ref: true,
+        specs: false,
+        strapMaterial: true,
+        modelId: true,
+        subcategoryId: true,
+        tableCutoutUrl: false,
+        tableSortOrder: false,
+        updatedAt: false,
+        visible: true,
+        waterResistanceM: true,
+      },
+      orderBy: [asc(productTable.newArrivalSortOrder), desc(productTable.newArrivalAt), desc(productTable.createdAt)],
+      where: and(eq(productTable.isNewArrival, true), eq(productTable.visible, true)),
+      with: {
+        category: { columns: { id: true, name: true, slug: true } },
+        model: { columns: { name: true } },
+        subcategory: { columns: { name: true } },
+      },
+    });
+    return rows as unknown as ProductListItem[];
+  } catch (error) {
+    console.error("Failed to fetch new arrivals (lite):", error);
+    return [];
+  }
+}
+const cachedNewArrivalsLite = unstable_cache(fetchNewArrivalsLite, ["new-arrivals-lite"], { revalidate: 60, tags: ["products"] });
+export const getNewArrivalsLite = cache(async (): Promise<ProductListItem[]> => cachedNewArrivalsLite());
 
 /** Same shape as getAllProducts, scoped to storefront-visible products — use this (not getAllProducts) for any public-facing "all products" listing. */
 async function fetchVisibleProducts(): Promise<ProductWithRelations[]> {

@@ -6,6 +6,7 @@ import {
   getCategoriesWithCounts,
   getFeaturedProducts,
   getProductCount,
+  getProductsByIdsOrdered,
   getSubcategoriesWithCounts,
   getTableProducts,
 } from "~/lib/queries/catalog";
@@ -34,23 +35,33 @@ const LoupeStats = dynamic(
 );
 
 export default async function HomePage() {
-  const [tableProducts, featuredProducts, categories, subcategories, productCount, settings, user] =
-    await Promise.all([
-      getTableProducts(),
-      getFeaturedProducts(),
-      getCategoriesWithCounts(),
-      getSubcategoriesWithCounts(),
-      getProductCount(),
-      getSiteSettings(),
-      getCurrentUser(),
-    ]);
+  const [tableProducts, categories, subcategories, productCount, settings, user] = await Promise.all([
+    getTableProducts(),
+    getCategoriesWithCounts(),
+    getSubcategoriesWithCounts(),
+    getProductCount(),
+    getSiteSettings(),
+    getCurrentUser(),
+  ]);
   const houses = subcategories.map((subcategory) => subcategory.name);
   const isAdmin = isAdminEmail(user?.email);
-  // Mapped once here, server-side — the client components below only ever
-  // receive this flattened shape, never the full ProductWithRelations
-  // (nested images[]/category/subcategory/model), so nothing unused rides
-  // along in the client bundle.
-  const featuredCards = featuredProducts.map(toProductCardData);
+
+  // PREMIUM featured — if admin picked ids in Settings → Featured, use those ordered; else fallback to legacy featured flag
+  let newPiecesProducts = await (async () => {
+    const ids = settings.homeNewPiecesIds;
+    if (ids && ids.length > 0) return getProductsByIdsOrdered(ids.slice(0, 10));
+    const fallback = await getFeaturedProducts();
+    return fallback.slice(0, 10);
+  })();
+  let shopTheLookProducts = await (async () => {
+    const ids = settings.homeShopTheLookIds;
+    if (ids && ids.length > 0) return getProductsByIdsOrdered(ids.slice(0, 2));
+    const fallback = await getFeaturedProducts();
+    return fallback.slice(0, 2);
+  })();
+
+  const newPiecesCards = newPiecesProducts.map(toProductCardData);
+  const shopTheLookCards = shopTheLookProducts.map(toProductCardData);
 
   return (
     <>
@@ -61,6 +72,8 @@ export default async function HomePage() {
       />
       <HomeHeroFlythroughGate
         className="h-[calc(100dvh-var(--header-height))] w-full bg-krs-onyx"
+        desktopImageUrl={settings.homeHeroDesktopImageUrl}
+        mobileImageUrl={settings.homeHeroMobileImageUrl}
         tableProducts={tableProducts}
       />
 
@@ -82,17 +95,17 @@ export default async function HomePage() {
           New pieces
         </h2>
         <div className="mt-12">
-          <NewPiecesCarousel products={featuredCards} />
+          <NewPiecesCarousel products={newPiecesCards} />
         </div>
       </section>
 
       <CollectionSpotlight
-        body={settings.collectionSpotlightBody}
-        ctaLabel={settings.collectionSpotlightCtaLabel}
-        eyebrow={settings.collectionSpotlightEyebrow}
-        href={settings.collectionSpotlightHref}
-        imageUrl={settings.collectionSpotlightImageUrl}
-        title={settings.collectionSpotlightTitle}
+        body={null}
+        ctaLabel={null}
+        eyebrow={null}
+        href={null}
+        imageUrl={settings.homeSpotlightImageUrl}
+        title={null}
       />
 
       <ShopByCategory categories={categories} />
@@ -119,13 +132,13 @@ export default async function HomePage() {
         <div className="mx-auto mt-12 max-w-3xl">
           <HomeLoupeBand
             alt="A watch movement magnified under a jeweler's loupe"
-            src="/hero-flythrough/scene3-desktop.webp"
+            src={settings.homeLoupeImageUrl || "/hero-flythrough/scene3-desktop.webp"}
           />
           <LoupeStats productCount={productCount} />
         </div>
       </section>
 
-      <ShopTheLook products={featuredCards} />
+      <ShopTheLook products={shopTheLookCards} />
 
       <Footer />
     </>

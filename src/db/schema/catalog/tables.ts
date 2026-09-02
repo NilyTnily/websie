@@ -104,6 +104,12 @@ export const productTable = pgTable(
     // every product regardless of this flag.
     visible: boolean("visible").default(true).notNull(),
     waterResistanceM: integer("water_resistance_m"),
+    // New Arrivals — admin toggles in /admin/new-arrivals, shown on storefront
+    // as "New In" section (see getNewArrivals in catalog.ts). newArrivalAt
+    // tracks when it was marked new for sorting "newest first".
+    isNewArrival: boolean("is_new_arrival").default(false).notNull(),
+    newArrivalAt: timestamp("new_arrival_at"),
+    newArrivalSortOrder: integer("new_arrival_sort_order"),
   },
   (table) => [
     index("product_visible_idx").on(table.visible),
@@ -112,6 +118,8 @@ export const productTable = pgTable(
     index("product_on_table_idx").on(table.onTable),
     index("product_featured_idx").on(table.featured),
     index("product_visible_category_idx").on(table.visible, table.categoryId),
+    index("product_is_new_arrival_idx").on(table.isNewArrival),
+    index("product_new_arrival_sort_order_idx").on(table.newArrivalSortOrder),
   ],
 );
 

@@ -4,6 +4,7 @@ import type { InquiryItem } from "~/db/schema";
 
 import { getCurrentUser } from "~/lib/auth";
 import { createInquiry } from "~/lib/queries/inquiries";
+import { ensureUserPhoneFromContact } from "~/lib/queries/user-phone";
 import { getSiteSettings } from "~/lib/queries/settings";
 import { checkRateLimit, getClientIp } from "~/lib/rate-limit";
 import { buildInquiryMessage, buildWhatsAppLink } from "~/lib/whatsapp";
@@ -64,6 +65,7 @@ export async function submitInquiryAction(
       note,
       userId: user?.id,
     });
+    await ensureUserPhoneFromContact(user?.id, customerContact);
     const message = buildInquiryMessage({
       customerContact,
       customerName,
@@ -75,6 +77,10 @@ export async function submitInquiryAction(
     return { success: true, whatsappUrl: await buildWhatsAppLink(message) };
   } catch (error) {
     console.error("Failed to submit inquiry:", error);
+    const message = error instanceof Error ? error.message : "";
+    if (message.includes("pending orders")) {
+      return { error: message, success: false };
+    }
     return {
       error: "Something went wrong — please try again.",
       success: false,

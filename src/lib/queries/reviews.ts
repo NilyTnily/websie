@@ -8,12 +8,20 @@ import { db } from "~/db";
 import { inquiryTable, productReviewTable } from "~/db/schema";
 import { requireAdmin } from "~/lib/admin";
 
+export const REVIEW_COMMENT_MIN_LENGTH = 20;
+export const REVIEW_COMMENT_MAX_LENGTH = 1000;
+
 export interface CreateReviewInput {
   comment: string;
   customerName: string;
   productId: string;
   rating: number;
   userId: string;
+}
+
+export interface UpdateReviewInput {
+  comment: string;
+  rating: number;
 }
 
 export interface ProductReviewSummary {
@@ -30,6 +38,7 @@ export interface ReviewStats {
 
 export interface ReviewWithProduct extends ProductReview {
   product: { image: string; name: string };
+  user: { email: string; name: string; phone: string | null };
 }
 
 const MutationResult = {
@@ -82,9 +91,42 @@ export async function canUserReviewProduct(
   }
 }
 
+export async function getUserReviewForProduct(
+  userId: string,
+  productId: string,
+): Promise<null | ProductReview> {
+  try {
+    return (
+      (await db.query.productReviewTable.findFirst({
+        where: and(
+          eq(productReviewTable.userId, userId),
+          eq(productReviewTable.productId, productId),
+        ),
+      })) ?? null
+    );
+  } catch (error) {
+    console.error("Failed to fetch user review:", error);
+    return null;
+  }
+}
+
+function validateComment(comment: string): null | string {
+  const trimmed = comment.trim();
+  if (trimmed.length < REVIEW_COMMENT_MIN_LENGTH) {
+    return `Please write at least ${REVIEW_COMMENT_MIN_LENGTH} characters (${trimmed.length}/${REVIEW_COMMENT_MIN_LENGTH}).`;
+  }
+  if (trimmed.length > REVIEW_COMMENT_MAX_LENGTH) {
+    return `Review is too long — max ${REVIEW_COMMENT_MAX_LENGTH} characters (${trimmed.length}/${REVIEW_COMMENT_MAX_LENGTH}).`;
+  }
+  return null;
+}
+
 export async function createReview(
   input: CreateReviewInput,
 ): Promise<{ error: string; success: false } | { success: true }> {
+  const commentError = validateComment(input.comment);
+  if (commentError) return MutationResult.err(commentError);
+
   const eligible = await canUserReviewProduct(input.userId, input.productId);
   if (!eligible) {
     return MutationResult.err(
@@ -93,17 +135,55 @@ export async function createReview(
   }
 
   try {
-    await db.insert(productReviewTable).values({
-      approved: false,
-      comment: input.comment,
-      customerName: input.customerName,
-      id: crypto.randomUUID(),
-      productId: input.productId,
-      rating: Math.min(5, Math.max(1, Math.round(input.rating))),
-      userId: input.userId,
-    });
+    const [review] = await db
+      .insert(productReviewTable)
+      .values({
+        approved: false,
+        comment: input.comment.trim(),
+        customerName: input.customerName,
+        id: crypto.randomUUID(),
+        productId: input.productId,
+        rating: Math.min(5, Math.max(1, Math.round(input.rating))),
+        userId: input.userId,
+      })
+      .returning();
+
     const { revalidateTag } = await import("next/cache");
     revalidateTag("reviews");
+
+    // email notify to admin — best-effort, never blocks the review
+    try {
+      const { sendEmail } = await import("~/lib/email");
+      const product = await db.query.productTable.findFirst({
+        columns: { name: true },
+        where: eq((await import("~/db/schema")).productTable.id, input.productId),
+      });
+      const productName = product?.name ?? input.productId;
+      const adminEmails = (process.env.ADMIN_EMAILS ?? "")
+        .split(",")
+        .map((e) => e.trim())
+        .filter(Boolean);
+      await Promise.all(
+        adminEmails.map((to) =>
+          sendEmail({
+            html: `<p><strong>${input.customerName}</strong> left a ${input.rating}★ review for <strong>${productName}</strong> (pending approval).</p><p>${input.comment.trim().slice(0, 500)}</p><p><a href="${process.env.NEXT_PUBLIC_APP_URL ?? ""}/admin/reviews">Moderate in admin</a></p>`,
+            subject: `New review for ${productName} — ${input.rating}★ (pending)`,
+            to,
+          }),
+        ),
+      );
+      // in-app notification for admins
+      const { notifyAdmins } = await import("~/lib/queries/notifications");
+      await notifyAdmins({
+        description: `${input.customerName} left a ${input.rating}★ review for ${productName} — pending approval.`,
+        link: "/admin/reviews",
+        title: "New review pending",
+        type: "info",
+      });
+    } catch (e) {
+      console.error("Failed to notify admins of new review:", e);
+    }
+
     return MutationResult.ok();
   } catch (error) {
     console.error("Failed to create review:", error);
@@ -111,13 +191,69 @@ export async function createReview(
   }
 }
 
+export async function updateReviewForUser(
+  userId: string,
+  productId: string,
+  input: UpdateReviewInput,
+): Promise<{ error: string; success: false } | { success: true }> {
+  const commentError = validateComment(input.comment);
+  if (commentError) return MutationResult.err(commentError);
+  if (!Number.isFinite(input.rating) || input.rating < 1 || input.rating > 5) {
+    return MutationResult.err("Please select a rating between 1 and 5.");
+  }
+  try {
+    const existing = await getUserReviewForProduct(userId, productId);
+    if (!existing) return MutationResult.err("Review not found.");
+    await db
+      .update(productReviewTable)
+      .set({
+        approved: false, // re-moderate after edit
+        comment: input.comment.trim(),
+        rating: Math.round(input.rating),
+      })
+      .where(and(eq(productReviewTable.userId, userId), eq(productReviewTable.productId, productId)));
+    const { revalidateTag } = await import("next/cache");
+    revalidateTag("reviews");
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath(`/products/${productId}`);
+    return MutationResult.ok();
+  } catch (error) {
+    console.error("Failed to update review:", error);
+    return MutationResult.err("Could not update the review.");
+  }
+}
+
+export async function deleteReviewForUser(
+  userId: string,
+  productId: string,
+): Promise<{ error: string; success: false } | { success: true }> {
+  try {
+    const existing = await getUserReviewForProduct(userId, productId);
+    if (!existing) return MutationResult.err("Review not found.");
+    await db
+      .delete(productReviewTable)
+      .where(and(eq(productReviewTable.userId, userId), eq(productReviewTable.productId, productId)));
+    const { revalidateTag } = await import("next/cache");
+    revalidateTag("reviews");
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath(`/products/${productId}`);
+    return MutationResult.ok();
+  } catch (error) {
+    console.error("Failed to delete review:", error);
+    return MutationResult.err("Could not delete the review.");
+  }
+}
+
 export async function getAllReviewsForAdmin(): Promise<ReviewWithProduct[]> {
   try {
     await requireAdmin();
-    return await db.query.productReviewTable.findMany({
+    return (await db.query.productReviewTable.findMany({
       orderBy: [desc(productReviewTable.createdAt)],
-      with: { product: { columns: { image: true, name: true } } },
-    });
+      with: {
+        product: { columns: { image: true, name: true } },
+        user: { columns: { email: true, name: true, phone: true } },
+      },
+    })) as unknown as ReviewWithProduct[];
   } catch (error) {
     console.error("Failed to fetch reviews:", error);
     return [];

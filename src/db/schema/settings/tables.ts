@@ -1,23 +1,21 @@
-import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 // Singleton row (id is always "default") — one row holds the site's
 // editable identity so it doesn't need a migration every time branding
 // changes. Falls back to hardcoded SEO_CONFIG/SOCIAL_LINKS in ~/app.ts
 // until an admin saves this for the first time.
 export const siteSettingsTable = pgTable("site_settings", {
-  // The homepage's single full-bleed collection banner (CollectionSpotlight)
-  // — all nullable, each falls back to that component's own hardcoded
-  // "KRS Standard" copy/image when unset, so this never needs a migration
-  // of default content, only an opt-in override once an admin fills it in.
-  collectionSpotlightBody: text("collection_spotlight_body"),
-  collectionSpotlightCtaLabel: text("collection_spotlight_cta_label"),
-  collectionSpotlightEyebrow: text("collection_spotlight_eyebrow"),
-  collectionSpotlightHref: text("collection_spotlight_href"),
-  collectionSpotlightImageUrl: text("collection_spotlight_image_url"),
-  collectionSpotlightTitle: text("collection_spotlight_title"),
   description: text("description").notNull(),
   facebookUrl: text("facebook_url"),
   faviconUrl: text("favicon_url"),
+  // Homepage — named thumbnails, from scratch (PREMIUM)
+  homeHeroDesktopImageUrl: text("home_hero_desktop_image_url"),
+  homeHeroMobileImageUrl: text("home_hero_mobile_image_url"),
+  homeLoupeImageUrl: text("home_loupe_image_url"),
+  homeSpotlightImageUrl: text("home_spotlight_image_url"),
+  // Featured selections — PREMIUM: New Pieces up to 10, Shop The Look 2 (ordered ids)
+  homeNewPiecesIds: jsonb("home_new_pieces_ids").$type<string[]>(),
+  homeShopTheLookIds: jsonb("home_shop_the_look_ids").$type<string[]>(),
   id: text("id").primaryKey().default("default"),
   instagramUrl: text("instagram_url"),
   logoUrl: text("logo_url"),

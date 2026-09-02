@@ -107,6 +107,15 @@ export function UsersPageClient({
       ),
     },
     {
+      accessorKey: "phone",
+      cell: ({ row }) => (
+        <span className="text-sm">{row.original.phone || "—"}</span>
+      ),
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Phone" />
+      ),
+    },
+    {
       accessorKey: "inquiryCount",
       cell: ({ row }) => (
         <span className="text-center">{row.original.inquiryCount}</span>

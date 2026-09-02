@@ -3,9 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getCurrentUserOrRedirect } from "~/lib/auth";
-import { DELIVERY_STATUS_LABEL } from "~/lib/delivery-status";
+import {
+  DELIVERY_STATUS_LABEL,
+  isCancellableDeliveryStatus,
+} from "~/lib/delivery-status";
 import { formatOrderNumber } from "~/lib/order-number";
 import { getInquiryByIdForUser } from "~/lib/queries/inquiries";
+import { CancelOrderButton } from "~/ui/components/cancel-order-button";
 import { OrderProgressTracker } from "~/ui/components/order-progress-tracker";
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
@@ -78,6 +82,18 @@ export default async function OrderDetailPage({
             trackingUrl={order.trackingUrl}
           />
         </div>
+        {isCancellableDeliveryStatus(order.deliveryStatus) && (
+          <div className="mt-6 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted-foreground">
+              Need to change your mind? You can cancel this pending order.
+            </p>
+            <CancelOrderButton
+              orderId={order.id}
+              orderNumber={formatOrderNumber(order.orderNumber)}
+              variant="detail"
+            />
+          </div>
+        )}
       </section>
 
       <section>

@@ -59,7 +59,9 @@ export function CheckoutClient() {
   React.useEffect(() => {
     if (!user) return;
     setName((prev) => prev || user.name || "");
-    setContact((prev) => prev || user.email || "");
+    // Prefer phone for WhatsApp routing — falls back to email
+    const userPhone = (user as unknown as { phone?: string }).phone;
+    setContact((prev) => prev || userPhone || user.email || "");
   }, [user]);
 
   const delivery = DELIVERY_METHODS.find((m) => m.value === deliveryMethod)!;

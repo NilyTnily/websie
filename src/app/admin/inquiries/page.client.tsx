@@ -2,10 +2,10 @@
 
 import type { ColumnDef, ColumnMeta } from "@tanstack/react-table";
 
-import { CalendarDays, DollarSign, Hash, User as UserIcon } from "lucide-react";
+import { CalendarDays, DollarSign, Hash, Search, User as UserIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import type { Inquiry } from "~/db/schema";
 import type { InquiryStats } from "~/lib/queries/inquiries";
@@ -14,6 +14,8 @@ import { defineMeta, filterFn } from "~/lib/filters";
 import { formatOrderNumber } from "~/lib/order-number";
 import { ActiveFilterBanner } from "~/ui/components/admin/active-filter-banner";
 import { StatCardGrid } from "~/ui/components/admin/stat-card";
+import { Button } from "~/ui/primitives/button";
+import { Input } from "~/ui/primitives/input";
 import { DataTable } from "~/ui/primitives/data-table/data-table";
 import { DataTableColumnHeader } from "~/ui/primitives/data-table/data-table-column-header";
 
@@ -41,6 +43,17 @@ export function InquiriesPageClient({
   inquiries,
   stats,
 }: InquiriesPageClientProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredInquiries = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return inquiries;
+    return inquiries.filter((inq) => {
+      const haystack = `${formatOrderNumber(inq.orderNumber)} ${inq.customerName} ${inq.customerContact} ${inq.items.map((i) => i.name).join(" ")}`.toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [inquiries, searchQuery]);
+
   const columns = useMemo(
     (): ColumnDef<Inquiry>[] => [
       {
@@ -218,7 +231,31 @@ export function InquiriesPageClient({
         />
       )}
 
-      <DataTable columns={columns} data={inquiries} />
+      <DataTable
+        columns={columns}
+        data={filteredInquiries}
+        toolbarExtra={
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="h-7 w-[260px] pl-8 text-sm"
+                placeholder="Search order, name, phone, email…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <span className="hidden text-xs text-muted-foreground sm:block">
+              {filteredInquiries.length}/{inquiries.length}
+            </span>
+            {searchQuery && (
+              <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => setSearchQuery("")}>
+                Clear
+              </Button>
+            )}
+          </div>
+        }
+      />
     </div>
   );
 }

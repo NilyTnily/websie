@@ -44,3 +44,27 @@ export function getDeliveryStepIndex(
 ): number {
   return DELIVERY_STEPS.indexOf(status);
 }
+
+export const MAX_PENDING_ORDERS = 3;
+
+/**
+ * "Pending" for the user-facing limit + cancel rule.
+ * Initial implementation: only `pending_review` — the state before any
+ * staff action — counts as pending and is cancellable by the customer.
+ * If the business later wants `placed` to also count, add it here.
+ */
+export const PENDING_DELIVERY_STATUSES: Inquiry["deliveryStatus"][] = [
+  "pending_review",
+];
+
+export function isPendingDeliveryStatus(
+  status: Inquiry["deliveryStatus"],
+): boolean {
+  return PENDING_DELIVERY_STATUSES.includes(status);
+}
+
+export function isCancellableDeliveryStatus(
+  status: Inquiry["deliveryStatus"],
+): boolean {
+  return isPendingDeliveryStatus(status);
+}

@@ -5,8 +5,10 @@ import { getCurrentUser } from "~/lib/auth";
 import {
   canUserReviewProduct,
   getApprovedReviewsForProduct,
+  getUserReviewForProduct,
 } from "~/lib/queries/reviews";
 import { ProductReviewForm } from "~/ui/components/product-review-form";
+import { UserReviewManager } from "~/ui/components/user-review-manager";
 import { Avatar, AvatarFallback } from "~/ui/primitives/avatar";
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
@@ -23,9 +25,9 @@ export async function ProductReviews({ productId }: ProductReviewsProps) {
     getCurrentUser(),
   ]);
 
-  const canReview = user
-    ? await canUserReviewProduct(user.id, productId)
-    : false;
+  const [canReview, userReview] = user
+    ? await Promise.all([canUserReviewProduct(user.id, productId), getUserReviewForProduct(user.id, productId)])
+    : [false, null];
 
   return (
     <div className="space-y-8">
@@ -98,14 +100,16 @@ export async function ProductReviews({ productId }: ProductReviewsProps) {
         </ul>
       )}
 
-      {canReview && (
+      {userReview ? (
+        <div className="border-t border-border pt-6">
+          <UserReviewManager productId={productId} review={userReview} />
+        </div>
+      ) : canReview ? (
         <div className="border-t border-border pt-6">
           <h3 className="mb-3 text-sm font-medium">Leave a review</h3>
-          <ProductReviewForm
-            action={submitReviewAction.bind(null, productId)}
-          />
+          <ProductReviewForm action={submitReviewAction.bind(null, productId)} />
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
